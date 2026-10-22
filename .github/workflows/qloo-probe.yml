@@ -26,7 +26,7 @@ on:
         default: "1"
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: qloo-probe
@@ -54,6 +54,21 @@ jobs:
         uses: actions/checkout@v4
       - name: Run exactly one cross-domain Insights request
         run: python scripts/probe.py
+      - name: Publish sanitized result for direct retrieval
+        if: always() && hashFiles('results.json') != ''
+        shell: bash
+        run: |
+          mkdir -p results
+          cp results.json results/latest.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results/latest.json
+          if git diff --cached --quiet; then
+            echo "Sanitized result unchanged; no commit needed."
+          else
+            git commit -m "Record latest sanitized Qloo probe result"
+            git push
+          fi
       - name: Upload sanitized result
         if: always() && hashFiles('results.json') != ''
         uses: actions/upload-artifact@v4
