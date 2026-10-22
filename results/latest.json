@@ -1,21 +1,21 @@
 {
-  "timestamp_utc": "2026-10-22T15:29:39.093337+00:00",
-  "test": "no_signal_control_to_abuja_places",
+  "timestamp_utc": "2026-10-22T15:38:17.589982+00:00",
+  "test": "no_signal_control_to_nyc_places",
   "request_budget": 1,
   "requests_attempted": 1,
   "endpoint_host": "hackathon.api.qloo.com",
   "endpoint_path": "/v2/insights",
   "query": {
     "filter.type": "urn:entity:place",
-    "filter.location.query": "Abuja",
+    "filter.location.query": "New York City",
     "filter.location.radius": "0",
     "take": "10",
     "feature.explainability": "true"
   },
-  "hypothesis": "Control condition: retrieve Abuja places without a taste signal to compare with Radiohead- and indie-tag-seeded results.",
+  "hypothesis": "Control condition: retrieve New York City places without a taste signal to compare with Radiohead- and indie-tag-seeded results.",
   "seed_signal": null,
   "result_type": "urn:entity:place",
-  "location": "Abuja",
+  "location": "New York City",
   "location_radius": 0,
   "http_status": 200,
   "response_summary": {
@@ -33,283 +33,18 @@
     "result_count": 10,
     "entities": [
       {
-        "name": "Shoprite Jabi Lake Abuja",
-        "entity_id": "E5540015-4B96-4F7F-949F-AC118D33CC96",
+        "name": "Empire State Building",
+        "entity_id": "C41DBC4D-2F87-4298-A566-7DFA9B5143D1",
         "type": "urn:entity",
         "subtype": "urn:entity:place",
-        "disambiguation": "Plot 1265 Jabi Lake Mall Abuja 240102 Federal Capital Territory Nigeria",
+        "disambiguation": "20 W 34th St. New York, NY 10001",
         "properties": {
           "hours": {
             "friday": [
               {
-                "opens": "T09:00:00",
+                "opens": "T10:00:00",
                 "closed": false,
-                "closes": "T21:00:00"
-              }
-            ],
-            "monday": [
-              {
-                "opens": "T09:00:00",
-                "closed": false,
-                "closes": "T21:00:00"
-              }
-            ],
-            "sunday": [
-              {
-                "opens": "T09:00:00",
-                "closed": false,
-                "closes": "T21:00:00"
-              }
-            ],
-            "tuesday": [
-              {
-                "opens": "T09:00:00",
-                "closed": false,
-                "closes": "T21:00:00"
-              }
-            ],
-            "saturday": [
-              {
-                "opens": "T09:00:00",
-                "closed": false,
-                "closes": "T21:00:00"
-              }
-            ],
-            "thursday": [
-              {
-                "opens": "T09:00:00",
-                "closed": false,
-                "closes": "T21:00:00"
-              }
-            ],
-            "wednesday": [
-              {
-                "opens": "T09:00:00",
-                "closed": false,
-                "closes": "T21:00:00"
-              }
-            ]
-          },
-          "phone": "[redacted]",
-          "images": [
-            {
-              "url": "https://images.qloo.com/i/E5540015-4B96-4F7F-949F-AC118D33CC96-4mQk8X-420x-outside.jpg",
-              "type": "urn:image:place:unknown"
-            }
-          ],
-          "address": "Plot 1265 Jabi Lake Mall Abuja 240102 Federal Capital Territory Nigeria",
-          "geocode": {
-            "city": "Abuja",
-            "name": "Jabi",
-            "metro": null,
-            "country": "Nigeria",
-            "country_code": "NG",
-            "admin1_region": "Federal Capital Territory",
-            "admin2_region": "Municipal Area Council"
-          },
-          "parking": true,
-          "website": "https://shoprite.ng/",
-          "good_for": null,
-          "keywords": [
-            {
-              "name": "lake view",
-              "count": 133
-            },
-            {
-              "name": "outlets",
-              "count": 45
-            },
-            {
-              "name": "dominos",
-              "count": 13
-            },
-            {
-              "name": "one stop shop",
-              "count": 22
-            },
-            {
-              "name": "shoprite",
-              "count": 16
-            },
-            {
-              "_truncated_items": 5
-            }
-          ],
-          "locality": {
-            "city": null,
-            "metro": null,
-            "state": {
-              "name": "Federal Capital Territory",
-              "place": "state",
-              "boundary": "administrative",
-              "entity_id": "E04649A6-7ED0-4422-B9F2-A33148FD39D3",
-              "admin_level": 4,
-              "locality_id": "r3717259",
-              "abbreviation": null,
-              "country_code": null
-            },
-            "county": {
-              "name": "Municipal Area Council",
-              "place": null,
-              "boundary": "administrative",
-              "entity_id": "E7B16B8E-1110-4927-9BA5-1A4F8F45AA31",
-              "admin_level": 6,
-              "locality_id": "r3717265",
-              "abbreviation": null,
-              "country_code": null
-            },
-            "country": {
-              "name": "Nigeria",
-              "place": "country",
-              "boundary": "administrative",
-              "entity_id": "9C45C671-7ED2-4303-8C92-94DB5447B8F9",
-              "admin_level": 2,
-              "locality_id": "r192787",
-              "abbreviation": null,
-              "country_code": "NG"
-            },
-            "neighborhood": {
-              "name": "Jabi",
-              "place": "suburb",
-              "boundary": "administrative",
-              "entity_id": "47C1FDCD-BC6A-44C4-B19A-652ED456AFA4",
-              "admin_level": 7,
-              "locality_id": "r12207340",
-              "abbreviation": null,
-              "country_code": null
-            }
-          },
-          "menu_url": null,
-          "is_closed": false,
-          "live_music": false,
-          "localities": [
-            {
-              "name": "Jabi",
-              "place": "suburb",
-              "boundary": "administrative",
-              "entity_id": "47C1FDCD-BC6A-44C4-B19A-652ED456AFA4",
-              "admin_level": 7,
-              "locality_id": "r12207340",
-              "abbreviation": null,
-              "country_code": null
-            },
-            {
-              "name": "Municipal Area Council",
-              "place": null,
-              "boundary": "administrative",
-              "entity_id": "E7B16B8E-1110-4927-9BA5-1A4F8F45AA31",
-              "admin_level": 6,
-              "locality_id": "r3717265",
-              "abbreviation": null,
-              "country_code": null
-            },
-            {
-              "name": "Federal Capital Territory",
-              "place": "state",
-              "boundary": "administrative",
-              "entity_id": "E04649A6-7ED0-4422-B9F2-A33148FD39D3",
-              "admin_level": 4,
-              "locality_id": "r3717259",
-              "abbreviation": null,
-              "country_code": null
-            },
-            {
-              "name": "Nigeria",
-              "place": "country",
-              "boundary": "administrative",
-              "entity_id": "9C45C671-7ED2-4303-8C92-94DB5447B8F9",
-              "admin_level": 2,
-              "locality_id": "r192787",
-              "abbreviation": null,
-              "country_code": "NG"
-            }
-          ],
-          "description": "Supermarket offering brand-name and house-label groceries, bakery and deli, with delivery, pickup, and in-store shopping.",
-          "hotel_class": null,
-          "price_level": 2,
-          "price_range": {
-            "to": null,
-            "from": null,
-            "currency": "usd"
-          },
-          "star_rating": null,
-          "event_spaces": false,
-          "neighborhood": "Jabi",
-          "pet_friendly": false,
-          "check_in_time": null,
-          "primary_genre": {
-            "id": "urn:tag:genre:place:supermarket",
-            "akas": [
-              {
-                "value": "\"စူပါမားကတ်\"",
-                "languages": [
-                  "my"
-                ]
-              },
-              {
-                "value": "\"סופרמרקט\"",
-                "languages": [
-                  "he"
-                ]
-              },
-              {
-                "value": "\"Σούπερ μάρκετ\"",
-                "languages": [
-                  "el"
-                ]
-              },
-              {
-                "value": "\"Duka la bidhaa\"",
-                "languages": [
-                  "sw"
-                ]
-              },
-              {
-                "value": "\"சூப்பர் மார்க்கெட்\"",
-                "languages": [
-                  "ta"
-                ]
-              },
-              {
-                "_truncated_items": 28
-              }
-            ],
-            "name": "Supermarket",
-            "type": "urn:tag:genre:place",
-            "weight": null
-          },
-          "check_out_time": null,
-          "business_rating": 4.400000095367432,
-          "loyalty_program": null,
-          "number_of_rooms": null,
-          "cost_description": null,
-          "specialty_dishes": null,
-          "short_description": "Supermarket offering brand-name and house-label groceries, bakery and deli, with delivery, pickup, and in-store shopping.",
-          "number_of_stations": null,
-          "cuisine_description": "The destination features a variety of dining options, including local Nigerian cuisine, international favorites like pizza and American fast food, and Indian dining. The food court and lakeside restaurants provide a range of culinary experiences from casual fast food to more scenic dining options ov",
-          "overall_description": "This facility is a premier retail and entertainment destination in Abuja, anchored by a large-scale supermarket that provides a comprehensive range of groceries and household essentials. Beyond the store, the complex acts as a vibrant hub featuring a cinema, various retail boutiques, and an array of",
-          "service_description": "The mall provides a comprehensive one-stop experience featuring in-store shopping, grocery pickup, and delivery services. Visitors can enjoy lakeside outdoor seating, a cinema, and a variety of dining options suitable for families, casual hangouts, and sightseeing trips.",
-          "ambience_description": "The interior is expansive, well-lit, and organized to facilitate a modern shopping experience, while the exterior lakeside area provides a relaxed and refreshing atmosphere.",
-          "amenities_description": "The site provides extensive amenities including a wide variety of retail outlets, a cinema, and a food court with diverse dining options. Patrons also benefit from abundant parking facilities and accessible walkways.",
-          "unique_selling_points": "The establishment serves as a flagship retail destination that uniquely integrates a massive, well-stocked supermarket with a stunning, direct lakeside view. It offers a one-stop-shop experience where utility meets leisure in a scenic environment.",
-          "neighborhood_description": "The surrounding area serves as a vibrant, highly accessible commercial hub known for its integrated mall and recreational features. It acts as a focal point for the local community, blending retail functions with natural leisure spaces.",
-          "physical_setting_description": "Located within a prominent commercial mall, the facility features a serene lakeside setting that offers natural breezes and expansive views. The architecture is designed to accommodate high traffic with ample underground and surface parking.",
-          "_truncated_keys": 2
-        }
-      },
-      {
-        "name": "MK Curtains",
-        "entity_id": "DC5E6E7B-43BB-4467-A8F7-04874151E437",
-        "type": "urn:entity",
-        "subtype": "urn:entity:place",
-        "disambiguation": "Wuse Market Rd Wuse Abuja 904101 Federal Capital Territory, Nigeria",
-        "properties": {
-          "hours": {
-            "friday": [
-              {
-                "opens": null,
-                "closed": true,
-                "closes": null
+                "closes": "T23:00:00"
               }
             ],
             "monday": [
@@ -358,88 +93,89 @@
           "phone": "[redacted]",
           "images": [
             {
-              "url": "https://images.qloo.com/i/DC5E6E7B-43BB-4467-A8F7-04874151E437-3E2kDw-420x-outside.jpg",
+              "url": "https://images.qloo.com/i/C41DBC4D-2F87-4298-A566-7DFA9B5143D1-1qWwuT-420x-outside.jpg",
               "type": "urn:image:place:unknown"
             }
           ],
-          "address": "Wuse Market Rd Wuse Abuja 904101 Federal Capital Territory, Nigeria",
+          "address": "20 W 34th St. New York, NY 10001",
           "geocode": {
-            "city": "Abuja",
-            "name": "Wuse",
-            "metro": null,
-            "country": "Nigeria",
-            "country_code": "NG",
-            "admin1_region": "Federal Capital Territory",
-            "admin2_region": "Municipal Area Council"
+            "city": "New York",
+            "name": "Midtown South",
+            "metro": "New York City",
+            "country": "United States",
+            "country_code": "US",
+            "admin1_region": "New York",
+            "admin2_region": "New York County"
           },
-          "parking": true,
-          "website": null,
-          "good_for": null,
-          "keywords": [
+          "parking": false,
+          "website": "https://www.esbnyc.com/",
+          "good_for": [
             {
-              "name": "phone accessories",
-              "count": 51
-            },
-            {
-              "name": "phones",
-              "count": 148
-            },
-            {
-              "name": "fabrics",
-              "count": 55
-            },
-            {
-              "name": "buy gold",
-              "count": 7
-            },
-            {
-              "name": "phone repair",
-              "count": 23
-            },
-            {
-              "_truncated_items": 5
+              "id": "urn:tag:children:place:good_kids",
+              "name": "Good for kids",
+              "type": "urn:tag:children:place",
+              "weight": 0.6111111111111112
             }
           ],
+          "keywords": null,
           "locality": {
-            "city": null,
-            "metro": null,
-            "state": {
-              "name": "Federal Capital Territory",
-              "place": "state",
+            "city": {
+              "name": "New York",
+              "place": "city",
               "boundary": "administrative",
-              "entity_id": "E04649A6-7ED0-4422-B9F2-A33148FD39D3",
-              "admin_level": 4,
-              "locality_id": "r3717259",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            "metro": {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
               "abbreviation": null,
               "country_code": null
             },
-            "county": {
-              "name": "Municipal Area Council",
-              "place": null,
+            "state": {
+              "name": "New York",
+              "place": "state",
               "boundary": "administrative",
-              "entity_id": "E7B16B8E-1110-4927-9BA5-1A4F8F45AA31",
+              "entity_id": "BDFC9271-4583-412E-84D8-F285BB8220FE",
+              "admin_level": 4,
+              "locality_id": "r61320",
+              "abbreviation": "N.Y.",
+              "country_code": null
+            },
+            "county": {
+              "name": "New York County",
+              "place": "county",
+              "boundary": "administrative",
+              "entity_id": "CE2B08BB-3A5B-4DDD-92DF-2815614EEA72",
               "admin_level": 6,
-              "locality_id": "r3717265",
+              "locality_id": "r2552485",
               "abbreviation": null,
               "country_code": null
             },
             "country": {
-              "name": "Nigeria",
+              "name": "United States",
               "place": "country",
               "boundary": "administrative",
-              "entity_id": "9C45C671-7ED2-4303-8C92-94DB5447B8F9",
+              "entity_id": "FCA82A91-546B-4A8F-BC61-DB14088A7E94",
               "admin_level": 2,
-              "locality_id": "r192787",
-              "abbreviation": null,
-              "country_code": "NG"
+              "locality_id": "r148838",
+              "abbreviation": "USA",
+              "country_code": "US"
             },
             "neighborhood": {
-              "name": "Wuse",
-              "place": "suburb",
-              "boundary": "administrative",
-              "entity_id": "29C34BB5-E20E-4888-9A68-414A8F3506CC",
-              "admin_level": 7,
-              "locality_id": "r12193652",
+              "name": "Midtown South",
+              "place": "neighbourhood",
+              "boundary": "place",
+              "entity_id": "8736E2E7-428E-4DEC-94C1-868AF5B94253",
+              "admin_level": 10,
+              "locality_id": "r8398100",
               "abbreviation": null,
               "country_code": null
             }
@@ -449,47 +185,60 @@
           "live_music": null,
           "localities": [
             {
-              "name": "Wuse",
-              "place": "suburb",
+              "name": "New York",
+              "place": "city",
               "boundary": "administrative",
-              "entity_id": "29C34BB5-E20E-4888-9A68-414A8F3506CC",
-              "admin_level": 7,
-              "locality_id": "r12193652",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
               "abbreviation": null,
               "country_code": null
             },
             {
-              "name": "Municipal Area Council",
+              "name": "Manhattan Community Board 5",
               "place": null,
               "boundary": "administrative",
-              "entity_id": "E7B16B8E-1110-4927-9BA5-1A4F8F45AA31",
-              "admin_level": 6,
-              "locality_id": "r3717265",
+              "entity_id": "DD0C2C54-2CFA-459B-B5D7-BFE3B4D52BBB",
+              "admin_level": 10,
+              "locality_id": "r7340060",
               "abbreviation": null,
               "country_code": null
             },
             {
-              "name": "Federal Capital Territory",
-              "place": "state",
-              "boundary": "administrative",
-              "entity_id": "E04649A6-7ED0-4422-B9F2-A33148FD39D3",
-              "admin_level": 4,
-              "locality_id": "r3717259",
+              "name": "Midtown South",
+              "place": "neighbourhood",
+              "boundary": "place",
+              "entity_id": "8736E2E7-428E-4DEC-94C1-868AF5B94253",
+              "admin_level": 10,
+              "locality_id": "r8398100",
               "abbreviation": null,
               "country_code": null
             },
             {
-              "name": "Nigeria",
-              "place": "country",
-              "boundary": "administrative",
-              "entity_id": "9C45C671-7ED2-4303-8C92-94DB5447B8F9",
-              "admin_level": 2,
-              "locality_id": "r192787",
+              "name": "10001",
+              "place": "ZCTA",
+              "boundary": "ZCTA",
+              "entity_id": "D7DC462C-E1B2-4D1C-9DC5-B89A99E6409B",
+              "admin_level": 9,
+              "locality_id": "z10001",
               "abbreviation": null,
-              "country_code": "NG"
+              "country_code": null
+            },
+            {
+              "_truncated_items": 4
             }
           ],
-          "description": "Retail and wholesale mobile phone shop in Wuse Market, Abuja, serving individual customers and business clients.",
+          "description": "Iconic art deco skyscraper with exhibits and observatories overlooking New York City.",
           "hotel_class": null,
           "price_level": null,
           "price_range": {
@@ -498,69 +247,2719 @@
             "currency": "usd"
           },
           "star_rating": null,
-          "event_spaces": false,
-          "neighborhood": "Wuse",
+          "event_spaces": true,
+          "neighborhood": "Midtown South",
           "pet_friendly": false,
           "check_in_time": null,
           "primary_genre": {
-            "id": "urn:tag:genre:place:market",
+            "id": "urn:tag:genre:place:observation_deck",
             "akas": [
               {
-                "value": "\"Markt\"",
+                "value": "\"Uitsigdek\"",
                 "languages": [
-                  "nl",
-                  "de"
+                  "af"
                 ]
               },
               {
-                "value": "\"Tori\"",
+                "value": "\"Miradoiro\"",
                 "languages": [
-                  "fi"
+                  "gl"
                 ]
               },
               {
-                "value": "\"Tržiště\"",
+                "value": "\"Παρατηρητήριο\"",
                 "languages": [
-                  "cs"
+                  "el"
                 ]
               },
               {
-                "value": "\"Пазар\"",
-                "languages": [
-                  "bg",
-                  "mk"
-                ]
-              },
-              {
-                "value": "\"Treg\"",
+                "value": "\"Platformë vrojtimi\"",
                 "languages": [
                   "sq"
                 ]
               },
               {
-                "_truncated_items": 43
+                "value": "\"Behatoki\"",
+                "languages": [
+                  "eu"
+                ]
+              },
+              {
+                "_truncated_items": 49
               }
             ],
-            "name": "Market",
+            "name": "Observation deck",
             "type": "urn:tag:genre:place",
             "weight": null
           },
           "check_out_time": null,
-          "business_rating": 3.9000000953674316,
+          "business_rating": 4.699999809265137,
+          "loyalty_program": null,
+          "number_of_rooms": 446,
+          "cost_description": null,
+          "specialty_dishes": null,
+          "short_description": "Iconic art deco skyscraper with exhibits and observatories overlooking New York City.",
+          "number_of_stations": null,
+          "cuisine_description": null,
+          "overall_description": "The Empire State Building is a world-renowned Art Deco skyscraper and historic landmark located in the heart of Midtown Manhattan. It offers an immersive visitor experience that begins with extensive museum-style exhibits showcasing its engineering marvel and cultural legacy, followed by breathtakin",
+          "service_description": null,
+          "ambience_description": "The atmosphere is grand and historically significant, blending a sophisticated Art Deco elegance with the lively energy of a world-famous tourist destination. Visitors experience a sense of awe and excitement while exploring the meticulously preserved interiors and vast observation decks.",
+          "amenities_description": "The building features interactive museum galleries detailing its construction and history, multiple observation levels, and various visitor facilities including gift shops, cafes, and climate-controlled areas. Staff are present throughout to assist with the experience, and heating elements are provi",
+          "unique_selling_points": "As the world's most famous building and a masterpiece of Art Deco architecture, it offers an incomparable 360-degree view of New York City and a deep dive into its historic 95-year legacy. The combination of its legendary status, King Kong exhibit, and sunrise experiences creates a singular, bucket-",
+          "neighborhood_description": "The surrounding area is a high-energy, bustling commercial district in Midtown Manhattan that serves as the epicenter of New York City tourism and activity. It is characterized by its density, iconic urban landmarks, and a fast-paced metropolitan environment.",
+          "physical_setting_description": "An iconic Art Deco skyscraper situated in the heart of Midtown Manhattan, offering panoramic views of the entire New York City skyline from its high-altitude observation decks. It stands as a historic centerpiece of the urban landscape, surrounded by the dense architectural density of the city.",
+          "_truncated_keys": 2
+        }
+      },
+      {
+        "name": "Madison Square Garden",
+        "entity_id": "F9C3DBC0-A18B-445D-B1EB-6C46FD21E465",
+        "type": "urn:entity",
+        "subtype": "urn:entity:place",
+        "disambiguation": "New York, NY 10001",
+        "properties": {
+          "hours": {
+            "friday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "monday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "sunday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "tuesday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "saturday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "thursday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "wednesday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ]
+          },
+          "phone": "[redacted]",
+          "images": [
+            {
+              "url": "https://images.qloo.com/i/F9C3DBC0-A18B-445D-B1EB-6C46FD21E465-1LJSbJ-420x-outside.jpg",
+              "type": "urn:image:place:unknown"
+            }
+          ],
+          "address": "New York, NY 10001",
+          "geocode": {
+            "city": "New York",
+            "name": "Chelsea",
+            "metro": "New York City",
+            "country": "United States",
+            "country_code": "US",
+            "admin1_region": "New York",
+            "admin2_region": "New York County"
+          },
+          "parking": true,
+          "website": "https://www.msg.com/madison-square-garden",
+          "good_for": null,
+          "keywords": [
+            {
+              "name": "knicks",
+              "count": 746
+            },
+            {
+              "name": "billy joel concert",
+              "count": 212
+            },
+            {
+              "name": "concerts",
+              "count": 359
+            },
+            {
+              "name": "hockey game",
+              "count": 88
+            },
+            {
+              "name": "concert venue",
+              "count": 124
+            },
+            {
+              "_truncated_items": 5
+            }
+          ],
+          "locality": {
+            "city": {
+              "name": "New York",
+              "place": "city",
+              "boundary": "administrative",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            "metro": {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "state": {
+              "name": "New York",
+              "place": "state",
+              "boundary": "administrative",
+              "entity_id": "BDFC9271-4583-412E-84D8-F285BB8220FE",
+              "admin_level": 4,
+              "locality_id": "r61320",
+              "abbreviation": "N.Y.",
+              "country_code": null
+            },
+            "county": {
+              "name": "New York County",
+              "place": "county",
+              "boundary": "administrative",
+              "entity_id": "CE2B08BB-3A5B-4DDD-92DF-2815614EEA72",
+              "admin_level": 6,
+              "locality_id": "r2552485",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "country": {
+              "name": "United States",
+              "place": "country",
+              "boundary": "administrative",
+              "entity_id": "FCA82A91-546B-4A8F-BC61-DB14088A7E94",
+              "admin_level": 2,
+              "locality_id": "r148838",
+              "abbreviation": "USA",
+              "country_code": "US"
+            },
+            "neighborhood": {
+              "name": "Chelsea",
+              "place": "neighbourhood",
+              "boundary": "place",
+              "entity_id": "4BFB8B7C-8A4E-40BC-BCE3-8DE9D6DDE441",
+              "admin_level": 10,
+              "locality_id": "r8398107",
+              "abbreviation": null,
+              "country_code": null
+            }
+          },
+          "menu_url": null,
+          "is_closed": false,
+          "live_music": null,
+          "localities": [
+            {
+              "name": "New York",
+              "place": "city",
+              "boundary": "administrative",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "Chelsea",
+              "place": "neighbourhood",
+              "boundary": "place",
+              "entity_id": "4BFB8B7C-8A4E-40BC-BCE3-8DE9D6DDE441",
+              "admin_level": 10,
+              "locality_id": "r8398107",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "Manhattan Community Board 5",
+              "place": null,
+              "boundary": "administrative",
+              "entity_id": "DD0C2C54-2CFA-459B-B5D7-BFE3B4D52BBB",
+              "admin_level": 10,
+              "locality_id": "r7340060",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "10119",
+              "place": "ZCTA",
+              "boundary": "ZCTA",
+              "entity_id": "1A66F6A4-34FD-4368-8FEA-A39B1C7FBA01",
+              "admin_level": 9,
+              "locality_id": "z10119",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "_truncated_items": 4
+            }
+          ],
+          "description": "Historic Manhattan arena hosting professional sports, concerts, and large-scale events, offering premium hospitality, concessions, and guided tours.",
+          "hotel_class": null,
+          "price_level": null,
+          "price_range": {
+            "to": null,
+            "from": null,
+            "currency": "usd"
+          },
+          "star_rating": null,
+          "event_spaces": true,
+          "neighborhood": "Chelsea",
+          "pet_friendly": false,
+          "check_in_time": null,
+          "primary_genre": {
+            "id": "urn:tag:genre:place:arena",
+            "akas": [
+              {
+                "value": "\"ساحة\"",
+                "languages": [
+                  "ar"
+                ]
+              },
+              {
+                "value": "\"สนามกีฬากลางแจ้ง\"",
+                "languages": [
+                  "th"
+                ]
+              },
+              {
+                "value": "\"এরিনা\"",
+                "languages": [
+                  "bn"
+                ]
+              },
+              {
+                "value": "\"競技場\"",
+                "languages": [
+                  "zh_tw"
+                ]
+              },
+              {
+                "value": "\"அரங்கம்\"",
+                "languages": [
+                  "ta"
+                ]
+              },
+              {
+                "_truncated_items": 22
+              }
+            ],
+            "name": "Arena",
+            "type": "urn:tag:genre:place",
+            "weight": null
+          },
+          "check_out_time": null,
+          "business_rating": 4.699999809265137,
           "loyalty_program": null,
           "number_of_rooms": null,
           "cost_description": null,
           "specialty_dishes": null,
-          "short_description": "Retail and wholesale mobile phone shop in Wuse Market, Abuja, serving individual customers and business clients.",
+          "short_description": "Historic Manhattan arena hosting professional sports, concerts, and large-scale events, offering premium hospitality, concessions, and guided tours.",
           "number_of_stations": null,
           "cuisine_description": null,
-          "overall_description": "MK Phones is a primary destination for mobile technology and accessories, situated within the prominent Wuse Market in Abuja. Offering a mix of retail and wholesale options, the shop caters to a diverse range of customers looking for smartphones and tech support in a central, commercial setting. Its",
+          "overall_description": "Madison Square Garden is a world-renowned, multi-purpose indoor arena located in Midtown Manhattan. Serving as the home for professional hockey and basketball teams, it also hosts global music acts, boxing, and major live entertainment. Recognized for its rich history and status as a cultural icon, ",
           "service_description": null,
-          "ambience_description": "The atmosphere is fast-paced and transaction-oriented, typical of a bustling central market where customers focus on finding quality electronics and engaging in trade.",
-          "amenities_description": "The shop is supported by the broader market facilities, which include designated parking areas, convenient access to banking services and ATMs, and modern payment methods like POS and digital transfers.",
-          "unique_selling_points": "This retailer distinguishes itself by providing a dedicated hub for both wholesale and retail mobile technology in a convenient, central location that allows for gadget trade-ins.",
-          "neighborhood_description": "The surrounding area is a vibrant and essential commercial district known for its orderly market layout, providing easy access to a variety of goods and essential services.",
-          "physical_setting_description": "Located within the busy Wuse Market in the heart of Abuja, this shop serves as a central hub for electronics and mobile technology within a structured, well-organized retail environment.",
+          "ambience_description": "The arena offers a legendary, high-energy atmosphere that balances its historic significance with modern, well-maintained facilities and a sophisticated event experience.",
+          "amenities_description": "The venue features premium hospitality suites, a wide array of high-quality dining options, and accessible facilities, supported by a professional staff that provides guided tours and guest assistance.",
+          "unique_selling_points": "Widely known as 'The World's Most Famous Arena,' it offers a legendary atmosphere steeped in rich sporting and music history, located in the heart of New York City.",
+          "neighborhood_description": "The surrounding area is a busy, bustling commercial district in Midtown Manhattan, known for its high foot traffic, proximity to major landmarks, and extreme convenience due to being situated directly above a major transportation hub.",
+          "physical_setting_description": "Located in the heart of Midtown Manhattan atop Pennsylvania Station, this iconic, multi-purpose indoor arena serves as a central hub for major sports and entertainment events in New York City.",
+          "_truncated_keys": 2
+        }
+      },
+      {
+        "name": "Central Park",
+        "entity_id": "057480CB-3E6A-419B-8FC0-85C0A14278AB",
+        "type": "urn:entity",
+        "subtype": "urn:entity:place",
+        "disambiguation": "New York, NY",
+        "properties": {
+          "hours": {
+            "friday": [
+              {
+                "opens": "T06:00:00",
+                "closed": false,
+                "closes": "T01:00:00"
+              }
+            ],
+            "monday": [
+              {
+                "opens": "T06:00:00",
+                "closed": false,
+                "closes": "T01:00:00"
+              }
+            ],
+            "sunday": [
+              {
+                "opens": "T06:00:00",
+                "closed": false,
+                "closes": "T01:00:00"
+              }
+            ],
+            "tuesday": [
+              {
+                "opens": "T06:00:00",
+                "closed": false,
+                "closes": "T01:00:00"
+              }
+            ],
+            "saturday": [
+              {
+                "opens": "T06:00:00",
+                "closed": false,
+                "closes": "T01:00:00"
+              }
+            ],
+            "thursday": [
+              {
+                "opens": "T06:00:00",
+                "closed": false,
+                "closes": "T01:00:00"
+              }
+            ],
+            "wednesday": [
+              {
+                "opens": "T06:00:00",
+                "closed": false,
+                "closes": "T01:00:00"
+              }
+            ]
+          },
+          "phone": "[redacted]",
+          "images": [
+            {
+              "url": "https://images.qloo.com/i/057480CB-3E6A-419B-8FC0-85C0A14278AB-4EBUXy-420x-outside.jpg",
+              "type": "urn:image:place:unknown"
+            }
+          ],
+          "address": "New York, NY",
+          "geocode": {
+            "city": "New York",
+            "name": null,
+            "metro": "New York City",
+            "country": "United States",
+            "country_code": "US",
+            "admin1_region": "New York",
+            "admin2_region": "New York County"
+          },
+          "parking": false,
+          "website": "https://www.centralparknyc.org/",
+          "good_for": [
+            {
+              "id": "urn:tag:children:place:good_kids",
+              "name": "Good for kids",
+              "type": "urn:tag:children:place",
+              "weight": 0.6111111111111112
+            }
+          ],
+          "keywords": [
+            {
+              "name": "Bethesda Terrace",
+              "count": 7
+            },
+            {
+              "name": "squirrels",
+              "count": 809
+            },
+            {
+              "name": "carriage ride",
+              "count": 727
+            },
+            {
+              "name": "Bow Bridge",
+              "count": 127
+            },
+            {
+              "name": "Sheep Meadow",
+              "count": 12
+            },
+            {
+              "_truncated_items": 5
+            }
+          ],
+          "locality": {
+            "city": {
+              "name": "New York",
+              "place": "city",
+              "boundary": "administrative",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            "metro": {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "state": {
+              "name": "New York",
+              "place": "state",
+              "boundary": "administrative",
+              "entity_id": "BDFC9271-4583-412E-84D8-F285BB8220FE",
+              "admin_level": 4,
+              "locality_id": "r61320",
+              "abbreviation": "N.Y.",
+              "country_code": null
+            },
+            "county": {
+              "name": "New York County",
+              "place": "county",
+              "boundary": "administrative",
+              "entity_id": "CE2B08BB-3A5B-4DDD-92DF-2815614EEA72",
+              "admin_level": 6,
+              "locality_id": "r2552485",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "country": {
+              "name": "United States",
+              "place": "country",
+              "boundary": "administrative",
+              "entity_id": "FCA82A91-546B-4A8F-BC61-DB14088A7E94",
+              "admin_level": 2,
+              "locality_id": "r148838",
+              "abbreviation": "USA",
+              "country_code": "US"
+            },
+            "neighborhood": null
+          },
+          "menu_url": null,
+          "is_closed": false,
+          "live_music": null,
+          "localities": [
+            {
+              "name": "New York",
+              "place": "city",
+              "boundary": "administrative",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "10024",
+              "place": "ZCTA",
+              "boundary": "ZCTA",
+              "entity_id": "4A5233B8-9FD7-495D-BE6F-B6DF8174D147",
+              "admin_level": 9,
+              "locality_id": "z10024",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "Manhattan",
+              "place": "borough",
+              "boundary": "administrative",
+              "entity_id": "97F46DBA-ED36-4CCD-ACC1-4341D9E6EE47",
+              "admin_level": 7,
+              "locality_id": "r8398124",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "New York County",
+              "place": "county",
+              "boundary": "administrative",
+              "entity_id": "CE2B08BB-3A5B-4DDD-92DF-2815614EEA72",
+              "admin_level": 6,
+              "locality_id": "r2552485",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "_truncated_items": 2
+            }
+          ],
+          "description": "Sprawling urban park offering lakes, gardens, trails, recreational facilities, a zoo, carousel, boat rentals, and iconic reservoir views.",
+          "hotel_class": null,
+          "price_level": null,
+          "price_range": {
+            "to": null,
+            "from": null,
+            "currency": "usd"
+          },
+          "star_rating": null,
+          "event_spaces": true,
+          "neighborhood": null,
+          "pet_friendly": true,
+          "check_in_time": null,
+          "primary_genre": {
+            "id": "urn:tag:genre:place:park",
+            "akas": [
+              {
+                "value": "\"Parque\"",
+                "languages": [
+                  "gl",
+                  "pt",
+                  "es",
+                  "es_la",
+                  "pt_pt",
+                  {
+                    "_truncated_items": 1
+                  }
+                ]
+              },
+              {
+                "value": "\"Саябақ\"",
+                "languages": [
+                  "kk"
+                ]
+              },
+              {
+                "value": "\"Hifadhi\"",
+                "languages": [
+                  "sw"
+                ]
+              },
+              {
+                "value": "\"பூங்கா\"",
+                "languages": [
+                  "ta"
+                ]
+              },
+              {
+                "value": "\"公園\"",
+                "languages": [
+                  "ja",
+                  "zh_tw"
+                ]
+              },
+              {
+                "_truncated_items": 23
+              }
+            ],
+            "name": "Park",
+            "type": "urn:tag:genre:place",
+            "weight": null
+          },
+          "check_out_time": null,
+          "business_rating": 4.800000190734863,
+          "loyalty_program": null,
+          "number_of_rooms": null,
+          "cost_description": null,
+          "specialty_dishes": null,
+          "short_description": "Sprawling urban park offering lakes, gardens, trails, recreational facilities, a zoo, carousel, boat rentals, and iconic reservoir views.",
+          "number_of_stations": null,
+          "cuisine_description": null,
+          "overall_description": "Central Park is a magnificent, 840-acre urban oasis serving as the heart and soul of Manhattan. It offers a vast array of natural landscapes, including lakes, forests, and gardens, providing a peaceful escape from the intense activity of the surrounding concrete jungle. With endless recreational opp",
+          "service_description": null,
+          "ambience_description": "The park provides a lively and energetic atmosphere filled with cultural activity, yet it remains a peaceful refuge where one can find quiet moments among nature. It balances a bustling, social vibe with tranquil, restorative pockets perfect for unwinding.",
+          "amenities_description": "The park is well-equipped with extensive facilities, including public restrooms, diverse playgrounds for children, and various rental services for bikes and boats. Visitors can also enjoy dedicated visitor centers, gift shops, and well-maintained paths for walking, running, and cycling.",
+          "unique_selling_points": "As one of the most filmed and iconic locations in the world, this park serves as a massive, historic green sanctuary in the heart of a major global city. Its juxtaposition of dense natural environments against a prominent, world-famous skyscraper skyline creates an unparalleled aesthetic experience.",
+          "neighborhood_description": "Located in the center of Manhattan, the park acts as the green lungs of a hectic metropolis, offering a serene escape within a highly developed urban environment. The area is highly accessible and serves as a vibrant gathering point for locals and tourists alike.",
+          "physical_setting_description": "A sprawling urban oasis set in the heart of Manhattan, this vast park features a diverse landscape of lakes, forests, winding trails, and rocky outcroppings framed by towering skyscrapers. It offers a tranquil contrast to the surrounding concrete cityscape, providing natural scenery and open green s",
+          "_truncated_keys": 2
+        }
+      },
+      {
+        "name": "One World Trade Center",
+        "entity_id": "FF8A43D9-BCD9-4B86-B5B6-6692EAFCEE1D",
+        "type": "urn:entity",
+        "subtype": "urn:entity:place",
+        "disambiguation": "285 Fulton St New York, NY 10007",
+        "properties": {
+          "hours": {
+            "friday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "monday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "sunday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "tuesday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "saturday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "thursday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "wednesday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ]
+          },
+          "phone": "[redacted]",
+          "images": [
+            {
+              "url": "https://images.qloo.com/i/FF8A43D9-BCD9-4B86-B5B6-6692EAFCEE1D-23YVFM-420x-outside.jpg",
+              "type": "urn:image:place:unknown"
+            }
+          ],
+          "address": "285 Fulton St New York, NY 10007",
+          "geocode": {
+            "city": "New York",
+            "name": "Financial District",
+            "metro": "New York City",
+            "country": "United States",
+            "country_code": "US",
+            "admin1_region": "New York",
+            "admin2_region": "New York County"
+          },
+          "parking": true,
+          "website": "https://wtc.com/",
+          "good_for": [
+            {
+              "id": "urn:tag:children:place:good_kids",
+              "name": "Good for kids",
+              "type": "urn:tag:children:place",
+              "weight": 0.5
+            }
+          ],
+          "keywords": [
+            {
+              "name": "observatory",
+              "count": 702
+            },
+            {
+              "name": "empire state building",
+              "count": 243
+            },
+            {
+              "name": "elevator ride",
+              "count": 1098
+            },
+            {
+              "name": "sunset views",
+              "count": 299
+            },
+            {
+              "name": "360 view",
+              "count": 69
+            },
+            {
+              "_truncated_items": 5
+            }
+          ],
+          "locality": {
+            "city": {
+              "name": "New York",
+              "place": "city",
+              "boundary": "administrative",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            "metro": {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "state": {
+              "name": "New York",
+              "place": "state",
+              "boundary": "administrative",
+              "entity_id": "BDFC9271-4583-412E-84D8-F285BB8220FE",
+              "admin_level": 4,
+              "locality_id": "r61320",
+              "abbreviation": "N.Y.",
+              "country_code": null
+            },
+            "county": {
+              "name": "New York County",
+              "place": "county",
+              "boundary": "administrative",
+              "entity_id": "CE2B08BB-3A5B-4DDD-92DF-2815614EEA72",
+              "admin_level": 6,
+              "locality_id": "r2552485",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "country": {
+              "name": "United States",
+              "place": "country",
+              "boundary": "administrative",
+              "entity_id": "FCA82A91-546B-4A8F-BC61-DB14088A7E94",
+              "admin_level": 2,
+              "locality_id": "r148838",
+              "abbreviation": "USA",
+              "country_code": "US"
+            },
+            "neighborhood": {
+              "name": "Financial District",
+              "place": "neighbourhood",
+              "boundary": "place",
+              "entity_id": "1EDCD64E-9CAF-4A14-9636-DA8DFEE51589",
+              "admin_level": 10,
+              "locality_id": "r8398122",
+              "abbreviation": null,
+              "country_code": null
+            }
+          },
+          "menu_url": null,
+          "is_closed": false,
+          "live_music": null,
+          "localities": [
+            {
+              "name": "Financial District",
+              "place": "neighbourhood",
+              "boundary": "place",
+              "entity_id": "1EDCD64E-9CAF-4A14-9636-DA8DFEE51589",
+              "admin_level": 10,
+              "locality_id": "r8398122",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "10006",
+              "place": "ZCTA",
+              "boundary": "ZCTA",
+              "entity_id": "D0D2BD0E-77AB-464E-92D5-CCC6F3A0DF50",
+              "admin_level": 9,
+              "locality_id": "z10006",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "New York",
+              "place": "city",
+              "boundary": "administrative",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "Manhattan",
+              "place": "borough",
+              "boundary": "administrative",
+              "entity_id": "97F46DBA-ED36-4CCD-ACC1-4341D9E6EE47",
+              "admin_level": 7,
+              "locality_id": "r8398124",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "_truncated_items": 3
+            }
+          ],
+          "description": "Tallest skyscraper in the Western Hemisphere with a 360-degree observation deck overlooking NYC, adjacent to the 9/11 Memorial and a major transit hub.",
+          "hotel_class": null,
+          "price_level": 3,
+          "price_range": {
+            "to": null,
+            "from": null,
+            "currency": "usd"
+          },
+          "star_rating": null,
+          "event_spaces": true,
+          "neighborhood": "Financial District",
+          "pet_friendly": false,
+          "check_in_time": null,
+          "primary_genre": {
+            "id": "urn:tag:genre:place:historical_landmark",
+            "akas": [
+              {
+                "value": "\"Zgodovinska znamenitost\"",
+                "languages": [
+                  "sl"
+                ]
+              },
+              {
+                "value": "\"តំបន់ប្រវត្តិសាស្ត្រ\"",
+                "languages": [
+                  "km"
+                ]
+              },
+              {
+                "value": "\"ঐতিহাসিক নিদর্শন\"",
+                "languages": [
+                  "bn"
+                ]
+              },
+              {
+                "value": "\"Monument historik\"",
+                "languages": [
+                  "sq"
+                ]
+              },
+              {
+                "value": "\"வரலாற்றுச் சின்னம்\"",
+                "languages": [
+                  "ta"
+                ]
+              },
+              {
+                "_truncated_items": 52
+              }
+            ],
+            "name": "Historical landmark",
+            "type": "urn:tag:genre:place",
+            "weight": null
+          },
+          "check_out_time": null,
+          "business_rating": 4.800000190734863,
+          "loyalty_program": null,
+          "number_of_rooms": null,
+          "cost_description": null,
+          "specialty_dishes": null,
+          "short_description": "Tallest skyscraper in the Western Hemisphere with a 360-degree observation deck overlooking NYC, adjacent to the 9/11 Memorial and a major transit hub.",
+          "number_of_stations": null,
+          "cuisine_description": null,
+          "overall_description": "One World Trade Center is a majestic skyscraper in Lower Manhattan that serves as both a world-class business hub and a premier tourist attraction. Visitors can ascend to the observatory to experience breathtaking 360-degree views of New York City, accompanied by informative, high-tech multimedia pr",
+          "service_description": null,
+          "ambience_description": "The atmosphere is a blend of modern sophistication and profound historical reflection, feeling both grand and deeply meaningful. Visitors experience a clean, polished, and highly professional environment that balances high-tech excitement with a respectful, commemorative tone.",
+          "amenities_description": "The facility features high-speed multimedia elevators, interactive digital learning tools, and multiple dining options ranging from cafes to fine dining. Guests have access to an indoor 360-degree observation deck with lounge areas and a souvenir shop.",
+          "unique_selling_points": "As the tallest skyscraper in the Western Hemisphere, it features a record-breaking elevator ride with immersive 3D historical visuals. The observatory offers a signature 'reveal' experience that dramatically transitions from an indoor presentation to expansive panoramic views.",
+          "neighborhood_description": "The surrounding area is a vibrant and bustling hub that seamlessly blends historical significance with modern commercial energy. It functions as a primary destination for commuters, business professionals, and tourists alike, offering excellent accessibility via extensive public transportation netwo",
+          "physical_setting_description": "Located in the heart of Lower Manhattan's business district, this iconic skyscraper stands as a towering centerpiece among modern urban architecture. It offers unparalleled 360-degree views of the New York City skyline, surrounding rivers, and the New Jersey landscape from its elevated observation d",
+          "_truncated_keys": 2
+        }
+      },
+      {
+        "name": "Washington Square Park",
+        "entity_id": "6BBEFAAD-8DE3-4407-881F-B34A3BC9F16A",
+        "type": "urn:entity",
+        "subtype": "urn:entity:place",
+        "disambiguation": "New York, NY 10012",
+        "properties": {
+          "hours": {
+            "friday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "monday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "sunday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "tuesday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "saturday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "thursday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "wednesday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ]
+          },
+          "phone": "[redacted]",
+          "images": [
+            {
+              "url": "https://images.qloo.com/i/6BBEFAAD-8DE3-4407-881F-B34A3BC9F16A-1SNkug-420x-outside.jpg",
+              "type": "urn:image:place:unknown"
+            }
+          ],
+          "address": "New York, NY 10012",
+          "geocode": {
+            "city": "New York",
+            "name": "Greenwich Village",
+            "metro": "New York City",
+            "country": "United States",
+            "country_code": "US",
+            "admin1_region": "New York",
+            "admin2_region": "New York County"
+          },
+          "parking": false,
+          "website": "https://www.nycgovparks.org/parks/washington-square-park",
+          "good_for": [
+            {
+              "id": "urn:tag:children:place:good_kids",
+              "name": "Good for kids",
+              "type": "urn:tag:children:place",
+              "weight": 0.7222222222222222
+            }
+          ],
+          "keywords": [
+            {
+              "name": "lively atmosphere",
+              "count": 723
+            },
+            {
+              "name": "fountain",
+              "count": 304
+            },
+            {
+              "name": "street performers",
+              "count": 214
+            },
+            {
+              "name": "people watching",
+              "count": 426
+            },
+            {
+              "name": "arch",
+              "count": 133
+            },
+            {
+              "_truncated_items": 5
+            }
+          ],
+          "locality": {
+            "city": {
+              "name": "New York",
+              "place": "city",
+              "boundary": "administrative",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            "metro": {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "state": {
+              "name": "New York",
+              "place": "state",
+              "boundary": "administrative",
+              "entity_id": "BDFC9271-4583-412E-84D8-F285BB8220FE",
+              "admin_level": 4,
+              "locality_id": "r61320",
+              "abbreviation": "N.Y.",
+              "country_code": null
+            },
+            "county": {
+              "name": "New York County",
+              "place": "county",
+              "boundary": "administrative",
+              "entity_id": "CE2B08BB-3A5B-4DDD-92DF-2815614EEA72",
+              "admin_level": 6,
+              "locality_id": "r2552485",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "country": {
+              "name": "United States",
+              "place": "country",
+              "boundary": "administrative",
+              "entity_id": "FCA82A91-546B-4A8F-BC61-DB14088A7E94",
+              "admin_level": 2,
+              "locality_id": "r148838",
+              "abbreviation": "USA",
+              "country_code": "US"
+            },
+            "neighborhood": {
+              "name": "Greenwich Village",
+              "place": "neighbourhood",
+              "boundary": "place",
+              "entity_id": "9D3B2D6A-1C86-4072-90A3-20E5E00543A7",
+              "admin_level": 10,
+              "locality_id": "r8398112",
+              "abbreviation": null,
+              "country_code": null
+            }
+          },
+          "menu_url": null,
+          "is_closed": false,
+          "live_music": null,
+          "localities": [
+            {
+              "name": "10003",
+              "place": "ZCTA",
+              "boundary": "ZCTA",
+              "entity_id": "465FE0B8-8EC9-44BE-9046-719FFDC89C30",
+              "admin_level": 9,
+              "locality_id": "z10003",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "Greenwich Village",
+              "place": "neighbourhood",
+              "boundary": "place",
+              "entity_id": "9D3B2D6A-1C86-4072-90A3-20E5E00543A7",
+              "admin_level": 10,
+              "locality_id": "r8398112",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "New York",
+              "place": "city",
+              "boundary": "administrative",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "Manhattan",
+              "place": "borough",
+              "boundary": "administrative",
+              "entity_id": "97F46DBA-ED36-4CCD-ACC1-4341D9E6EE47",
+              "admin_level": 7,
+              "locality_id": "r8398124",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "_truncated_items": 3
+            }
+          ],
+          "description": "Historic Greenwich Village park featuring a landmark triumphal arch, open plazas and lawns, famed for people-watching, street performers, and community events.",
+          "hotel_class": null,
+          "price_level": null,
+          "price_range": {
+            "to": null,
+            "from": null,
+            "currency": "usd"
+          },
+          "star_rating": null,
+          "event_spaces": true,
+          "neighborhood": "Greenwich Village",
+          "pet_friendly": true,
+          "check_in_time": null,
+          "primary_genre": {
+            "id": "urn:tag:genre:place:city_park",
+            "akas": [
+              {
+                "value": "\"សួនច្បារទីក្រុង\"",
+                "languages": [
+                  "km"
+                ]
+              },
+              {
+                "value": "\"Stadtpark\"",
+                "languages": [
+                  "de"
+                ]
+              },
+              {
+                "value": "\"Linnapark\"",
+                "languages": [
+                  "et"
+                ]
+              },
+              {
+                "value": "\"Şehir parkı\"",
+                "languages": [
+                  "tr"
+                ]
+              },
+              {
+                "value": "\"नगर पार्क\"",
+                "languages": [
+                  "hi"
+                ]
+              },
+              {
+                "_truncated_items": 45
+              }
+            ],
+            "name": "City park",
+            "type": "urn:tag:genre:place",
+            "weight": null
+          },
+          "check_out_time": null,
+          "business_rating": 4.599999904632568,
+          "loyalty_program": null,
+          "number_of_rooms": null,
+          "cost_description": null,
+          "specialty_dishes": null,
+          "short_description": "Historic Greenwich Village park featuring a landmark triumphal arch, open plazas and lawns, famed for people-watching, street performers, and community events.",
+          "number_of_stations": null,
+          "cuisine_description": null,
+          "overall_description": "Washington Square Park is a legendary, 9.75-acre public square in the heart of Greenwich Village, serving as an iconic cultural and social hub for New York City. Dominated by the Washington Square Arch and a large central fountain, the park is celebrated for its bohemian atmosphere, diverse crowds, ",
+          "service_description": null,
+          "ambience_description": "The park offers a vibrant, eclectic, and timeless atmosphere that celebrates nonconformity and creative expression. It is a social hub where people gather to relax, perform, and interact in a lively, multicultural setting.",
+          "amenities_description": "The park features essential amenities including the iconic Washington Square Arch, a large central fountain, dedicated dog runs, chess tables, and public restrooms. Ample bench seating and open paved areas are available for lounging, socializing, and viewing performances.",
+          "unique_selling_points": "The park is anchored by the historic Washington Square Arch and a large central fountain, creating a world-famous gathering space known for its bohemian spirit and diverse, spontaneous street performances. It functions as a cultural crossroads where history, university life, and New York City's arti",
+          "neighborhood_description": "The surrounding Greenwich Village neighborhood is a historic, walk-able, and culturally rich area known for its bohemian roots, diverse population, and close proximity to New York University. It is a bustling center filled with students, local residents, cafes, and independent shops.",
+          "physical_setting_description": "A historic, iconic urban park in Lower Manhattan, characterized by open plazas, tree-lined paths, and a prominent triumphal arch and fountain. It serves as a central, vibrant green space surrounded by university buildings and historic neighborhood architecture.",
+          "_truncated_keys": 2
+        }
+      },
+      {
+        "name": "Vessel",
+        "entity_id": "C1E67C31-E4BC-43EE-82E4-3B3078C46A7B",
+        "type": "urn:entity",
+        "subtype": "urn:entity:place",
+        "disambiguation": "20 Hudson Yards New York, NY 10001",
+        "properties": {
+          "hours": {
+            "friday": [
+              {
+                "opens": "T09:00:00",
+                "closed": false,
+                "closes": "T20:00:00"
+              }
+            ],
+            "monday": [
+              {
+                "opens": "T11:00:00",
+                "closed": false,
+                "closes": "T19:00:00"
+              }
+            ],
+            "sunday": [
+              {
+                "opens": "T09:00:00",
+                "closed": false,
+                "closes": "T19:00:00"
+              }
+            ],
+            "tuesday": [
+              {
+                "opens": "T11:00:00",
+                "closed": false,
+                "closes": "T19:00:00"
+              }
+            ],
+            "saturday": [
+              {
+                "opens": "T09:00:00",
+                "closed": false,
+                "closes": "T20:00:00"
+              }
+            ],
+            "thursday": [
+              {
+                "opens": "T11:00:00",
+                "closed": false,
+                "closes": "T20:00:00"
+              }
+            ],
+            "wednesday": [
+              {
+                "opens": "T11:00:00",
+                "closed": false,
+                "closes": "T20:00:00"
+              }
+            ]
+          },
+          "phone": "[redacted]",
+          "images": [
+            {
+              "url": "https://images.qloo.com/i/C1E67C31-E4BC-43EE-82E4-3B3078C46A7B-2MtuLF-420x-outside.jpg",
+              "type": "urn:image:place:unknown"
+            }
+          ],
+          "address": "20 Hudson Yards New York, NY 10001",
+          "geocode": {
+            "city": "New York",
+            "name": "Hudson Yards",
+            "metro": "New York City",
+            "country": "United States",
+            "country_code": "US",
+            "admin1_region": "New York",
+            "admin2_region": "New York County"
+          },
+          "parking": false,
+          "website": "https://www.hudsonyardsnewyork.com/discover/vessel",
+          "good_for": null,
+          "keywords": [
+            {
+              "name": "modern architecture",
+              "count": 88
+            },
+            {
+              "name": "free admission",
+              "count": 508
+            },
+            {
+              "name": "view",
+              "count": 852
+            },
+            {
+              "name": "sunset views",
+              "count": 101
+            },
+            {
+              "name": "design",
+              "count": 160
+            },
+            {
+              "_truncated_items": 5
+            }
+          ],
+          "locality": {
+            "city": {
+              "name": "New York",
+              "place": "city",
+              "boundary": "administrative",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            "metro": {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "state": {
+              "name": "New York",
+              "place": "state",
+              "boundary": "administrative",
+              "entity_id": "BDFC9271-4583-412E-84D8-F285BB8220FE",
+              "admin_level": 4,
+              "locality_id": "r61320",
+              "abbreviation": "N.Y.",
+              "country_code": null
+            },
+            "county": {
+              "name": "New York County",
+              "place": "county",
+              "boundary": "administrative",
+              "entity_id": "CE2B08BB-3A5B-4DDD-92DF-2815614EEA72",
+              "admin_level": 6,
+              "locality_id": "r2552485",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "country": {
+              "name": "United States",
+              "place": "country",
+              "boundary": "administrative",
+              "entity_id": "FCA82A91-546B-4A8F-BC61-DB14088A7E94",
+              "admin_level": 2,
+              "locality_id": "r148838",
+              "abbreviation": "USA",
+              "country_code": "US"
+            },
+            "neighborhood": {
+              "name": "Hudson Yards",
+              "place": "neighbourhood",
+              "boundary": "place",
+              "entity_id": "A58AD5A2-1D10-4740-8031-67336E4CE59D",
+              "admin_level": 10,
+              "locality_id": "r8398095",
+              "abbreviation": null,
+              "country_code": null
+            }
+          },
+          "menu_url": null,
+          "is_closed": false,
+          "live_music": null,
+          "localities": [
+            {
+              "name": "New York",
+              "place": "city",
+              "boundary": "administrative",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "10001",
+              "place": "ZCTA",
+              "boundary": "ZCTA",
+              "entity_id": "D7DC462C-E1B2-4D1C-9DC5-B89A99E6409B",
+              "admin_level": 9,
+              "locality_id": "z10001",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "Hudson Yards",
+              "place": "neighbourhood",
+              "boundary": "place",
+              "entity_id": "A58AD5A2-1D10-4740-8031-67336E4CE59D",
+              "admin_level": 10,
+              "locality_id": "r8398095",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "Manhattan Community Board 4",
+              "place": null,
+              "boundary": "administrative",
+              "entity_id": "F4AEDE9B-B344-4EB2-BB26-63293970053C",
+              "admin_level": 10,
+              "locality_id": "r7340066",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "_truncated_items": 4
+            }
+          ],
+          "description": "Iconic honeycomb-like climbable structure of interlocking staircases offering elevated views of Hudson Yards and the Manhattan skyline.",
+          "hotel_class": null,
+          "price_level": null,
+          "price_range": {
+            "to": null,
+            "from": null,
+            "currency": "usd"
+          },
+          "star_rating": null,
+          "event_spaces": true,
+          "neighborhood": "Hudson Yards",
+          "pet_friendly": true,
+          "check_in_time": null,
+          "primary_genre": {
+            "id": "urn:tag:genre:place:landmark",
+            "akas": [
+              {
+                "value": "\"Seværdighed\"",
+                "languages": [
+                  "da"
+                ]
+              },
+              {
+                "value": "\"Landemerke\"",
+                "languages": [
+                  "nb"
+                ]
+              },
+              {
+                "value": "\"Địa danh\"",
+                "languages": [
+                  "vi"
+                ]
+              },
+              {
+                "value": "\"Mugarri\"",
+                "languages": [
+                  "eu"
+                ]
+              },
+              {
+                "value": "\"ల్యాండ్‌మార్క్\"",
+                "languages": [
+                  "te"
+                ]
+              },
+              {
+                "_truncated_items": 48
+              }
+            ],
+            "name": "Landmark",
+            "type": "urn:tag:genre:place",
+            "weight": null
+          },
+          "check_out_time": null,
+          "business_rating": 4.599999904632568,
+          "loyalty_program": "HY+ Rewards",
+          "number_of_rooms": null,
+          "cost_description": null,
+          "specialty_dishes": null,
+          "short_description": "Iconic honeycomb-like climbable structure of interlocking staircases offering elevated views of Hudson Yards and the Manhattan skyline.",
+          "number_of_stations": null,
+          "cuisine_description": null,
+          "overall_description": "The Vessel is an iconic, futuristic architectural masterpiece located at the center of the Hudson Yards district in Manhattan. Featuring a unique honeycomb structure of 154 interconnected staircases, it serves as a mesmerizing visual landmark and a popular destination for tourists and art lovers. Wh",
+          "service_description": null,
+          "ambience_description": "The atmosphere is energetic and contemporary, driven by the structure's futuristic design and the dynamic activity of the surrounding plaza. It functions as a social focal point where visitors gather to experience art, architecture, and the vibrant pulse of the city.",
+          "amenities_description": "The site provides basic visitor amenities including security screening, accessible elevator access, and various outdoor seating options within the surrounding plaza. The area is also well-integrated with nearby public transportation and surrounding commercial facilities.",
+          "unique_selling_points": "The structure is an architectural marvel defined by its honeycomb-like, copper-colored design consisting of 154 interconnected staircases. It stands as a distinctive landmark where art, engineering, and urban space converge to provide a unique vantage point over New York City.",
+          "neighborhood_description": "The surrounding neighborhood is a master-planned, upscale district that serves as a hub for luxury shopping, dining, and contemporary culture. It is a highly walkable area that connects seamlessly to the High Line, creating a bustling, modern environment for visitors and locals alike.",
+          "physical_setting_description": "Located in the heart of the Hudson Yards complex in Manhattan, this striking structure sits prominently within a modern public plaza surrounded by high-end shopping and commercial buildings. It serves as a visual centerpiece, offering elevated perspectives of the surrounding cityscape and the Hudson",
+          "_truncated_keys": 2
+        }
+      },
+      {
+        "name": "Top of The Rock",
+        "entity_id": "50E6FD1D-FA14-4383-A7E9-FDEC343EDD8A",
+        "type": "urn:entity",
+        "subtype": "urn:entity:place",
+        "disambiguation": "30 Rockefeller Plaza New York, NY 10112",
+        "properties": {
+          "hours": {
+            "friday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "monday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "sunday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "tuesday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "saturday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "thursday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "wednesday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ]
+          },
+          "phone": "[redacted]",
+          "images": [
+            {
+              "url": "https://images.qloo.com/i/50E6FD1D-FA14-4383-A7E9-FDEC343EDD8A-32Ys4j-420x-outside.jpg",
+              "type": "urn:image:place:unknown"
+            }
+          ],
+          "address": "30 Rockefeller Plaza New York, NY 10112",
+          "geocode": {
+            "city": "New York",
+            "name": "Midtown",
+            "metro": "New York City",
+            "country": "United States",
+            "country_code": "US",
+            "admin1_region": "New York",
+            "admin2_region": "New York County"
+          },
+          "parking": false,
+          "website": "https://www.rockefellercenter.com/attractions/top-of-the-rock-observation-deck/",
+          "good_for": [
+            {
+              "id": "urn:tag:children:place:good_kids",
+              "name": "Good for kids",
+              "type": "urn:tag:children:place",
+              "weight": 0.5555555555555556
+            }
+          ],
+          "keywords": null,
+          "locality": {
+            "city": {
+              "name": "New York",
+              "place": "city",
+              "boundary": "administrative",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            "metro": {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "state": {
+              "name": "New York",
+              "place": "state",
+              "boundary": "administrative",
+              "entity_id": "BDFC9271-4583-412E-84D8-F285BB8220FE",
+              "admin_level": 4,
+              "locality_id": "r61320",
+              "abbreviation": "N.Y.",
+              "country_code": null
+            },
+            "county": {
+              "name": "New York County",
+              "place": "county",
+              "boundary": "administrative",
+              "entity_id": "CE2B08BB-3A5B-4DDD-92DF-2815614EEA72",
+              "admin_level": 6,
+              "locality_id": "r2552485",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "country": {
+              "name": "United States",
+              "place": "country",
+              "boundary": "administrative",
+              "entity_id": "FCA82A91-546B-4A8F-BC61-DB14088A7E94",
+              "admin_level": 2,
+              "locality_id": "r148838",
+              "abbreviation": "USA",
+              "country_code": "US"
+            },
+            "neighborhood": {
+              "name": "Midtown",
+              "place": "suburb",
+              "boundary": "place",
+              "entity_id": "C4A7CBE2-1532-4923-85B3-EB3D8F0A9D63",
+              "admin_level": 10,
+              "locality_id": "r8398090",
+              "abbreviation": null,
+              "country_code": null
+            }
+          },
+          "menu_url": null,
+          "is_closed": false,
+          "live_music": null,
+          "localities": [
+            {
+              "name": "New York",
+              "place": "city",
+              "boundary": "administrative",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "Manhattan Community Board 5",
+              "place": null,
+              "boundary": "administrative",
+              "entity_id": "DD0C2C54-2CFA-459B-B5D7-BFE3B4D52BBB",
+              "admin_level": 10,
+              "locality_id": "r7340060",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "10112",
+              "place": "ZCTA",
+              "boundary": "ZCTA",
+              "entity_id": "CC662B96-C42D-4B67-8312-F3135AC1EACE",
+              "admin_level": 9,
+              "locality_id": "z10112",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "Midtown",
+              "place": "suburb",
+              "boundary": "place",
+              "entity_id": "C4A7CBE2-1532-4923-85B3-EB3D8F0A9D63",
+              "admin_level": 10,
+              "locality_id": "r8398090",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "_truncated_items": 4
+            }
+          ],
+          "description": "Observation deck atop Rockefeller Center offering multi-level, ocean-liner–style terraces with panoramic Manhattan views including Central Park and the Empire State Building.",
+          "hotel_class": null,
+          "price_level": null,
+          "price_range": {
+            "to": null,
+            "from": null,
+            "currency": "usd"
+          },
+          "star_rating": null,
+          "event_spaces": true,
+          "neighborhood": "Midtown",
+          "pet_friendly": false,
+          "check_in_time": null,
+          "primary_genre": {
+            "id": "urn:tag:genre:place:observation_deck",
+            "akas": [
+              {
+                "value": "\"Uitsigdek\"",
+                "languages": [
+                  "af"
+                ]
+              },
+              {
+                "value": "\"Miradoiro\"",
+                "languages": [
+                  "gl"
+                ]
+              },
+              {
+                "value": "\"Παρατηρητήριο\"",
+                "languages": [
+                  "el"
+                ]
+              },
+              {
+                "value": "\"Platformë vrojtimi\"",
+                "languages": [
+                  "sq"
+                ]
+              },
+              {
+                "value": "\"Behatoki\"",
+                "languages": [
+                  "eu"
+                ]
+              },
+              {
+                "_truncated_items": 49
+              }
+            ],
+            "name": "Observation deck",
+            "type": "urn:tag:genre:place",
+            "weight": null
+          },
+          "check_out_time": null,
+          "business_rating": 4.699999809265137,
+          "loyalty_program": null,
+          "number_of_rooms": null,
+          "cost_description": null,
+          "specialty_dishes": null,
+          "short_description": "Observation deck atop Rockefeller Center offering multi-level, ocean-liner–style terraces with panoramic Manhattan views including Central Park and the Empire State Building.",
+          "number_of_stations": null,
+          "cuisine_description": null,
+          "overall_description": "Top of The Rock is a premier observation deck located atop the historic 30 Rockefeller Plaza in New York City. Guests can ascend to three levels of indoor and outdoor terraces that provide breathtaking, 360-degree views of Manhattan, including the city's most famous landmarks like the Empire State B",
+          "service_description": null,
+          "ambience_description": "The atmosphere is grand and iconic, blending historic New York charm with a fast-paced, high-energy environment that pulses with the excitement of the city.",
+          "amenities_description": "The facility features high-speed elevators, multiple observation terraces, a gift shop, and a cafe, all managed by professional staff to facilitate a smooth guest experience.",
+          "unique_selling_points": "The attraction offers unparalleled, unobstructed 360-degree panoramic views of Manhattan, including a direct, iconic perspective of the Empire State Building and the sprawling greenery of Central Park.",
+          "neighborhood_description": "Situated in Rockefeller Center, the neighborhood is a bustling, world-famous hub filled with historical significance, major commercial activity, and a dense concentration of iconic tourist landmarks.",
+          "physical_setting_description": "Located at the historic 30 Rockefeller Plaza in the heart of Midtown Manhattan, this observation deck spans the top levels of an iconic skyscraper. It provides an elevated, multi-level perspective of the New York City skyline, offering panoramic views of Central Park, the Empire State Building, and ",
+          "_truncated_keys": 2
+        }
+      },
+      {
+        "name": "W New York - Times Square",
+        "entity_id": "AA44CFA0-3DAF-4628-AFDB-19F45AAF4666",
+        "type": "urn:entity",
+        "subtype": "urn:entity:place",
+        "disambiguation": "1567 Broadway New York, NY 10036",
+        "properties": {
+          "hours": {
+            "friday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "monday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "sunday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "tuesday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "saturday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "thursday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "wednesday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ]
+          },
+          "phone": "[redacted]",
+          "images": [
+            {
+              "url": "https://images.qloo.com/i/AA44CFA0-3DAF-4628-AFDB-19F45AAF4666-0mRBpt-420x-outside.jpg",
+              "type": "urn:image:place:unknown"
+            }
+          ],
+          "address": "1567 Broadway New York, NY 10036",
+          "geocode": {
+            "city": "New York",
+            "name": "Theater District",
+            "metro": "New York City",
+            "country": "United States",
+            "country_code": "US",
+            "admin1_region": "New York",
+            "admin2_region": "New York County"
+          },
+          "parking": true,
+          "website": "https://www.marriott.com/en-us/hotels/nycwh-w-new-york-times-square/overview/?scid=f2ae0541-1279-4f24-b197-a979c79310b0",
+          "good_for": null,
+          "keywords": [
+            {
+              "name": "noise level",
+              "count": 122
+            },
+            {
+              "name": "valet",
+              "count": 30
+            },
+            {
+              "name": "concierge",
+              "count": 36
+            },
+            {
+              "name": "no microwave",
+              "count": 13
+            },
+            {
+              "name": "city views",
+              "count": 14
+            },
+            {
+              "_truncated_items": 5
+            }
+          ],
+          "locality": {
+            "city": {
+              "name": "New York",
+              "place": "city",
+              "boundary": "administrative",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            "metro": {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "state": {
+              "name": "New York",
+              "place": "state",
+              "boundary": "administrative",
+              "entity_id": "BDFC9271-4583-412E-84D8-F285BB8220FE",
+              "admin_level": 4,
+              "locality_id": "r61320",
+              "abbreviation": "N.Y.",
+              "country_code": null
+            },
+            "county": {
+              "name": "New York County",
+              "place": "county",
+              "boundary": "administrative",
+              "entity_id": "CE2B08BB-3A5B-4DDD-92DF-2815614EEA72",
+              "admin_level": 6,
+              "locality_id": "r2552485",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "country": {
+              "name": "United States",
+              "place": "country",
+              "boundary": "administrative",
+              "entity_id": "FCA82A91-546B-4A8F-BC61-DB14088A7E94",
+              "admin_level": 2,
+              "locality_id": "r148838",
+              "abbreviation": "USA",
+              "country_code": "US"
+            },
+            "neighborhood": {
+              "name": "Theater District",
+              "place": "neighbourhood",
+              "boundary": "place",
+              "entity_id": "6CF2B5A5-7FE7-435F-A267-0427DA0F7E81",
+              "admin_level": 10,
+              "locality_id": "r8398070",
+              "abbreviation": null,
+              "country_code": null
+            }
+          },
+          "menu_url": null,
+          "is_closed": false,
+          "live_music": null,
+          "localities": [
+            {
+              "name": "New York",
+              "place": "city",
+              "boundary": "administrative",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "Manhattan Community Board 5",
+              "place": null,
+              "boundary": "administrative",
+              "entity_id": "DD0C2C54-2CFA-459B-B5D7-BFE3B4D52BBB",
+              "admin_level": 10,
+              "locality_id": "r7340060",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "Theater District",
+              "place": "neighbourhood",
+              "boundary": "place",
+              "entity_id": "6CF2B5A5-7FE7-435F-A267-0427DA0F7E81",
+              "admin_level": 10,
+              "locality_id": "r8398070",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "10036",
+              "place": "ZCTA",
+              "boundary": "ZCTA",
+              "entity_id": "CA5418AE-6703-4ACD-9266-85846325A3C2",
+              "admin_level": 9,
+              "locality_id": "z10036",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "_truncated_items": 4
+            }
+          ],
+          "description": "Sleek modern hotel in the lively Theater District with polished rooms, vibrant dining, and a prime Times Square location.",
+          "hotel_class": 4,
+          "price_level": null,
+          "price_range": {
+            "to": 240,
+            "from": 180,
+            "currency": "usd"
+          },
+          "star_rating": 4,
+          "event_spaces": true,
+          "neighborhood": "Theater District",
+          "pet_friendly": true,
+          "check_in_time": "16:00",
+          "primary_genre": {
+            "id": "urn:tag:genre:place:hotel",
+            "akas": [
+              {
+                "value": "\"Ξενοδοχείο\"",
+                "languages": [
+                  "el"
+                ]
+              },
+              {
+                "value": "\"Otel\"",
+                "languages": [
+                  "tr",
+                  "az"
+                ]
+              },
+              {
+                "value": "\"Отель\"",
+                "languages": [
+                  "ru"
+                ]
+              },
+              {
+                "value": "\"Khách sạn\"",
+                "languages": [
+                  "vi"
+                ]
+              },
+              {
+                "value": "\"Hotelli\"",
+                "languages": [
+                  "fi"
+                ]
+              },
+              {
+                "_truncated_items": 26
+              }
+            ],
+            "name": "Hotel",
+            "type": "urn:tag:genre:place",
+            "weight": null
+          },
+          "check_out_time": "12:00",
+          "business_rating": 4.199999809265137,
+          "loyalty_program": "Marriott Bonvoy",
+          "number_of_rooms": null,
+          "cost_description": null,
+          "specialty_dishes": null,
+          "short_description": "Sleek modern hotel in the lively Theater District with polished rooms, vibrant dining, and a prime Times Square location.",
+          "number_of_stations": null,
+          "cuisine_description": null,
+          "overall_description": "Located directly in the neon-drenched epicenter of Times Square, this hotel serves as a high-energy home base for travelers who want to be in the middle of the city's famous hustle and bustle. The property is defined by a trendy, modern aesthetic and a lively lobby bar that reflects the vibrant spir",
+          "service_description": null,
+          "ambience_description": "The property maintains a signature, moodily lit, and high-energy atmosphere that prioritizes a party-oriented social vibe in the public spaces.",
+          "amenities_description": "The W New York - Times Square features a modern, stylish lobby and lounge bar. Amenities include a fitness center, business center, and concierge services. The hotel offers pet-friendly accommodations, valet parking, and laundry services. Dining options are available on-site, and the property provid",
+          "unique_selling_points": "The property offers an unbeatable location directly within the heart of Times Square, placing guests within walking distance of the city's most famous theaters and major attractions.",
+          "neighborhood_description": "The surrounding area is the primary tourist hub of the city, characterized by a non-stop, neon-lit atmosphere filled with theaters, massive crowds, and easy subway access to the rest of the city.",
+          "physical_setting_description": "Situated directly in the high-energy epicenter of Times Square, the property is surrounded by dense urban development and constant pedestrian activity. Many rooms offer vertical views looking down into the bright lights and bustling streets of the midtown district.",
+          "_truncated_keys": 2
+        }
+      },
+      {
+        "name": "Barclays Center",
+        "entity_id": "727B7C7F-FAB6-4F7F-B4BB-54EA8072F0B2",
+        "type": "urn:entity",
+        "subtype": "urn:entity:place",
+        "disambiguation": "620 Atlantic Ave Brooklyn, NY 11217",
+        "properties": {
+          "hours": {
+            "friday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "monday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "sunday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "tuesday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "saturday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "thursday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "wednesday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ]
+          },
+          "phone": "[redacted]",
+          "images": [
+            {
+              "url": "https://images.qloo.com/i/727B7C7F-FAB6-4F7F-B4BB-54EA8072F0B2-4BMbh1-420x-outside.jpg",
+              "type": "urn:image:place:unknown"
+            }
+          ],
+          "address": "620 Atlantic Ave Brooklyn, NY 11217",
+          "geocode": {
+            "city": "New York",
+            "name": "Prospect Heights",
+            "metro": "New York City",
+            "country": "United States",
+            "country_code": "US",
+            "admin1_region": "New York",
+            "admin2_region": "Kings County"
+          },
+          "parking": true,
+          "website": "http://www.barclayscenter.com/",
+          "good_for": null,
+          "keywords": [
+            {
+              "name": "concerts",
+              "count": 1049
+            },
+            {
+              "name": "basketball game",
+              "count": 502
+            },
+            {
+              "name": "nets",
+              "count": 831
+            },
+            {
+              "name": "disney on ice",
+              "count": 56
+            },
+            {
+              "name": "boxing",
+              "count": 66
+            },
+            {
+              "_truncated_items": 5
+            }
+          ],
+          "locality": {
+            "city": {
+              "name": "New York",
+              "place": "city",
+              "boundary": "administrative",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            "metro": {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "state": {
+              "name": "New York",
+              "place": "state",
+              "boundary": "administrative",
+              "entity_id": "BDFC9271-4583-412E-84D8-F285BB8220FE",
+              "admin_level": 4,
+              "locality_id": "r61320",
+              "abbreviation": "N.Y.",
+              "country_code": null
+            },
+            "county": {
+              "name": "Kings County",
+              "place": "county",
+              "boundary": "administrative",
+              "entity_id": "E8DC52F4-985C-4B02-8518-0385E567C57C",
+              "admin_level": 6,
+              "locality_id": "r369518",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "country": {
+              "name": "United States",
+              "place": "country",
+              "boundary": "administrative",
+              "entity_id": "FCA82A91-546B-4A8F-BC61-DB14088A7E94",
+              "admin_level": 2,
+              "locality_id": "r148838",
+              "abbreviation": "USA",
+              "country_code": "US"
+            },
+            "neighborhood": {
+              "name": "Prospect Heights",
+              "place": "neighbourhood",
+              "boundary": "neighborhood",
+              "entity_id": "515880FF-447F-42B3-AC55-C571B9AE4785",
+              "admin_level": 10,
+              "locality_id": "n248606480",
+              "abbreviation": null,
+              "country_code": null
+            }
+          },
+          "menu_url": null,
+          "is_closed": false,
+          "live_music": null,
+          "localities": [
+            {
+              "name": "New York",
+              "place": "city",
+              "boundary": "administrative",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            {
+              "name": "Prospect Heights",
+              "place": "neighbourhood",
+              "boundary": "neighborhood",
+              "entity_id": "515880FF-447F-42B3-AC55-C571B9AE4785",
+              "admin_level": 10,
+              "locality_id": "n248606480",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "11217",
+              "place": "ZCTA",
+              "boundary": "ZCTA",
+              "entity_id": "6B09FBFC-923F-42B2-BF13-2B5408CA9D25",
+              "admin_level": 9,
+              "locality_id": "z11217",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "Brooklyn",
+              "place": "borough",
+              "boundary": "administrative",
+              "entity_id": "86BAEBAE-2980-43B6-9E75-2A5CDB898628",
+              "admin_level": 7,
+              "locality_id": "r9691750",
+              "abbreviation": "BK",
+              "country_code": null
+            },
+            {
+              "_truncated_items": 3
+            }
+          ],
+          "description": "State-of-the-art downtown Brooklyn arena hosting NBA games, major concerts, boxing, and large-scale entertainment events.",
+          "hotel_class": null,
+          "price_level": null,
+          "price_range": {
+            "to": null,
+            "from": null,
+            "currency": "usd"
+          },
+          "star_rating": null,
+          "event_spaces": true,
+          "neighborhood": "Prospect Heights",
+          "pet_friendly": false,
+          "check_in_time": null,
+          "primary_genre": {
+            "id": "urn:tag:genre:place:arena",
+            "akas": [
+              {
+                "value": "\"ساحة\"",
+                "languages": [
+                  "ar"
+                ]
+              },
+              {
+                "value": "\"สนามกีฬากลางแจ้ง\"",
+                "languages": [
+                  "th"
+                ]
+              },
+              {
+                "value": "\"এরিনা\"",
+                "languages": [
+                  "bn"
+                ]
+              },
+              {
+                "value": "\"競技場\"",
+                "languages": [
+                  "zh_tw"
+                ]
+              },
+              {
+                "value": "\"அரங்கம்\"",
+                "languages": [
+                  "ta"
+                ]
+              },
+              {
+                "_truncated_items": 22
+              }
+            ],
+            "name": "Arena",
+            "type": "urn:tag:genre:place",
+            "weight": null
+          },
+          "check_out_time": null,
+          "business_rating": 4.5,
+          "loyalty_program": null,
+          "number_of_rooms": null,
+          "cost_description": null,
+          "specialty_dishes": null,
+          "short_description": "State-of-the-art downtown Brooklyn arena hosting NBA games, major concerts, boxing, and large-scale entertainment events.",
+          "number_of_stations": null,
+          "cuisine_description": null,
+          "overall_description": "Barclays Center is a premier, state-of-the-art arena located in the heart of downtown Brooklyn, serving as a primary hub for professional sports and global entertainment. Known for its distinct, modern architecture, the venue hosts everything from NBA and WNBA games to major concerts and sporting ma",
+          "service_description": null,
+          "ambience_description": "The venue maintains a high-energy, modern atmosphere that feels both professional and vibrant during large-scale events. Visitors frequently describe the environment as clean and well-organized, with an electric crowd presence that enhances the overall event experience.",
+          "amenities_description": "The arena is well-equipped with comprehensive guest services, including diverse food and drink options, multiple bar areas, and dedicated premium lounges. It prioritizes guest accessibility with direct subway links and streamlined entry processes for card members.",
+          "unique_selling_points": "As a modern architectural marvel, the arena offers state-of-the-art acoustics and a bowl-style seating design that ensures excellent views of the action from nearly every seat. It serves as a central cultural landmark for Brooklyn, hosting premier global athletes and musicians in a highly immersive,",
+          "neighborhood_description": "The surrounding area is a vibrant and high-traffic commercial district defined by its proximity to major transit lines and shopping terminals. It serves as a bustling hub of activity, drawing heavy foot traffic from commuters, sports fans, and concertgoers alike.",
+          "physical_setting_description": "Located in the heart of downtown Brooklyn at the intersection of Atlantic and Flatbush Avenues, this state-of-the-art arena features a striking, modern exterior that resembles a sleek spaceship. The facility is directly integrated with major public transportation hubs, providing seamless access for ",
+          "_truncated_keys": 2
+        }
+      },
+      {
+        "name": "Whitney Museum of American Art",
+        "entity_id": "ABF5777A-1DE8-4F68-836C-147A63F0DA07",
+        "type": "urn:entity",
+        "subtype": "urn:entity:place",
+        "disambiguation": "99 Gansevoort St New York, NY 10014",
+        "properties": {
+          "hours": {
+            "friday": [
+              {
+                "opens": "T10:30:00",
+                "closed": false,
+                "closes": "T22:00:00"
+              }
+            ],
+            "monday": [
+              {
+                "opens": "T10:30:00",
+                "closed": false,
+                "closes": "T18:00:00"
+              }
+            ],
+            "sunday": [
+              {
+                "opens": "T10:30:00",
+                "closed": false,
+                "closes": "T18:00:00"
+              }
+            ],
+            "tuesday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "saturday": [
+              {
+                "opens": "T10:30:00",
+                "closed": false,
+                "closes": "T18:00:00"
+              }
+            ],
+            "thursday": [
+              {
+                "opens": "T10:30:00",
+                "closed": false,
+                "closes": "T18:00:00"
+              }
+            ],
+            "wednesday": [
+              {
+                "opens": "T10:30:00",
+                "closed": false,
+                "closes": "T18:00:00"
+              }
+            ]
+          },
+          "phone": "[redacted]",
+          "images": [
+            {
+              "url": "https://images.qloo.com/i/ABF5777A-1DE8-4F68-836C-147A63F0DA07-0qQmT1-420x-outside.jpg",
+              "type": "urn:image:place:unknown"
+            }
+          ],
+          "address": "99 Gansevoort St New York, NY 10014",
+          "geocode": {
+            "city": "New York",
+            "name": "Meatpacking District",
+            "metro": "New York City",
+            "country": "United States",
+            "country_code": "US",
+            "admin1_region": "New York",
+            "admin2_region": "New York County"
+          },
+          "parking": false,
+          "website": "https://whitney.org/",
+          "good_for": [
+            {
+              "id": "urn:tag:children:place:good_kids",
+              "name": "Good for kids",
+              "type": "urn:tag:children:place",
+              "weight": 0.6111111111111112
+            }
+          ],
+          "keywords": null,
+          "locality": {
+            "city": {
+              "name": "New York",
+              "place": "city",
+              "boundary": "administrative",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            "metro": {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "state": {
+              "name": "New York",
+              "place": "state",
+              "boundary": "administrative",
+              "entity_id": "BDFC9271-4583-412E-84D8-F285BB8220FE",
+              "admin_level": 4,
+              "locality_id": "r61320",
+              "abbreviation": "N.Y.",
+              "country_code": null
+            },
+            "county": {
+              "name": "New York County",
+              "place": "county",
+              "boundary": "administrative",
+              "entity_id": "CE2B08BB-3A5B-4DDD-92DF-2815614EEA72",
+              "admin_level": 6,
+              "locality_id": "r2552485",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "country": {
+              "name": "United States",
+              "place": "country",
+              "boundary": "administrative",
+              "entity_id": "FCA82A91-546B-4A8F-BC61-DB14088A7E94",
+              "admin_level": 2,
+              "locality_id": "r148838",
+              "abbreviation": "USA",
+              "country_code": "US"
+            },
+            "neighborhood": {
+              "name": "Meatpacking District",
+              "place": "neighbourhood",
+              "boundary": "place",
+              "entity_id": "7D8FFF34-DE8B-4CE6-977A-A0CA70FFBF5A",
+              "admin_level": 10,
+              "locality_id": "r8398108",
+              "abbreviation": null,
+              "country_code": null
+            }
+          },
+          "menu_url": null,
+          "is_closed": false,
+          "live_music": null,
+          "localities": [
+            {
+              "name": "Meatpacking District",
+              "place": "neighbourhood",
+              "boundary": "place",
+              "entity_id": "7D8FFF34-DE8B-4CE6-977A-A0CA70FFBF5A",
+              "admin_level": 10,
+              "locality_id": "r8398108",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "10014",
+              "place": "ZCTA",
+              "boundary": "ZCTA",
+              "entity_id": "36E5CA99-0F67-4E16-8304-145CC72C4659",
+              "admin_level": 9,
+              "locality_id": "z10014",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "New York",
+              "place": "city",
+              "boundary": "administrative",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "Manhattan",
+              "place": "borough",
+              "boundary": "administrative",
+              "entity_id": "97F46DBA-ED36-4CCD-ACC1-4341D9E6EE47",
+              "admin_level": 7,
+              "locality_id": "r8398124",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "_truncated_items": 3
+            }
+          ],
+          "description": "Museum dedicated to 20th-century and contemporary American art, showcasing living artists and the biennial, with modern galleries and city views in the Meatpacking District.",
+          "hotel_class": null,
+          "price_level": null,
+          "price_range": {
+            "to": null,
+            "from": null,
+            "currency": "usd"
+          },
+          "star_rating": null,
+          "event_spaces": true,
+          "neighborhood": "Meatpacking District",
+          "pet_friendly": false,
+          "check_in_time": null,
+          "primary_genre": {
+            "id": "urn:tag:genre:place:modern_art_museum",
+            "akas": [
+              {
+                "value": "\"Modern művészeti múzeum\"",
+                "languages": [
+                  "hu"
+                ]
+              },
+              {
+                "value": "\"Muzium seni moden\"",
+                "languages": [
+                  "ms"
+                ]
+              },
+              {
+                "value": "\"សារមន្ទីរសិល្បៈសម័យទំនើប\"",
+                "languages": [
+                  "km"
+                ]
+              },
+              {
+                "value": "\"Museo ng modernong sining\"",
+                "languages": [
+                  "tl"
+                ]
+              },
+              {
+                "value": "\"Muzej moderne umjetnosti\"",
+                "languages": [
+                  "hr",
+                  "bs"
+                ]
+              },
+              {
+                "_truncated_items": 48
+              }
+            ],
+            "name": "Modern art museum",
+            "type": "urn:tag:genre:place",
+            "weight": null
+          },
+          "check_out_time": null,
+          "business_rating": 4.5,
+          "loyalty_program": null,
+          "number_of_rooms": null,
+          "cost_description": null,
+          "specialty_dishes": null,
+          "short_description": "Museum dedicated to 20th-century and contemporary American art, showcasing living artists and the biennial, with modern galleries and city views in the Meatpacking District.",
+          "number_of_stations": null,
+          "cuisine_description": null,
+          "overall_description": "The Whitney Museum of American Art serves as a major cultural landmark in New York City, celebrated for its extensive collection of contemporary and 20th-century American works. Situated in the vibrant Meatpacking District at the base of the High Line, its modern architectural design seamlessly blen",
+          "service_description": null,
+          "ambience_description": "The museum offers a bright and airy atmosphere defined by its thoughtful, modern design that encourages exploration. It balances quiet contemplation of art with lively social spaces on its terraces and cafes, catering to both casual visitors and dedicated art enthusiasts.",
+          "amenities_description": "The facility provides comprehensive visitor amenities including multiple dining options, a curated gift shop, complimentary coat check, and accessible audio guides. Guests can also enjoy designated outdoor balconies and observation decks.",
+          "unique_selling_points": "As the preeminent institution dedicated exclusively to 20th-century and contemporary American art, the museum is distinguished by its biennial exhibition and the architectural integration of indoor galleries with expansive outdoor terraces offering iconic Manhattan views.",
+          "neighborhood_description": "The surrounding neighborhood is a bustling, trendy area known for its industrial history, upscale dining, fashion boutiques, and its direct connection to the elevated High Line park.",
+          "physical_setting_description": "Located in the historic Meatpacking District at the terminus of the High Line, the museum is housed in a prominent, modern architectural building along the Hudson River. The venue features multiple outdoor terraces that provide expansive views of the city skyline, the Hudson River, and neighboring b",
           "_truncated_keys": 2
         }
       }
