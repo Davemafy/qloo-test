@@ -1,5 +1,5 @@
 {
-  "timestamp_utc": "2026-10-22T14:58:16.248531+00:00",
+  "timestamp_utc": "2026-10-22T15:17:56.927412+00:00",
   "test": "single_insights_cross_domain",
   "request_budget": 1,
   "requests_attempted": 1,
@@ -61,6 +61,34 @@
       "query.explainability"
     ],
     "query_present": true,
+    "query_explainability": {
+      "signal.interests.entities": {
+        "effect_on_top3_recs": [
+          {
+            "entity_id": "70CAE5BF-2F4C-445C-A3E5-4EDACFC3591C",
+            "avg_score": 1
+          }
+        ],
+        "effect_on_top5_recs": [
+          {
+            "entity_id": "70CAE5BF-2F4C-445C-A3E5-4EDACFC3591C",
+            "avg_score": 1
+          }
+        ],
+        "effect_on_top10_recs": [
+          {
+            "entity_id": "70CAE5BF-2F4C-445C-A3E5-4EDACFC3591C",
+            "avg_score": 1
+          }
+        ],
+        "effect_on_all_recs": [
+          {
+            "entity_id": "70CAE5BF-2F4C-445C-A3E5-4EDACFC3591C",
+            "avg_score": 1
+          }
+        ]
+      }
+    },
     "explainability_present": true
   }
 }
