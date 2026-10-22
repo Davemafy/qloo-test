@@ -10,9 +10,11 @@ from datetime import datetime, timezone
 
 BASE_URL = "https://hackathon.api.qloo.com"
 MAX_RESPONSE_BYTES = 256_000
-MAX_ARTIFACT_CHARS = 30_000
+MAX_ARTIFACT_CHARS = 12_000
 SECRET_FIELDS = ("api_key", "apikey", "authorization", "token", "secret", "email", "phone")
 RADIOHEAD_ENTITY_ID = "70CAE5BF-2F4C-445C-A3E5-4EDACFC3591C"
+ENTITY_FIELDS = ("name", "title", "entity_id", "id", "type", "score", "affinity")
+EXPLANATION_KEYS = {"explainability", "explanation", "explanations", "reason", "reasons"}
 
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -29,32 +31,97 @@ def safe_preview(body, api_key, limit=2000):
 
 
 def sanitize(value, api_key=None, depth=0):
-    if depth > 8:
+    """Bounded recursive sanitizer used only for small error responses."""
+    if depth > 6:
         return "[depth limit]"
     if isinstance(value, dict):
         out = {}
-        for key, item in list(value.items())[:60]:
+        for key, item in list(value.items())[:40]:
             key_text = str(key)
             if any(term in key_text.lower() for term in SECRET_FIELDS):
                 out[key_text] = "[redacted]"
             else:
                 out[key_text] = sanitize(item, api_key, depth + 1)
-        if len(value) > 60:
-            out["_truncated_keys"] = len(value) - 60
+        if len(value) > 40:
+            out["_truncated_keys"] = len(value) - 40
         return out
     if isinstance(value, list):
-        items = [sanitize(item, api_key, depth + 1) for item in value[:20]]
-        if len(value) > 20:
-            items.append({"_truncated_items": len(value) - 20})
+        items = [sanitize(item, api_key, depth + 1) for item in value[:5]]
+        if len(value) > 5:
+            items.append({"_truncated_items": len(value) - 5})
         return items
     if isinstance(value, str):
-        result = value[:1000]
+        result = value[:300]
         if api_key:
             result = result.replace(api_key, "[redacted]")
         return result
     if isinstance(value, (int, float, bool)) or value is None:
         return value
-    return str(value)[:500]
+    return str(value)[:200]
+
+
+def _entity_collection(payload):
+    """Return (path, entities) for common Qloo response layouts without assuming one schema."""
+    if not isinstance(payload, dict):
+        return None, None
+    candidates = [
+        ("results.entities", payload.get("results", {}).get("entities")
+         if isinstance(payload.get("results"), dict) else None),
+        ("results", payload.get("results") if isinstance(payload.get("results"), list) else None),
+        ("data.entities", payload.get("data", {}).get("entities")
+         if isinstance(payload.get("data"), dict) else None),
+        ("data", payload.get("data") if isinstance(payload.get("data"), list) else None),
+        ("entities", payload.get("entities")),
+    ]
+    for path, value in candidates:
+        if isinstance(value, list):
+            return path, value
+    return None, None
+
+
+def summarize_response(payload, api_key=None):
+    """Keep a compact, useful result summary instead of dropping oversized API payloads."""
+    collection_path, entities = _entity_collection(payload)
+    summary = {
+        "top_level_keys": list(payload.keys())[:30] if isinstance(payload, dict) else [],
+        "results_type": type(payload.get("results")).__name__
+            if isinstance(payload, dict) and "results" in payload else None,
+        "results_keys": list(payload["results"].keys())[:30]
+            if isinstance(payload, dict) and isinstance(payload.get("results"), dict) else [],
+        "entity_collection": collection_path,
+        "result_count": len(entities) if entities is not None else None,
+        "entities": [],
+        "explainability_fields": [],
+    }
+
+    if entities is not None:
+        for entity in entities[:5]:
+            if not isinstance(entity, dict):
+                summary["entities"].append({"value_type": type(entity).__name__})
+                continue
+            item = {}
+            for field in ENTITY_FIELDS:
+                if field in entity and not any(term in field.lower() for term in SECRET_FIELDS):
+                    item[field] = sanitize(entity[field], api_key)
+            for field in entity:
+                if str(field).lower() in EXPLANATION_KEYS:
+                    summary["explainability_fields"].append("entity." + str(field))
+                    item[str(field)] = sanitize(entity[field], api_key)
+            summary["entities"].append(item)
+
+    if isinstance(payload, dict):
+        for field in payload:
+            if str(field).lower() in EXPLANATION_KEYS:
+                summary["explainability_fields"].append(str(field))
+        results = payload.get("results")
+        if isinstance(results, dict):
+            for field in results:
+                if str(field).lower() in EXPLANATION_KEYS:
+                    summary["explainability_fields"].append("results." + str(field)
+                    )
+    summary["explainability_fields"] = sorted(set(summary["explainability_fields"]))
+    summary["explainability_present"] = bool(summary["explainability_fields"])
+    return summary
 
 
 def main():
@@ -110,7 +177,7 @@ def main():
         else:
             try:
                 parsed = json.loads(body.decode("utf-8"))
-                result["response"] = sanitize(parsed, api_key)
+                result["response_summary"] = summarize_response(parsed, api_key)
             except (UnicodeDecodeError, json.JSONDecodeError):
                 result["response_text_preview"] = safe_preview(body, api_key)
     except urllib.error.HTTPError as exc:
@@ -119,7 +186,7 @@ def main():
         try:
             body = exc.read(8000)
             parsed = json.loads(body.decode("utf-8"))
-            result["response"] = sanitize(parsed, api_key)
+            result["error_response_summary"] = summarize_response(parsed, api_key)
         except Exception:
             result["response_text_preview"] = "[omitted: non-JSON or unreadable error body]"
     except urllib.error.URLError as exc:
@@ -131,22 +198,28 @@ def main():
 
     serialized = json.dumps(result, indent=2, ensure_ascii=False)
     if len(serialized) > MAX_ARTIFACT_CHARS:
-        result.pop("response", None)
-        result.pop("response_text_preview", None)
-        result["error"] = result.get("error", "Response omitted") + " Sanitized payload exceeded artifact size limit."
+        summary = result.get("response_summary")
+        if isinstance(summary, dict):
+            summary["entities"] = summary.get("entities", [])[:2]
+            summary["top_level_keys"] = summary.get("top_level_keys", [])[:15]
+            summary["results_keys"] = summary.get("results_keys", [])[:15]
+        result["error"] = result.get("error", "Response summary compacted") + " Artifact summary compacted to stay within size limit."
         serialized = json.dumps(result, indent=2, ensure_ascii=False)
     with open("results.json", "w", encoding="utf-8") as output:
         output.write(serialized + "\n")
 
-    response = result.get("response", {})
-    results = response.get("results", []) if isinstance(response, dict) else []
+    summary = result.get("response_summary", {})
     print(json.dumps({
         "test": result["test"],
         "http_status": result.get("http_status"),
         "requests_attempted": result["requests_attempted"],
-        "result_count": len(results) if isinstance(results, list) else None,
-        "first_result_names": [x.get("name") for x in results[:5] if isinstance(x, dict)] if isinstance(results, list) else [],
-        "explainability_present": "query" in response if isinstance(response, dict) else False,
+        "result_count": summary.get("result_count") if isinstance(summary, dict) else None,
+        "first_result_names": [
+            entity.get("name", entity.get("title"))
+            for entity in summary.get("entities", []) if isinstance(entity, dict)
+        ] if isinstance(summary, dict) else [],
+        "explainability_present": summary.get("explainability_present", False)
+            if isinstance(summary, dict) else False,
         "error": result.get("error"),
         "artifact": "results.json",
     }, ensure_ascii=False))
