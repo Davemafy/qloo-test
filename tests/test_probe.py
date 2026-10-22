@@ -21,12 +21,31 @@ class InsightsSummaryTests(unittest.TestCase):
         self.assertEqual(summary["entity_collection"], "results.entities")
         self.assertEqual(summary["result_count"], 2)
         self.assertEqual(summary["entities"][0]["name"], "Book One")
-        self.assertEqual(summary["explainability_present"], True)
+        self.assertEqual(summary["query_explainability"], {"signal": "artist"})
+        self.assertTrue(summary["explainability_present"])
+
+    def test_captures_top_level_query_explainability(self):
+        payload = {"query": {"explainability": {"signals": [{"name": "Radiohead", "weight": 0.7}]}}}
+        summary = summarize_response(payload)
+        self.assertEqual(
+            summary["query_explainability"],
+            {"signals": [{"name": "Radiohead", "weight": 0.7}]},
+        )
+        self.assertTrue(summary["explainability_present"])
+
+    def test_redacts_secrets_inside_explainability(self):
+        summary = summarize_response({
+            "query": {"explainability": {"signal": "artist", "api_key": "do-not-leak"}}
+        })
+        rendered = str(summary)
+        self.assertNotIn("do-not-leak", rendered)
+        self.assertIn("[redacted]", rendered)
 
     def test_detects_query_metadata_as_explainability(self):
         summary = summarize_response({"query": {"signals": ["artist"]}})
         self.assertTrue(summary["query_present"])
         self.assertTrue(summary["explainability_present"])
+        self.assertIsNone(summary["query_explainability"])
 
     def test_supports_list_results_shape(self):
         summary = summarize_response({"results": [{"title": "Book A"}, {"name": "Book B"}]})
