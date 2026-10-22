@@ -109,16 +109,17 @@ def summarize_response(payload, api_key=None):
                     item[str(field)] = sanitize(entity[field], api_key)
             summary["entities"].append(item)
 
-    if isinstance(payload, dict):
-        for field in payload:
+    def collect_explanation_keys(value, prefix="", depth=0):
+        if depth > 5 or not isinstance(value, dict):
+            return
+        for field, nested in list(value.items())[:40]:
+            path = (prefix + "." if prefix else "") + str(field)
             if str(field).lower() in EXPLANATION_KEYS:
-                summary["explainability_fields"].append(str(field))
-        results = payload.get("results")
-        if isinstance(results, dict):
-            for field in results:
-                if str(field).lower() in EXPLANATION_KEYS:
-                    summary["explainability_fields"].append("results." + str(field)
-                    )
+                summary["explainability_fields"].append(path)
+            if isinstance(nested, dict):
+                collect_explanation_keys(nested, path, depth + 1)
+
+    collect_explanation_keys(payload)
     summary["explainability_fields"] = sorted(set(summary["explainability_fields"]))
     summary["explainability_present"] = bool(summary["explainability_fields"])
     return summary
