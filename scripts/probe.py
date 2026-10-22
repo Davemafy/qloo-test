@@ -20,6 +20,13 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
         return None
 
 
+def safe_preview(body, api_key, limit=2000):
+    text = body.decode("utf-8", errors="replace")
+    if api_key:
+        text = text.replace(api_key, "[redacted]")
+    return text[:limit]
+
+
 def sanitize(value, api_key=None, depth=0):
     if depth > 8:
         return "[depth limit]"
@@ -35,9 +42,10 @@ def sanitize(value, api_key=None, depth=0):
             out["_truncated_keys"] = len(value) - 60
         return out
     if isinstance(value, list):
-        return [sanitize(item, api_key, depth + 1) for item in value[:20]] + (
-            [{"_truncated_items": len(value) - 20}] if len(value) > 20 else []
-        )
+        items = [sanitize(item, api_key, depth + 1) for item in value[:20]]
+        if len(value) > 20:
+            items.append({"_truncated_items": len(value) - 20})
+        return items
     if isinstance(value, str):
         result = value[:1000]
         if api_key:
@@ -96,7 +104,7 @@ def main():
                 parsed = json.loads(body.decode("utf-8"))
                 result["response"] = sanitize(parsed, api_key)
             except (UnicodeDecodeError, json.JSONDecodeError):
-                result["response_text_preview"] = body.decode("utf-8", errors="replace")[:2000]
+                result["response_text_preview"] = safe_preview(body, api_key)
     except urllib.error.HTTPError as exc:
         # No retries. Redirects are blocked, so an HTTP 3xx is recorded safely.
         result["http_status"] = exc.code
@@ -112,7 +120,7 @@ def main():
     except TimeoutError:
         result["error"] = "Request timed out after 20 seconds; no retry attempted."
     finally:
-        # Do not retain the credential in any output object.
+        # The credential is never copied into the output object.
         api_key = None
 
     serialized = json.dumps(result, indent=2, ensure_ascii=False)
