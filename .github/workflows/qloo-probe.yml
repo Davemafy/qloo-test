@@ -1,0 +1,56 @@
+name: Qloo probe
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Start with the one-request smoke test"
+        required: true
+        type: choice
+        options:
+          - smoke
+        default: smoke
+      max_requests:
+        description: "Hard request ceiling for this run"
+        required: true
+        type: choice
+        options:
+          - "1"
+        default: "1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qloo-probe
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    if: ${{ inputs.mode == 'smoke' && inputs.max_requests == '1' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    env:
+      QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}
+      QLOO_BASE_URL: https://hackathon.api.qloo.com
+      MAX_REQUESTS: "1"
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - name: Check secret is configured without revealing it
+        shell: bash
+        run: |
+          if [ -z "${QLOO_API_KEY}" ]; then
+            echo "::error::Missing repository secret QLOO_API_KEY. No API request was made."
+            exit 1
+          fi
+          echo "API secret is configured. Value will not be printed."
+      - name: Run exactly one search smoke test
+        run: python scripts/probe.py
+      - name: Upload sanitized result
+        if: always() && hashFiles('results.json') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: qloo-probe-results
+          path: results.json
+          if-no-files-found: error
+          retention-days: 3
