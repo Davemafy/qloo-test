@@ -1,5 +1,5 @@
 {
-  "timestamp_utc": "2026-10-22T15:19:27.625005+00:00",
+  "timestamp_utc": "2026-10-22T15:20:53.426058+00:00",
   "test": "single_insights_cross_domain",
   "request_budget": 1,
   "requests_attempted": 1,
@@ -7,7 +7,8 @@
   "endpoint_path": "/v2/insights",
   "query": {
     "filter.type": "urn:entity:place",
-    "filter.location.query": "Abuja, Nigeria",
+    "filter.location.query": "Abuja",
+    "filter.location.radius": "0",
     "signal.interests.entities": "70CAE5BF-2F4C-445C-A3E5-4EDACFC3591C",
     "take": "10",
     "feature.explainability": "true"
@@ -18,7 +19,8 @@
     "entity_id": "70CAE5BF-2F4C-445C-A3E5-4EDACFC3591C"
   },
   "result_type": "urn:entity:place",
-  "location": "Abuja, Nigeria",
+  "location": "Abuja",
+  "location_radius": 0,
   "http_status": 200,
   "response_summary": {
     "top_level_keys": [
@@ -36,27 +38,459 @@
       {
         "name": "Wuse Market",
         "entity_id": "CD2A0108-99B5-4F1D-A16F-C56F1C79C7EE",
-        "type": "urn:entity"
+        "type": "urn:entity",
+        "subtype": "urn:entity:place",
+        "disambiguation": "10 shop De Joe: Block 7 Wuse Market Rd Wuse, Abuja 904101, Federal Capital Territory, Nigeria",
+        "properties": {
+          "hours": null,
+          "phone": "[redacted]",
+          "images": [
+            {
+              "url": "https://images.qloo.com/i/CD2A0108-99B5-4F1D-A16F-C56F1C79C7EE-1CU7GD-420x-outside.jpg",
+              "type": "urn:image:place:unknown"
+            }
+          ],
+          "address": "10 shop De Joe: Block 7 Wuse Market Rd Wuse, Abuja 904101, Federal Capital Territory, Nigeria",
+          "geocode": {
+            "city": null,
+            "name": "Wuse",
+            "metro": null,
+            "country": "Nigeria",
+            "country_code": "NG",
+            "admin1_region": "Federal Capital Territory",
+            "admin2_region": "Municipal Area Council"
+          },
+          "parking": true,
+          "website": null,
+          "good_for": null,
+          "keywords": null,
+          "locality": {
+            "city": null,
+            "metro": null,
+            "state": {
+              "name": "Federal Capital Territory",
+              "place": "state",
+              "boundary": "administrative",
+              "entity_id": "E04649A6-7ED0-4422-B9F2-A33148FD39D3",
+              "admin_level": 4,
+              "locality_id": "r3717259",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "county": {
+              "name": "Municipal Area Council",
+              "place": null,
+              "boundary": "administrative",
+              "entity_id": "E7B16B8E-1110-4927-9BA5-1A4F8F45AA31",
+              "admin_level": 6,
+              "locality_id": "r3717265",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "country": {
+              "name": "Nigeria",
+              "place": "country",
+              "boundary": "administrative",
+              "entity_id": "9C45C671-7ED2-4303-8C92-94DB5447B8F9",
+              "admin_level": 2,
+              "locality_id": "r192787",
+              "abbreviation": null,
+              "country_code": "NG"
+            },
+            "neighborhood": {
+              "name": "Wuse",
+              "place": "suburb",
+              "boundary": "administrative",
+              "entity_id": "29C34BB5-E20E-4888-9A68-414A8F3506CC",
+              "admin_level": 7,
+              "locality_id": "r12193652",
+              "abbreviation": null,
+              "country_code": null
+            }
+          },
+          "menu_url": null,
+          "is_closed": false,
+          "live_music": null,
+          "localities": [
+            {
+              "name": "Wuse",
+              "place": "suburb",
+              "boundary": "administrative",
+              "entity_id": "29C34BB5-E20E-4888-9A68-414A8F3506CC",
+              "admin_level": 7,
+              "locality_id": "r12193652",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "Municipal Area Council",
+              "place": null,
+              "boundary": "administrative",
+              "entity_id": "E7B16B8E-1110-4927-9BA5-1A4F8F45AA31",
+              "admin_level": 6,
+              "locality_id": "r3717265",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "Federal Capital Territory",
+              "place": "state",
+              "boundary": "administrative",
+              "entity_id": "E04649A6-7ED0-4422-B9F2-A33148FD39D3",
+              "admin_level": 4,
+              "locality_id": "r3717259",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "Nigeria",
+              "place": "country",
+              "boundary": "administrative",
+              "entity_id": "9C45C671-7ED2-4303-8C92-94DB5447B8F9",
+              "admin_level": 2,
+              "locality_id": "r192787",
+              "abbreviation": null,
+              "country_code": "NG"
+            }
+          ],
+          "description": "Hair salon offering personal care services within the bustling Wuse Market complex in central Abuja, accessible from Block 7 on Wuse Market Road.",
+          "hotel_class": null,
+          "price_level": null,
+          "price_range": {
+            "to": null,
+            "from": null,
+            "currency": "usd"
+          },
+          "star_rating": null,
+          "event_spaces": false,
+          "neighborhood": "Wuse",
+          "pet_friendly": null,
+          "check_in_time": null,
+          "primary_genre": {
+            "id": "urn:tag:genre:place:hair_salon",
+            "akas": [
+              {
+                "value": "\"Frizētava\"",
+                "languages": [
+                  "lv"
+                ]
+              },
+              {
+                "value": "\"Perruqueria\"",
+                "languages": [
+                  "ca"
+                ]
+              },
+              {
+                "value": "\"हेयर सैलून\"",
+                "languages": [
+                  "hi"
+                ]
+              },
+              {
+                "value": "\"Перукарня\"",
+                "languages": [
+                  "uk"
+                ]
+              },
+              {
+                "value": "\"صالون تصفيف شعر\"",
+                "languages": [
+                  "ar"
+                ]
+              },
+              {
+                "_truncated_items": 49
+              }
+            ],
+            "name": "Hair salon",
+            "type": "urn:tag:genre:place",
+            "weight": null
+          },
+          "check_out_time": null,
+          "business_rating": null,
+          "loyalty_program": null,
+          "number_of_rooms": null,
+          "cost_description": null,
+          "specialty_dishes": null,
+          "short_description": "Hair salon offering personal care services within the bustling Wuse Market complex in central Abuja, accessible from Block 7 on Wuse Market Road.",
+          "number_of_stations": null,
+          "cuisine_description": null,
+          "overall_description": "This hair salon provides essential personal care and grooming services within the lively Wuse Market complex in central Abuja. It is designed for convenience, catering primarily to locals and shoppers navigating the busy market environment. The salon offers a straightforward and practical experience",
+          "service_description": null,
+          "ambience_description": "The salon maintains a casual and functional atmosphere that fits seamlessly into the fast-paced energy of the market. It offers a practical and convenient environment for personal grooming amidst the daily hustle.",
+          "amenities_description": "The salon provides a range of essential personal care and hair styling services within a straightforward facility. It serves as an accessible grooming spot for those navigating the market area.",
+          "unique_selling_points": "Positioned directly inside one of Abuja's most prominent markets, it offers highly accessible grooming services to locals and shoppers during their daily errands.",
+          "neighborhood_description": "The surrounding neighborhood is a bustling, central commercial district characterized by the high energy and constant movement of one of the city's primary trading hubs. It is a highly walkable and active area known for its accessibility and density of diverse services.",
+          "physical_setting_description": "Located within the busy Wuse Market complex in the heart of Abuja, this salon is situated within a high-traffic commercial hub. The setting provides easy access to the vibrant market environment, making it a focal point for shoppers and local residents.",
+          "_truncated_keys": 2
+        }
       },
       {
         "name": "Moscow Underground",
         "entity_id": "4EFC81D5-4929-480D-AB8B-13D64D1B7A32",
-        "type": "urn:entity"
-      },
-      {
-        "name": "3FGG+R7F",
-        "entity_id": "62D597B0-8D8A-4105-A235-FEAC8FCDDF40",
-        "type": "urn:entity"
-      },
-      {
-        "name": "Crush Cafe",
-        "entity_id": "ED650908-F845-4D07-9057-8BF2ACB7EF1E",
-        "type": "urn:entity"
-      },
-      {
-        "name": "Aso Rock",
-        "entity_id": "266AA310-B1D5-4A10-A852-1C463F4187B7",
-        "type": "urn:entity"
+        "type": "urn:entity",
+        "subtype": "urn:entity:place",
+        "disambiguation": "35 Adetokunbo Ademola Cres Wuse Abuja 904101 Federal Capital Territory, Nigeria",
+        "properties": {
+          "hours": {
+            "friday": [
+              {
+                "opens": "T22:00:00",
+                "closed": false,
+                "closes": "T08:00:00"
+              }
+            ],
+            "monday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "sunday": [
+              {
+                "opens": "T22:00:00",
+                "closed": false,
+                "closes": "T08:00:00"
+              }
+            ],
+            "tuesday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "saturday": [
+              {
+                "opens": "T22:00:00",
+                "closed": false,
+                "closes": "T08:00:00"
+              }
+            ],
+            "thursday": [
+              {
+                "opens": "T22:00:00",
+                "closed": false,
+                "closes": "T08:00:00"
+              }
+            ],
+            "wednesday": [
+              {
+                "opens": "T22:00:00",
+                "closed": false,
+                "closes": "T08:00:00"
+              }
+            ]
+          },
+          "phone": "[redacted]",
+          "images": [
+            {
+              "url": "https://images.qloo.com/i/4EFC81D5-4929-480D-AB8B-13D64D1B7A32-3eJ6VX-420x-outside.jpg",
+              "type": "urn:image:place:unknown"
+            }
+          ],
+          "address": "35 Adetokunbo Ademola Cres Wuse Abuja 904101 Federal Capital Territory, Nigeria",
+          "geocode": {
+            "city": "Abuja",
+            "name": "Wuse II",
+            "metro": null,
+            "country": "Nigeria",
+            "country_code": "NG",
+            "admin1_region": "Federal Capital Territory",
+            "admin2_region": "Municipal Area Council"
+          },
+          "parking": null,
+          "website": null,
+          "good_for": null,
+          "keywords": [
+            {
+              "name": "nightlife",
+              "count": 11
+            },
+            {
+              "name": "clubhouse",
+              "count": 2
+            },
+            {
+              "name": "loud music",
+              "count": 2
+            },
+            {
+              "name": "ballers",
+              "count": 3
+            },
+            {
+              "name": "bouncers",
+              "count": 7
+            },
+            {
+              "_truncated_items": 5
+            }
+          ],
+          "locality": {
+            "city": null,
+            "metro": null,
+            "state": {
+              "name": "Federal Capital Territory",
+              "place": "state",
+              "boundary": "administrative",
+              "entity_id": "E04649A6-7ED0-4422-B9F2-A33148FD39D3",
+              "admin_level": 4,
+              "locality_id": "r3717259",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "county": {
+              "name": "Municipal Area Council",
+              "place": null,
+              "boundary": "administrative",
+              "entity_id": "E7B16B8E-1110-4927-9BA5-1A4F8F45AA31",
+              "admin_level": 6,
+              "locality_id": "r3717265",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "country": {
+              "name": "Nigeria",
+              "place": "country",
+              "boundary": "administrative",
+              "entity_id": "9C45C671-7ED2-4303-8C92-94DB5447B8F9",
+              "admin_level": 2,
+              "locality_id": "r192787",
+              "abbreviation": null,
+              "country_code": "NG"
+            },
+            "neighborhood": {
+              "name": "Wuse II",
+              "place": "suburb",
+              "boundary": "administrative",
+              "entity_id": "7ABF24D4-4504-4DD0-8C24-B898B1EE317C",
+              "admin_level": 7,
+              "locality_id": "r12200353",
+              "abbreviation": null,
+              "country_code": null
+            }
+          },
+          "menu_url": null,
+          "is_closed": false,
+          "live_music": null,
+          "localities": [
+            {
+              "name": "Wuse II",
+              "place": "suburb",
+              "boundary": "administrative",
+              "entity_id": "7ABF24D4-4504-4DD0-8C24-B898B1EE317C",
+              "admin_level": 7,
+              "locality_id": "r12200353",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "Municipal Area Council",
+              "place": null,
+              "boundary": "administrative",
+              "entity_id": "E7B16B8E-1110-4927-9BA5-1A4F8F45AA31",
+              "admin_level": 6,
+              "locality_id": "r3717265",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "Federal Capital Territory",
+              "place": "state",
+              "boundary": "administrative",
+              "entity_id": "E04649A6-7ED0-4422-B9F2-A33148FD39D3",
+              "admin_level": 4,
+              "locality_id": "r3717259",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "Nigeria",
+              "place": "country",
+              "boundary": "administrative",
+              "entity_id": "9C45C671-7ED2-4303-8C92-94DB5447B8F9",
+              "admin_level": 2,
+              "locality_id": "r192787",
+              "abbreviation": null,
+              "country_code": "NG"
+            }
+          ],
+          "description": "Popular nightlife venue and local tourist attraction in Wuse, Abuja, offering clubbing and evening entertainment.",
+          "hotel_class": null,
+          "price_level": 3,
+          "price_range": {
+            "to": null,
+            "from": null,
+            "currency": "usd"
+          },
+          "star_rating": null,
+          "event_spaces": true,
+          "neighborhood": "Wuse II",
+          "pet_friendly": false,
+          "check_in_time": null,
+          "primary_genre": {
+            "id": "urn:tag:genre:place:night_club",
+            "akas": [
+              {
+                "value": "\"Noćni klub\"",
+                "languages": [
+                  "hr",
+                  "bs"
+                ]
+              },
+              {
+                "value": "\"Naktsklubs\"",
+                "languages": [
+                  "lv"
+                ]
+              },
+              {
+                "value": "\"Нощен клуб\"",
+                "languages": [
+                  "bg"
+                ]
+              },
+              {
+                "value": "\"Câu lạc bộ đêm\"",
+                "languages": [
+                  "vi"
+                ]
+              },
+              {
+                "value": "\"Ööklubi\"",
+                "languages": [
+                  "et"
+                ]
+              },
+              {
+                "_truncated_items": 45
+              }
+            ],
+            "name": "Night club",
+            "type": "urn:tag:genre:place",
+            "weight": null
+          },
+          "check_out_time": null,
+          "business_rating": 4.300000190734863,
+          "loyalty_program": null,
+          "number_of_rooms": null,
+          "cost_description": null,
+          "specialty_dishes": null,
+          "short_description": "Popular nightlife venue and local tourist attraction in Wuse, Abuja, offering clubbing and evening entertainment.",
+          "number_of_stations": null,
+          "cuisine_description": null,
+          "overall_description": "This premium nightlife venue in the heart of Wuse, Abuja, serves as a premier destination for those seeking high-end clubbing and evening entertainment. Known for its sophisticated interior and energetic atmosphere, the club attracts a stylish crowd looking to enjoy high-quality music and beverages.",
+          "service_description": null,
+          "ambience_description": "The venue offers a premium and high-energy atmosphere characterized by luxurious decor and a sophisticated, party-focused vibe. It is designed to feel exclusive and grand, catering to those looking for a top-tier nightlife experience.",
+          "amenities_description": "The club features a high-quality sound system and spacious seating, complemented by a full bar offering a variety of spirits and cocktails. Food service is also available, providing options such as peppered chicken and soups in a climate-controlled environment.",
+          "unique_selling_points": "Widely regarded as a premier destination for luxury nightlife in Abuja, the club is known for its exclusive atmosphere and prestige. It provides a distinctively high-end experience that caters to a stylish clientele looking to dance and socialize until late hours.",
+          "neighborhood_description": "Located in the heart of Abuja, the surrounding neighborhood is a vibrant hub for commerce and nightlife, attracting a stylish and affluent crowd seeking late-night entertainment.",
+          "physical_setting_description": "Situated in the central Wuse district of Abuja, this nightlife venue is located within a bustling commercial area. The interior is designed to be upscale and elegant, providing a sophisticated backdrop for evening entertainment.",
+          "_truncated_keys": 2
+        }
       }
     ],
     "explainability_fields": [
@@ -92,5 +526,6 @@
       }
     },
     "explainability_present": true
-  }
+  },
+  "artifact_note": "Summary compacted to stay within artifact size limit."
 }
