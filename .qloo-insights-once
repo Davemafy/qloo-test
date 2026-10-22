@@ -4,3 +4,5 @@ Contrast run: use a broad indie-music tag instead of Radiohead as the taste sign
 Control run: omit all taste signals and retrieve New York City places; one request only.
 
 Taste run: Radiohead entity to New York City places; one request only.
+
+Taste contrast: indie-music tag to New York City places; one request only.
