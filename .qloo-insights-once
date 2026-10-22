@@ -2,3 +2,5 @@ One-time trigger for a single Qloo Insights request. Validate New York City-only
 Contrast run: use a broad indie-music tag instead of Radiohead as the taste signal; one request only.
 
 Control run: omit all taste signals and retrieve New York City places; one request only.
+
+Taste run: Radiohead entity to New York City places; one request only.
