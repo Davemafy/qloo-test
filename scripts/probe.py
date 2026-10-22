@@ -13,7 +13,7 @@ MAX_RESPONSE_BYTES = 256_000
 MAX_ARTIFACT_CHARS = 12_000
 SECRET_FIELDS = ("api_key", "apikey", "authorization", "token", "secret", "email", "phone")
 RADIOHEAD_ENTITY_ID = "70CAE5BF-2F4C-445C-A3E5-4EDACFC3591C"
-ENTITY_FIELDS = ("name", "title", "entity_id", "id", "type", "score", "affinity")
+ENTITY_FIELDS = ("name", "title", "entity_id", "id", "type", "score", "affinity", "subtype", "description", "disambiguation", "properties")
 EXPLANATION_KEYS = {"explainability", "explanation", "explanations", "reason", "reasons"}
 
 
@@ -155,7 +155,8 @@ def main():
     # No retries, loops, or fallback hosts.
     params = {
         "filter.type": "urn:entity:place",
-        "filter.location.query": "Abuja, Nigeria",
+        "filter.location.query": "Abuja",
+        "filter.location.radius": "0",
         "signal.interests.entities": RADIOHEAD_ENTITY_ID,
         "take": "10",
         "feature.explainability": "true",
@@ -183,7 +184,8 @@ def main():
         "hypothesis": "A music-artist signal can retrieve location-aware place recommendations, testing whether Qloo exposes a non-music taste association.",
         "seed_entity": {"name": "Radiohead", "entity_id": RADIOHEAD_ENTITY_ID},
         "result_type": "urn:entity:place",
-        "location": "Abuja, Nigeria",
+        "location": "Abuja",
+        "location_radius": 0,
     }
 
     try:
