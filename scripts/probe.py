@@ -92,6 +92,7 @@ def summarize_response(payload, api_key=None):
         "result_count": len(entities) if entities is not None else None,
         "entities": [],
         "explainability_fields": [],
+        "query_present": False,
     }
 
     if entities is not None:
@@ -114,6 +115,8 @@ def summarize_response(payload, api_key=None):
             return
         for field, nested in list(value.items())[:40]:
             path = (prefix + "." if prefix else "") + str(field)
+            if str(field).lower() == "query":
+                summary["query_present"] = True
             if str(field).lower() in EXPLANATION_KEYS:
                 summary["explainability_fields"].append(path)
             if isinstance(nested, dict):
@@ -121,7 +124,7 @@ def summarize_response(payload, api_key=None):
 
     collect_explanation_keys(payload)
     summary["explainability_fields"] = sorted(set(summary["explainability_fields"]))
-    summary["explainability_present"] = bool(summary["explainability_fields"])
+    summary["explainability_present"] = bool(summary["explainability_fields"]) or summary["query_present"]
     return summary
 
 
