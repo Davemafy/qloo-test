@@ -82,6 +82,14 @@ def _entity_collection(payload):
 def summarize_response(payload, api_key=None):
     """Keep a compact, useful result summary instead of dropping oversized API payloads."""
     collection_path, entities = _entity_collection(payload)
+    query = payload.get("query") if isinstance(payload, dict) else None
+    query_explainability = query.get("explainability") if isinstance(query, dict) else None
+    # Some response versions may nest query metadata under results.
+    if query_explainability is None and isinstance(payload, dict):
+        results = payload.get("results")
+        if isinstance(results, dict) and isinstance(results.get("query"), dict):
+            query_explainability = results["query"].get("explainability")
+
     summary = {
         "top_level_keys": list(payload.keys())[:30] if isinstance(payload, dict) else [],
         "results_type": type(payload.get("results")).__name__
@@ -93,6 +101,8 @@ def summarize_response(payload, api_key=None):
         "entities": [],
         "explainability_fields": [],
         "query_present": False,
+        "query_explainability": sanitize(query_explainability, api_key)
+            if query_explainability is not None else None,
     }
 
     if entities is not None:
@@ -124,7 +134,10 @@ def summarize_response(payload, api_key=None):
 
     collect_explanation_keys(payload)
     summary["explainability_fields"] = sorted(set(summary["explainability_fields"]))
-    summary["explainability_present"] = bool(summary["explainability_fields"]) or summary["query_present"]
+    summary["explainability_present"] = (
+        query_explainability is not None or bool(summary["explainability_fields"])
+        or summary["query_present"]
+    )
     return summary
 
 
@@ -207,6 +220,9 @@ def main():
             summary["entities"] = summary.get("entities", [])[:2]
             summary["top_level_keys"] = summary.get("top_level_keys", [])[:15]
             summary["results_keys"] = summary.get("results_keys", [])[:15]
+            explanation = summary.get("query_explainability")
+            if isinstance(explanation, (dict, list, str)):
+                summary["query_explainability"] = sanitize(explanation)
         result["artifact_note"] = "Summary compacted to stay within artifact size limit."
         serialized = json.dumps(result, indent=2, ensure_ascii=False)
     with open("results.json", "w", encoding="utf-8") as output:
@@ -223,6 +239,8 @@ def main():
             for entity in summary.get("entities", []) if isinstance(entity, dict)
         ] if isinstance(summary, dict) else [],
         "explainability_present": summary.get("explainability_present", False)
+            if isinstance(summary, dict) else False,
+        "query_explainability_captured": summary.get("query_explainability") is not None
             if isinstance(summary, dict) else False,
         "error": result.get("error"),
         "artifact": "results.json",
