@@ -1,22 +1,24 @@
 {
-  "timestamp_utc": "2026-10-22T15:17:56.927412+00:00",
+  "timestamp_utc": "2026-10-22T15:19:27.625005+00:00",
   "test": "single_insights_cross_domain",
   "request_budget": 1,
   "requests_attempted": 1,
   "endpoint_host": "hackathon.api.qloo.com",
   "endpoint_path": "/v2/insights",
   "query": {
-    "filter.type": "urn:entity:book",
+    "filter.type": "urn:entity:place",
+    "filter.location.query": "Abuja, Nigeria",
     "signal.interests.entities": "70CAE5BF-2F4C-445C-A3E5-4EDACFC3591C",
     "take": "10",
     "feature.explainability": "true"
   },
-  "hypothesis": "A music-artist signal can retrieve Qloo-affinity-ranked books, exposing a cross-domain taste association.",
+  "hypothesis": "A music-artist signal can retrieve location-aware place recommendations, testing whether Qloo exposes a non-music taste association.",
   "seed_entity": {
     "name": "Radiohead",
     "entity_id": "70CAE5BF-2F4C-445C-A3E5-4EDACFC3591C"
   },
-  "result_type": "urn:entity:book",
+  "result_type": "urn:entity:place",
+  "location": "Abuja, Nigeria",
   "http_status": 200,
   "response_summary": {
     "top_level_keys": [
@@ -32,28 +34,28 @@
     "result_count": 10,
     "entities": [
       {
-        "name": "Paul McCartney: The Life",
-        "entity_id": "D3436CAD-ACE1-4C5A-B0B8-50B6E1B62ACE",
+        "name": "Wuse Market",
+        "entity_id": "CD2A0108-99B5-4F1D-A16F-C56F1C79C7EE",
         "type": "urn:entity"
       },
       {
-        "name": "John Lennon 1980: The Last Days in the Life",
-        "entity_id": "37002388-766F-4BEB-B3C7-AC9FE96F293B",
+        "name": "Moscow Underground",
+        "entity_id": "4EFC81D5-4929-480D-AB8B-13D64D1B7A32",
         "type": "urn:entity"
       },
       {
-        "name": "The John Lennon Letters",
-        "entity_id": "193D088A-5911-4CF5-AEC5-4D43E204EF0E",
+        "name": "3FGG+R7F",
+        "entity_id": "62D597B0-8D8A-4105-A235-FEAC8FCDDF40",
         "type": "urn:entity"
       },
       {
-        "name": "Tune In (The Beatles: All These Years, #1)",
-        "entity_id": "6DACF6E3-B4C4-41C4-8DD1-4CCDF323DED7",
+        "name": "Crush Cafe",
+        "entity_id": "ED650908-F845-4D07-9057-8BF2ACB7EF1E",
         "type": "urn:entity"
       },
       {
-        "name": "Lennon: The Man, the Myth, the Music - The Definitive Life",
-        "entity_id": "0279219C-2A8F-4430-A42C-3CE9BA01A57A",
+        "name": "Aso Rock",
+        "entity_id": "266AA310-B1D5-4A10-A852-1C463F4187B7",
         "type": "urn:entity"
       }
     ],
