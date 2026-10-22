@@ -12,7 +12,7 @@ BASE_URL = "https://hackathon.api.qloo.com"
 MAX_RESPONSE_BYTES = 256_000
 MAX_ARTIFACT_CHARS = 12_000
 SECRET_FIELDS = ("api_key", "apikey", "authorization", "token", "secret", "email", "phone")
-RADIOHEAD_ENTITY_ID = "70CAE5BF-2F4C-445C-A3E5-4EDACFC3591C"
+INDIE_MUSIC_TAG = "urn:tag:genre:music:indie"
 ENTITY_FIELDS = ("name", "title", "entity_id", "id", "type", "score", "affinity", "subtype", "description", "disambiguation", "properties")
 EXPLANATION_KEYS = {"explainability", "explanation", "explanations", "reason", "reasons"}
 
@@ -151,13 +151,13 @@ def main():
         print("Safety stop: MAX_REQUESTS must equal 1; no request made.", file=sys.stderr)
         return 2
 
-    # Exactly one cross-domain Insights request: Radiohead -> book recommendations.
+    # Exactly one contrast request: indie-music taste tag -> Abuja places.
     # No retries, loops, or fallback hosts.
     params = {
         "filter.type": "urn:entity:place",
         "filter.location.query": "Abuja",
         "filter.location.radius": "0",
-        "signal.interests.entities": RADIOHEAD_ENTITY_ID,
+        "signal.interests.tags": INDIE_MUSIC_TAG,
         "take": "10",
         "feature.explainability": "true",
     }
@@ -175,14 +175,14 @@ def main():
     opener = urllib.request.build_opener(NoRedirect)
     result = {
         "timestamp_utc": datetime.now(timezone.utc).isoformat(),
-        "test": "single_insights_cross_domain",
+        "test": "indie_tag_to_abuja_places",
         "request_budget": 1,
         "requests_attempted": 1,
         "endpoint_host": "hackathon.api.qloo.com",
         "endpoint_path": "/v2/insights",
         "query": params,
-        "hypothesis": "A music-artist signal can retrieve location-aware place recommendations, testing whether Qloo exposes a non-music taste association.",
-        "seed_entity": {"name": "Radiohead", "entity_id": RADIOHEAD_ENTITY_ID},
+        "hypothesis": "Contrast a broad indie-music taste tag against the prior Radiohead-seeded Abuja places to test whether the taste signal materially shapes recommendations.",
+        "seed_signal": {"type": "tag", "value": INDIE_MUSIC_TAG},
         "result_type": "urn:entity:place",
         "location": "Abuja",
         "location_radius": 0,
