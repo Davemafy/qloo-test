@@ -1,35 +1,39 @@
 # Qloo API Probe Harness
 
-A deliberately quota-conservative test harness for the Qloo hackathon API.
+A deliberately quota-conservative harness for validating one cross-domain Qloo Insights request.
 
 ## Safety model
 
-- No Qloo requests run on push, pull requests, schedules or deployment.
-- The workflow is started manually from GitHub Actions.
-- The workflow accepts only `smoke` mode and a request ceiling of `1`.
-- The script performs one fixed `GET /search` request. It has no retries, no loops and no fallback hosts.
-- The API key is read only from the `QLOO_API_KEY` GitHub Actions secret. Never put it in source, artifacts, logs or chat.
-- Redirects are blocked to prevent forwarding the API key to another host.
-- Response bodies are bounded, sanitized and uploaded as a short-lived artifact (3 days).
+- The probe requires `QLOO_API_KEY` and `MAX_REQUESTS=1`; otherwise it exits before making a request.
+- The script makes one fixed `GET /v2/insights` request: Radiohead as the interest signal, books as the target entity type.
+- There are no retries, loops, fallback hosts, or redirect following.
+- The API key is read only from the `QLOO_API_KEY` environment variable. Never put it in source, artifacts, logs, or chat.
+- Response bytes are bounded. Successful responses are reduced to a compact schema/result summary; the full response body is not persisted.
+- Artifacts contain a small sanitized `results.json` and expire after 3 days.
 
-## Run the smoke test
+## Local checks (no API request)
+
+Run the offline parser tests:
+
+```sh
+python -m unittest discover -s tests -v
+python -m py_compile scripts/probe.py
+```
+
+These tests use synthetic payloads. They do not validate live API access or the actual Qloo response schema.
+
+## Run the probe
 
 1. Open the repository's **Actions** tab.
 2. Select **Qloo probe** and click **Run workflow**.
-3. Keep `mode=smoke` and `max_requests=1`.
-4. Download the `qloo-probe-results` artifact.
-5. Inspect `results.json` for the HTTP status, response shape and bounded sanitized response.
+3. Keep `mode=insights` and `max_requests=1`.
+4. Download the `qloo-insights-results` artifact.
+5. Inspect `results.json` for HTTP status, detected result collection, result count, a few entity fields, and explainability fields.
 
-Do not rerun a failed request until its failure status and endpoint are understood.
+The workflow also has a dedicated sentinel-file push trigger. Do not create or push that sentinel unless you intend to spend one Qloo request. Do not rerun a failed request until its failure status and endpoint are understood.
 
-## Endpoint
+## Endpoint and interpretation
 
-The harness uses `https://hackathon.api.qloo.com`, the hackathon API host referenced by the event documentation. It does not try alternate hosts automatically. Confirm the host against the raw official onboarding email before running.
+The probe uses `https://hackathon.api.qloo.com/v2/insights`. It does not try alternate hosts automatically. Confirm the host against official hackathon onboarding materials before a live run.
 
-## Next phase
-
-Do not add discovery probes until the smoke response has been inspected. The next experiment should be designed around the actual response schema and should use a fixed, reviewable request matrix with a strict cap.
-
-## Important
-
-This is a controlled research harness, not production code. A successful search response confirms basic access only; it does not validate the Insights endpoint or prove any cultural hypothesis.
+A successful HTTP status confirms only that the endpoint returned successfully. It does not, by itself, prove that the response contains book recommendations or validate the cultural hypothesis.
