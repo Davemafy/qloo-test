@@ -157,7 +157,7 @@ def main():
         "filter.type": "urn:entity:place",
         "filter.location.query": "New York City",
         "filter.location.radius": "0",
-        "signal.interests.tags": "urn:tag:genre:music:indie",
+        "signal.interests.tags": "urn:tag:genre:music:hip_hop",
         "take": "10",
         "feature.explainability": "true",
     }
@@ -175,14 +175,14 @@ def main():
     opener = urllib.request.build_opener(NoRedirect)
     result = {
         "timestamp_utc": datetime.now(timezone.utc).isoformat(),
-        "test": "indie_tag_to_nyc_places",
+        "test": "hip_hop_tag_to_nyc_places",
         "request_budget": 1,
         "requests_attempted": 1,
         "endpoint_host": "hackathon.api.qloo.com",
         "endpoint_path": "/v2/insights",
         "query": params,
-        "hypothesis": "Control condition: retrieve New York City places without a taste signal to compare with Radiohead- and indie-tag-seeded results.",
-        "seed_signal": {"type": "tag", "value": "urn:tag:genre:music:indie"},
+        "hypothesis": "Test whether a hip-hop music tag changes New York City place recommendations relative to the no-signal, Radiohead, and indie-tag conditions.",
+        "seed_signal": {"type": "tag", "value": "urn:tag:genre:music:hip_hop"},
         "result_type": "urn:entity:place",
         "location": "New York City",
         "location_radius": 0,
