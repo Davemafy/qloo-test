@@ -1,6 +1,6 @@
 {
-  "timestamp_utc": "2026-10-22T15:39:03.721104+00:00",
-  "test": "radiohead_to_nyc_places",
+  "timestamp_utc": "2026-10-22T15:39:53.320922+00:00",
+  "test": "indie_tag_to_nyc_places",
   "request_budget": 1,
   "requests_attempted": 1,
   "endpoint_host": "hackathon.api.qloo.com",
@@ -9,15 +9,14 @@
     "filter.type": "urn:entity:place",
     "filter.location.query": "New York City",
     "filter.location.radius": "0",
-    "signal.interests.entities": "70CAE5BF-2F4C-445C-A3E5-4EDACFC3591C",
+    "signal.interests.tags": "urn:tag:genre:music:indie",
     "take": "10",
     "feature.explainability": "true"
   },
   "hypothesis": "Control condition: retrieve New York City places without a taste signal to compare with Radiohead- and indie-tag-seeded results.",
   "seed_signal": {
-    "type": "entity",
-    "name": "Radiohead",
-    "entity_id": "70CAE5BF-2F4C-445C-A3E5-4EDACFC3591C"
+    "type": "tag",
+    "value": "urn:tag:genre:music:indie"
   },
   "result_type": "urn:entity:place",
   "location": "New York City",
@@ -27,6 +26,7 @@
     "top_level_keys": [
       "success",
       "results",
+      "warnings",
       "query"
     ],
     "results_type": "dict",
@@ -37,110 +37,116 @@
     "result_count": 10,
     "entities": [
       {
-        "name": "Solomon R. Guggenheim Museum",
-        "entity_id": "5FAFC6A6-45DB-4AC6-80B3-D7BD558420A8",
+        "name": "Pete's Candy Store",
+        "entity_id": "3EB16612-508F-4EA5-9C7D-3CB393F8CC1B",
         "type": "urn:entity",
         "subtype": "urn:entity:place",
-        "disambiguation": "1071 5th Ave New York, NY 10128",
+        "disambiguation": "709 Lorimer St Brooklyn, NY 11211",
         "properties": {
           "hours": {
             "friday": [
               {
-                "opens": "T10:30:00",
+                "opens": "T16:00:00",
                 "closed": false,
-                "closes": "T17:30:00"
+                "closes": "T02:00:00"
               }
             ],
             "monday": [
               {
-                "opens": "T10:30:00",
+                "opens": "T17:00:00",
                 "closed": false,
-                "closes": "T17:30:00"
+                "closes": "T02:00:00"
               }
             ],
             "sunday": [
               {
-                "opens": "T10:30:00",
+                "opens": "T15:00:00",
                 "closed": false,
-                "closes": "T17:30:00"
+                "closes": "T02:00:00"
               }
             ],
             "tuesday": [
               {
-                "opens": "T10:30:00",
+                "opens": "T17:00:00",
                 "closed": false,
-                "closes": "T17:30:00"
+                "closes": "T02:00:00"
               }
             ],
             "saturday": [
               {
-                "opens": "T10:30:00",
+                "opens": "T15:00:00",
                 "closed": false,
-                "closes": "T17:30:00"
+                "closes": "T02:00:00"
               }
             ],
             "thursday": [
               {
-                "opens": "T10:30:00",
+                "opens": "T17:00:00",
                 "closed": false,
-                "closes": "T17:30:00"
+                "closes": "T02:00:00"
               }
             ],
             "wednesday": [
               {
-                "opens": "T10:30:00",
+                "opens": "T17:00:00",
                 "closed": false,
-                "closes": "T17:30:00"
+                "closes": "T02:00:00"
               }
             ]
           },
           "phone": "[redacted]",
           "images": [
             {
-              "url": "https://images.qloo.com/i/5FAFC6A6-45DB-4AC6-80B3-D7BD558420A8-0rXlRA-420x-outside.jpg",
+              "url": "https://images.qloo.com/i/3EB16612-508F-4EA5-9C7D-3CB393F8CC1B-1a9Imq-420x-outside.jpg",
               "type": "urn:image:place:unknown"
             }
           ],
-          "address": "1071 5th Ave New York, NY 10128",
+          "address": "709 Lorimer St Brooklyn, NY 11211",
           "geocode": {
             "city": "New York",
-            "name": "Carnegie Hill",
+            "name": "Williamsburg",
             "metro": "New York City",
             "country": "United States",
             "country_code": "US",
             "admin1_region": "New York",
-            "admin2_region": "New York County"
+            "admin2_region": "Kings County"
           },
           "parking": false,
-          "website": "https://www.guggenheim.org/",
+          "website": "http://www.petescandystore.com/",
           "good_for": [
             {
-              "id": "urn:tag:children:place:good_kids",
-              "name": "Good for kids",
-              "type": "urn:tag:children:place",
-              "weight": 0.5555555555555556
+              "id": "urn:tag:genre:place:restaurant:bar",
+              "name": "Bar",
+              "type": "urn:tag:genre:place",
+              "weight": 0.9997504990019961
+            },
+            {
+              "id": "urn:tag:cost_description:place:inexpensive",
+              "name": "Inexpensive",
+              "type": "urn:tag:cost_description:place",
+              "weight": null
             }
           ],
           "keywords": [
             {
-              "name": "frank lloyd wright",
-              "count": 437
+              "name": "comedy show",
+              "count": 29
             },
             {
-              "name": "kandinsky",
-              "count": 283
+              "name": "live music",
+              "count": 37
             },
             {
-              "name": "spiral",
-              "count": 302
+              "name": "open mic",
+              "count": 19
             },
             {
-              "name": "architecture",
-              "count": 1065
+              "name": "intimate venue",
+              "count": 29
             },
             {
-              "name": "robert mapplethorpe",
-              "count": 23
+              "name": "outdoor seating",
+              "count": 6
             },
             {
               "_truncated_items": 5
@@ -178,12 +184,12 @@
               "country_code": null
             },
             "county": {
-              "name": "New York County",
+              "name": "Kings County",
               "place": "county",
               "boundary": "administrative",
-              "entity_id": "CE2B08BB-3A5B-4DDD-92DF-2815614EEA72",
+              "entity_id": "E8DC52F4-985C-4B02-8518-0385E567C57C",
               "admin_level": 6,
-              "locality_id": "r2552485",
+              "locality_id": "r369518",
               "abbreviation": null,
               "country_code": null
             },
@@ -198,293 +204,40 @@
               "country_code": "US"
             },
             "neighborhood": {
-              "name": "Carnegie Hill",
-              "place": "neighbourhood",
-              "boundary": "place",
-              "entity_id": "DED1A8CE-31C8-458F-A6AB-EDF7D48C55C2",
+              "name": "Williamsburg",
+              "place": "suburb",
+              "boundary": "neighborhood",
+              "entity_id": "C16A1E1D-D3F4-4720-9E5A-448CE374E35D",
               "admin_level": 10,
-              "locality_id": "r8398083",
+              "locality_id": "n158863515",
               "abbreviation": null,
               "country_code": null
             }
           },
           "menu_url": null,
           "is_closed": false,
-          "live_music": null,
+          "live_music": true,
           "localities": [
             {
-              "name": "New York",
-              "place": "city",
-              "boundary": "administrative",
-              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
-              "admin_level": 5,
-              "locality_id": "r175905",
-              "abbreviation": "NYC",
-              "country_code": null
-            },
-            {
-              "name": "New York City",
-              "place": "metro",
-              "boundary": "metro",
-              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
-              "admin_level": 12,
-              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
-              "abbreviation": null,
-              "country_code": null
-            },
-            {
-              "name": "Manhattan Community Board 8",
-              "place": null,
-              "boundary": "administrative",
-              "entity_id": "1423F527-8642-4527-A0CC-C4C7C0F5A22F",
+              "name": "Williamsburg",
+              "place": "suburb",
+              "boundary": "neighborhood",
+              "entity_id": "C16A1E1D-D3F4-4720-9E5A-448CE374E35D",
               "admin_level": 10,
-              "locality_id": "r7340018",
+              "locality_id": "n158863515",
               "abbreviation": null,
               "country_code": null
             },
             {
-              "name": "10128",
+              "name": "11211",
               "place": "ZCTA",
               "boundary": "ZCTA",
-              "entity_id": "2D1C1557-1316-4FFD-8C7A-FB1E5DF866A9",
+              "entity_id": "9E9376B5-A3EF-4B00-BA7C-8BFB8F8C7D89",
               "admin_level": 9,
-              "locality_id": "z10128",
+              "locality_id": "z11211",
               "abbreviation": null,
               "country_code": null
             },
-            {
-              "name": "Carnegie Hill",
-              "place": "neighbourhood",
-              "boundary": "place",
-              "entity_id": "DED1A8CE-31C8-458F-A6AB-EDF7D48C55C2",
-              "admin_level": 10,
-              "locality_id": "r8398083",
-              "abbreviation": null,
-              "country_code": null
-            },
-            {
-              "_truncated_items": 4
-            }
-          ],
-          "description": "Frank Lloyd Wright–designed modern art museum with an iconic spiral rotunda and rotating contemporary exhibitions.",
-          "hotel_class": null,
-          "price_level": null,
-          "price_range": {
-            "to": null,
-            "from": null,
-            "currency": "usd"
-          },
-          "star_rating": null,
-          "event_spaces": true,
-          "neighborhood": "Carnegie Hill",
-          "pet_friendly": false,
-          "check_in_time": null,
-          "primary_genre": {
-            "id": "urn:tag:genre:place:modern_art_museum",
-            "akas": [
-              {
-                "value": "\"Modern művészeti múzeum\"",
-                "languages": [
-                  "hu"
-                ]
-              },
-              {
-                "value": "\"Muzium seni moden\"",
-                "languages": [
-                  "ms"
-                ]
-              },
-              {
-                "value": "\"សារមន្ទីរសិល្បៈសម័យទំនើប\"",
-                "languages": [
-                  "km"
-                ]
-              },
-              {
-                "value": "\"Museo ng modernong sining\"",
-                "languages": [
-                  "tl"
-                ]
-              },
-              {
-                "value": "\"Muzej moderne umjetnosti\"",
-                "languages": [
-                  "hr",
-                  "bs"
-                ]
-              },
-              {
-                "_truncated_items": 48
-              }
-            ],
-            "name": "Modern art museum",
-            "type": "urn:tag:genre:place",
-            "weight": null
-          },
-          "check_out_time": null,
-          "business_rating": 4.300000190734863,
-          "loyalty_program": null,
-          "number_of_rooms": null,
-          "cost_description": null,
-          "specialty_dishes": null,
-          "short_description": "Frank Lloyd Wright–designed modern art museum with an iconic spiral rotunda and rotating contemporary exhibitions.",
-          "number_of_stations": null,
-          "cuisine_description": null,
-          "overall_description": "The Solomon R. Guggenheim Museum is a premier global destination for modern and contemporary art, famously housed in an architectural masterpiece designed by Frank Lloyd Wright. Visitors are drawn to its unique spiral rotunda, which provides an unconventional and dynamic way to engage with diverse a",
-          "service_description": null,
-          "ambience_description": "The museum offers an immersive and culturally rich atmosphere, where the iconic, sweeping curves of the building create a dramatic and stylish backdrop for viewing art.",
-          "amenities_description": "The museum provides essential visitor services including a gift shop, a cafe, coat check facilities, and audio guides to enhance the exploration of its exhibitions.",
-          "unique_selling_points": "The museum is defined by its iconic Frank Lloyd Wright-designed structure, featuring a spiraling ramp that allows visitors to view art in a continuous, flowing path under a central skylight.",
-          "neighborhood_description": "The museum is situated in a vibrant, upscale residential and cultural neighborhood that is highly walkable and located just steps from Central Park.",
-          "physical_setting_description": "Located in the heart of Manhattan on the Upper East Side, the museum is housed in a world-renowned landmark building designed by Frank Lloyd Wright. It features a unique spiral rotunda that creates a distinctive, continuous architectural experience.",
-          "_truncated_keys": 2
-        }
-      },
-      {
-        "name": "Columbia University Libraries",
-        "entity_id": "994B684A-EE05-4B45-9833-B8F212192E50",
-        "type": "urn:entity",
-        "subtype": "urn:entity:place",
-        "disambiguation": "535 W 114th St New York, NY 10027",
-        "properties": {
-          "hours": {
-            "friday": [
-              {
-                "opens": "T09:00:00",
-                "closed": false,
-                "closes": "T18:00:00"
-              }
-            ],
-            "monday": [
-              {
-                "opens": "T09:00:00",
-                "closed": false,
-                "closes": "T21:00:00"
-              }
-            ],
-            "sunday": [
-              {
-                "opens": "T12:00:00",
-                "closed": false,
-                "closes": "T21:00:00"
-              }
-            ],
-            "tuesday": [
-              {
-                "opens": "T09:00:00",
-                "closed": false,
-                "closes": "T21:00:00"
-              }
-            ],
-            "saturday": [
-              {
-                "opens": "T11:00:00",
-                "closed": false,
-                "closes": "T18:00:00"
-              }
-            ],
-            "thursday": [
-              {
-                "opens": "T09:00:00",
-                "closed": false,
-                "closes": "T21:00:00"
-              }
-            ],
-            "wednesday": [
-              {
-                "opens": "T09:00:00",
-                "closed": false,
-                "closes": "T21:00:00"
-              }
-            ]
-          },
-          "phone": "[redacted]",
-          "images": [
-            {
-              "url": "https://images.qloo.com/i/994B684A-EE05-4B45-9833-B8F212192E50-47sT5g-420x-outside.jpg",
-              "type": "urn:image:place:unknown"
-            }
-          ],
-          "address": "535 W 114th St New York, NY 10027",
-          "geocode": {
-            "city": "New York",
-            "name": "Morningside Heights",
-            "metro": "New York City",
-            "country": "United States",
-            "country_code": "US",
-            "admin1_region": "New York",
-            "admin2_region": "New York County"
-          },
-          "parking": false,
-          "website": "https://library.columbia.edu/",
-          "good_for": null,
-          "keywords": null,
-          "locality": {
-            "city": {
-              "name": "New York",
-              "place": "city",
-              "boundary": "administrative",
-              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
-              "admin_level": 5,
-              "locality_id": "r175905",
-              "abbreviation": "NYC",
-              "country_code": null
-            },
-            "metro": {
-              "name": "New York City",
-              "place": "metro",
-              "boundary": "metro",
-              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
-              "admin_level": 12,
-              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
-              "abbreviation": null,
-              "country_code": null
-            },
-            "state": {
-              "name": "New York",
-              "place": "state",
-              "boundary": "administrative",
-              "entity_id": "BDFC9271-4583-412E-84D8-F285BB8220FE",
-              "admin_level": 4,
-              "locality_id": "r61320",
-              "abbreviation": "N.Y.",
-              "country_code": null
-            },
-            "county": {
-              "name": "New York County",
-              "place": "county",
-              "boundary": "administrative",
-              "entity_id": "CE2B08BB-3A5B-4DDD-92DF-2815614EEA72",
-              "admin_level": 6,
-              "locality_id": "r2552485",
-              "abbreviation": null,
-              "country_code": null
-            },
-            "country": {
-              "name": "United States",
-              "place": "country",
-              "boundary": "administrative",
-              "entity_id": "FCA82A91-546B-4A8F-BC61-DB14088A7E94",
-              "admin_level": 2,
-              "locality_id": "r148838",
-              "abbreviation": "USA",
-              "country_code": "US"
-            },
-            "neighborhood": {
-              "name": "Morningside Heights",
-              "place": "neighbourhood",
-              "boundary": "place",
-              "entity_id": "A0001B2B-9FE1-4D70-903A-D6930D5B721F",
-              "admin_level": 10,
-              "locality_id": "r8398079",
-              "abbreviation": null,
-              "country_code": null
-            }
-          },
-          "menu_url": null,
-          "is_closed": false,
-          "live_music": null,
-          "localities": [
             {
               "name": "New York",
               "place": "city",
@@ -506,42 +259,22 @@
               "country_code": null
             },
             {
-              "name": "Manhattan",
+              "name": "Brooklyn",
               "place": "borough",
               "boundary": "administrative",
-              "entity_id": "97F46DBA-ED36-4CCD-ACC1-4341D9E6EE47",
+              "entity_id": "86BAEBAE-2980-43B6-9E75-2A5CDB898628",
               "admin_level": 7,
-              "locality_id": "r8398124",
-              "abbreviation": null,
+              "locality_id": "r9691750",
+              "abbreviation": "BK",
               "country_code": null
             },
             {
-              "name": "New York County",
-              "place": "county",
-              "boundary": "administrative",
-              "entity_id": "CE2B08BB-3A5B-4DDD-92DF-2815614EEA72",
-              "admin_level": 6,
-              "locality_id": "r2552485",
-              "abbreviation": null,
-              "country_code": null
-            },
-            {
-              "name": "Morningside Heights",
-              "place": "neighbourhood",
-              "boundary": "place",
-              "entity_id": "A0001B2B-9FE1-4D70-903A-D6930D5B721F",
-              "admin_level": 10,
-              "locality_id": "r8398079",
-              "abbreviation": null,
-              "country_code": null
-            },
-            {
-              "_truncated_items": 4
+              "_truncated_items": 3
             }
           ],
-          "description": "Major research library system serving an Ivy League university, housing extensive special collections, archives, and multiple specialized branches on Morningside Heights.",
+          "description": "Offbeat Brooklyn bar and live-music venue hosting trivia, spelling bees and live bands with inexpensive food and cocktails.",
           "hotel_class": null,
-          "price_level": null,
+          "price_level": 1,
           "price_range": {
             "to": null,
             "from": null,
@@ -549,85 +282,92 @@
           },
           "star_rating": null,
           "event_spaces": true,
-          "neighborhood": "Morningside Heights",
-          "pet_friendly": false,
+          "neighborhood": "Williamsburg",
+          "pet_friendly": null,
           "check_in_time": null,
           "primary_genre": {
-            "id": "urn:tag:genre:place:university_library",
+            "id": "urn:tag:genre:place:restaurant:bar",
             "akas": [
               {
-                "value": "\"বিশ্ববিদ্যালয় গ্রন্থাগার\"",
+                "value": "\"Baar\"",
+                "languages": [
+                  "et"
+                ]
+              },
+              {
+                "value": "\"Baari\"",
+                "languages": [
+                  "fi"
+                ]
+              },
+              {
+                "value": "\"บาร์\"",
+                "languages": [
+                  "th"
+                ]
+              },
+              {
+                "value": "\"বার\"",
                 "languages": [
                   "bn"
                 ]
               },
               {
-                "value": "\"Университетская библиотека\"",
+                "value": "\"بار\"",
                 "languages": [
-                  "ru"
+                  "ar"
                 ]
               },
               {
-                "value": "\"Sveučilišna knjižnica\"",
-                "languages": [
-                  "hr"
-                ]
-              },
-              {
-                "value": "\"Üniversite kütüphanesi\"",
-                "languages": [
-                  "tr"
-                ]
-              },
-              {
-                "value": "\"Univerzitetna knjižnica\"",
-                "languages": [
-                  "sl"
-                ]
-              },
-              {
-                "_truncated_items": 46
+                "_truncated_items": 21
               }
             ],
-            "name": "University library",
+            "name": "Bar",
             "type": "urn:tag:genre:place",
             "weight": null
           },
           "check_out_time": null,
-          "business_rating": 4.900000095367432,
+          "business_rating": 4.599999904632568,
           "loyalty_program": null,
-          "number_of_rooms": null,
+          "number_of_rooms": 5,
           "cost_description": null,
-          "specialty_dishes": null,
-          "short_description": "Major research library system serving an Ivy League university, housing extensive special collections, archives, and multiple specialized branches on Morningside Heights.",
+          "specialty_dishes": [
+            {
+              "id": "urn:tag:specialty_dish:place:grilled_cheese",
+              "name": "Grilled Cheese",
+              "type": "urn:tag:specialty_dish:place",
+              "weight": 1
+            }
+          ],
+          "short_description": "Offbeat Brooklyn bar and live-music venue hosting trivia, spelling bees and live bands with inexpensive food and cocktails.",
           "number_of_stations": null,
-          "cuisine_description": null,
-          "overall_description": "Columbia University Libraries form an extensive research network that serves as the heart of academic life on the university's Morningside Heights campus. Comprising numerous specialized branches, the system houses profound special collections, rare manuscripts, and archives that attract scholars fr",
-          "service_description": null,
-          "ambience_description": "The libraries cultivate a studious and intellectual atmosphere, blending silent areas for deep research with shared spaces for collaboration. The environment feels both historically grounded and forward-looking, offering a sanctuary for focused academic work.",
-          "amenities_description": "The library system offers extensive resources, including rare manuscript collections, specialized archives, and various study environments tailored to different academic needs. Users can access expert research support, borrow materials, and explore unique digital and physical exhibitions.",
-          "unique_selling_points": "Home to world-class special collections, rare manuscripts, and extensive research archives, this library serves as a cornerstone of global academic inquiry. It provides access to irreplaceable historical treasures alongside modern digital tools for scholarly pursuit.",
-          "neighborhood_description": "Situated within the vibrant Morningside Heights neighborhood, the area is defined by its deep academic roots and bustling student life. It is a central, walkable district where historic campus charm meets the dynamic pulse of an Ivy League environment.",
-          "physical_setting_description": "Located on the historic Morningside Heights campus, this major research library system spans multiple specialized branches integrated into the university grounds. The architecture ranges from classical campus structures to modern facilities, providing a scholarly and intellectually rich environment.",
+          "cuisine_description": "Pete's Candy Store offers a casual American-style menu featuring popular bar bites like grilled cheese sandwiches. The establishment is primarily a bar and music venue that serves a variety of beer, wine, spirits, and cocktails in a cozy, unpretentious setting.",
+          "overall_description": "A long-standing Brooklyn institution that serves as both a lively neighborhood bar and an intimate performance venue. Known for its unique, train-car-style stage area and relaxing backyard patio, it hosts a variety of events including live music, comedy, and trivia. It is widely regarded as a cozy, ",
+          "service_description": "Pete's Candy Store provides a welcoming, community-focused environment featuring dine-in and outdoor seating. It serves as a versatile venue hosting live music, comedy, trivia, open mic nights, and poetry readings, making it a popular spot for casual drinks, date nights, and gathering with friends.",
+          "ambience_description": "The atmosphere is intimate and quintessentially Brooklyn, balancing a lively front bar with a cozy, tunnel-like performance space and a laid-back backyard. It feels like an old-school, community-centered local institution.",
+          "amenities_description": "The venue offers a variety of seating areas including a bar, a dedicated stage room, and a spacious outdoor backyard for socializing.",
+          "unique_selling_points": "The performance space is uniquely designed to resemble a railroad caboose, providing an intimate, focused environment for live acts. It serves as a historic neighborhood institution that has maintained its authentic, unpretentious charm for decades.",
+          "neighborhood_description": "Situated in a vibrant, historic area known for its strong sense of community, creative energy, and blend of residential charm with local nightlife.",
+          "physical_setting_description": "Located on a bustling street, this venue features a unique interior layout with distinct areas including a cozy bar, a train-car-inspired performance room, and a spacious backyard patio. It occupies an unassuming building that feels like a historic neighborhood staple.",
           "_truncated_keys": 2
         }
       },
       {
-        "name": "New Museum",
-        "entity_id": "CFA32EED-3DEB-41C6-A827-A7B3CA88FADB",
+        "name": "Dixon Place (Open Channels New York, Inc)",
+        "entity_id": "1DFD18B2-625F-407A-8178-C861F4B01460",
         "type": "urn:entity",
         "subtype": "urn:entity:place",
-        "disambiguation": "235 Bowery New York, NY 10002",
+        "disambiguation": "161A Chrystie St New York, NY 10002",
         "properties": {
           "hours": null,
           "phone": "[redacted]",
           "images": [
             {
-              "url": "https://images.qloo.com/i/CFA32EED-3DEB-41C6-A827-A7B3CA88FADB-08KEKg-420x-outside.jpg",
+              "url": "https://images.qloo.com/i/1DFD18B2-625F-407A-8178-C861F4B01460-18xwlG-420x-outside.jpg",
               "type": "urn:image:place:unknown"
             }
           ],
-          "address": "235 Bowery New York, NY 10002",
+          "address": "161A Chrystie St New York, NY 10002",
           "geocode": {
             "city": "New York",
             "name": "Lower East Side",
@@ -638,16 +378,46 @@
             "admin2_region": "New York County"
           },
           "parking": false,
-          "website": "https://www.newmuseum.org/",
+          "website": "http://www.dixonplace.org/",
           "good_for": [
             {
-              "id": "urn:tag:children:place:good_kids",
-              "name": "Good for kids",
-              "type": "urn:tag:children:place",
-              "weight": 0.6111111111111112
+              "id": "urn:tag:genre:place:restaurant:bar",
+              "name": "Bar",
+              "type": "urn:tag:genre:place",
+              "weight": 0.9925788497217068
+            },
+            {
+              "id": "urn:tag:event:place:anniversary",
+              "name": "Anniversary",
+              "type": "urn:tag:event:place",
+              "weight": 0.25
             }
           ],
-          "keywords": null,
+          "keywords": [
+            {
+              "name": "intimate stage",
+              "count": 9
+            },
+            {
+              "name": "experimental plays",
+              "count": 3
+            },
+            {
+              "name": "lgbtq friendly",
+              "count": 4
+            },
+            {
+              "name": "intimate atmosphere",
+              "count": 6
+            },
+            {
+              "name": "one man show",
+              "count": 2
+            },
+            {
+              "_truncated_items": 5
+            }
+          ],
           "locality": {
             "city": {
               "name": "New York",
@@ -712,7 +482,7 @@
           },
           "menu_url": null,
           "is_closed": false,
-          "live_music": null,
+          "live_music": true,
           "localities": [
             {
               "name": "Manhattan Community Board 3",
@@ -768,7 +538,310 @@
               "_truncated_items": 4
             }
           ],
-          "description": "Contemporary art museum housed in a distinctive white stacked-box building with a lobby cafe and gift shop on the Bowery, Manhattan.",
+          "description": "Award-winning nonprofit black-box performance venue presenting experimental theater, dance, music, puppetry and literature with an on-site bar and lounge.",
+          "hotel_class": null,
+          "price_level": null,
+          "price_range": {
+            "to": null,
+            "from": null,
+            "currency": "usd"
+          },
+          "star_rating": null,
+          "event_spaces": true,
+          "neighborhood": "Lower East Side",
+          "pet_friendly": null,
+          "check_in_time": null,
+          "primary_genre": {
+            "id": "urn:tag:genre:place:performing_arts_theater",
+            "akas": [
+              {
+                "value": "\"Nhà hát nghệ thuật biểu diễn\"",
+                "languages": [
+                  "vi"
+                ]
+              },
+              {
+                "value": "\"Theater voor podiumkunsten\"",
+                "languages": [
+                  "nl"
+                ]
+              },
+              {
+                "value": "\"Театар за изведувачки уметности\"",
+                "languages": [
+                  "mk"
+                ]
+              },
+              {
+                "value": "\"İfaçılıq sənəti teatrı\"",
+                "languages": [
+                  "az"
+                ]
+              },
+              {
+                "value": "\"Scenos menų teatras\"",
+                "languages": [
+                  "lt"
+                ]
+              },
+              {
+                "_truncated_items": 53
+              }
+            ],
+            "name": "Performing arts theater",
+            "type": "urn:tag:genre:place",
+            "weight": null
+          },
+          "check_out_time": null,
+          "business_rating": 4.699999809265137,
+          "loyalty_program": null,
+          "number_of_rooms": 1,
+          "cost_description": null,
+          "specialty_dishes": null,
+          "short_description": "Award-winning nonprofit black-box performance venue presenting experimental theater, dance, music, puppetry and literature with an on-site bar and lounge.",
+          "number_of_stations": null,
+          "cuisine_description": "Dixon Place operates as an artistic incubator and performance venue featuring an on-site bar and lounge that offers a selection of cocktails, beer, and wine in a casual, intimate setting.",
+          "overall_description": "An iconic Lower East Side institution, this nonprofit venue serves as a vital incubator for original, experimental theater, dance, music, and puppetry. Known for its supportive atmosphere and commitment to up-and-coming creators, it functions as both a performance hub and a community lounge. Its int",
+          "service_description": "The venue serves as a multi-functional performance space offering bar service and an intimate lounge atmosphere. It specializes in hosting experimental theater, dance, music, and various artistic events, making it a hub for local networking and cultural gatherings.",
+          "ambience_description": "The atmosphere is intimate and down-to-earth, defined by a cozy, community-focused vibe that makes attendees feel welcome in an unpretentious setting.",
+          "amenities_description": "The venue features a functional black-box performance space alongside a front-of-house lounge and bar, providing a complete environment for social gathering and creative showcases.",
+          "unique_selling_points": "As a long-standing artistic incubator, the venue is renowned for its commitment to supporting original and experimental works from up-and-coming artists in an inclusive environment.",
+          "neighborhood_description": "The neighborhood is a bustling, historic hub known for its rich artistic heritage, eclectic energy, and concentration of creative venues.",
+          "physical_setting_description": "Situated in the heart of the Lower East Side, this venue occupies a classic, intimate black-box space that reflects the raw, artistic energy of its surrounding neighborhood.",
+          "_truncated_keys": 2
+        }
+      },
+      {
+        "name": "Hart's",
+        "entity_id": "2951A4C3-19F8-4943-B358-4770BB7C23DA",
+        "type": "urn:entity",
+        "subtype": "urn:entity:place",
+        "disambiguation": "506 Franklin Ave Brooklyn, NY 11238",
+        "properties": {
+          "hours": {
+            "friday": [
+              {
+                "opens": "T17:30:00",
+                "closed": false,
+                "closes": "T22:30:00"
+              }
+            ],
+            "monday": [
+              {
+                "opens": "T17:30:00",
+                "closed": false,
+                "closes": "T22:30:00"
+              }
+            ],
+            "sunday": [
+              {
+                "opens": "T17:30:00",
+                "closed": false,
+                "closes": "T22:30:00"
+              }
+            ],
+            "tuesday": [
+              {
+                "opens": "T17:30:00",
+                "closed": false,
+                "closes": "T22:30:00"
+              }
+            ],
+            "saturday": [
+              {
+                "opens": "T17:30:00",
+                "closed": false,
+                "closes": "T22:30:00"
+              }
+            ],
+            "thursday": [
+              {
+                "opens": "T17:30:00",
+                "closed": false,
+                "closes": "T22:30:00"
+              }
+            ],
+            "wednesday": [
+              {
+                "opens": "T17:30:00",
+                "closed": false,
+                "closes": "T22:30:00"
+              }
+            ]
+          },
+          "phone": "[redacted]",
+          "images": [
+            {
+              "url": "https://images.qloo.com/i/2951A4C3-19F8-4943-B358-4770BB7C23DA-3jcipi-420x-outside.jpg",
+              "type": "urn:image:place:unknown"
+            }
+          ],
+          "address": "506 Franklin Ave Brooklyn, NY 11238",
+          "geocode": {
+            "city": "New York",
+            "name": "Bedford-Stuyvesant",
+            "metro": "New York City",
+            "country": "United States",
+            "country_code": "US",
+            "admin1_region": "New York",
+            "admin2_region": "Kings County"
+          },
+          "parking": false,
+          "website": "http://www.hartsbrooklyn.com/",
+          "good_for": [
+            {
+              "id": "urn:tag:resy:collection:place:good_groups",
+              "name": "Good for Groups",
+              "type": "urn:tag:resy:collection:place",
+              "weight": null
+            }
+          ],
+          "keywords": [
+            {
+              "name": "clam toast",
+              "count": 15
+            },
+            {
+              "name": "lamb burger",
+              "count": 14
+            },
+            {
+              "name": "cozy atmosphere",
+              "count": 34
+            },
+            {
+              "name": "ricotta",
+              "count": 10
+            },
+            {
+              "name": "mackerel",
+              "count": 11
+            },
+            {
+              "_truncated_items": 5
+            }
+          ],
+          "locality": {
+            "city": {
+              "name": "New York",
+              "place": "city",
+              "boundary": "administrative",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            "metro": {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "state": {
+              "name": "New York",
+              "place": "state",
+              "boundary": "administrative",
+              "entity_id": "BDFC9271-4583-412E-84D8-F285BB8220FE",
+              "admin_level": 4,
+              "locality_id": "r61320",
+              "abbreviation": "N.Y.",
+              "country_code": null
+            },
+            "county": {
+              "name": "Kings County",
+              "place": "county",
+              "boundary": "administrative",
+              "entity_id": "E8DC52F4-985C-4B02-8518-0385E567C57C",
+              "admin_level": 6,
+              "locality_id": "r369518",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "country": {
+              "name": "United States",
+              "place": "country",
+              "boundary": "administrative",
+              "entity_id": "FCA82A91-546B-4A8F-BC61-DB14088A7E94",
+              "admin_level": 2,
+              "locality_id": "r148838",
+              "abbreviation": "USA",
+              "country_code": "US"
+            },
+            "neighborhood": {
+              "name": "Bedford-Stuyvesant",
+              "place": "neighbourhood",
+              "boundary": "neighborhood",
+              "entity_id": "DE59A34B-FECC-4BB8-8A7C-C4BA90D57170",
+              "admin_level": 10,
+              "locality_id": "n158876393",
+              "abbreviation": "Bed-Stuy",
+              "country_code": null
+            }
+          },
+          "menu_url": null,
+          "is_closed": false,
+          "live_music": false,
+          "localities": [
+            {
+              "name": "New York",
+              "place": "city",
+              "boundary": "administrative",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            {
+              "name": "11238",
+              "place": "ZCTA",
+              "boundary": "ZCTA",
+              "entity_id": "400F5A6B-BC50-477A-A070-4D461D7236CC",
+              "admin_level": 9,
+              "locality_id": "z11238",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "Bedford-Stuyvesant",
+              "place": "neighbourhood",
+              "boundary": "neighborhood",
+              "entity_id": "DE59A34B-FECC-4BB8-8A7C-C4BA90D57170",
+              "admin_level": 10,
+              "locality_id": "n158876393",
+              "abbreviation": "Bed-Stuy",
+              "country_code": null
+            },
+            {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "Brooklyn",
+              "place": "borough",
+              "boundary": "administrative",
+              "entity_id": "86BAEBAE-2980-43B6-9E75-2A5CDB898628",
+              "admin_level": 7,
+              "locality_id": "r9691750",
+              "abbreviation": "BK",
+              "country_code": null
+            },
+            {
+              "_truncated_items": 3
+            }
+          ],
+          "description": "Cozy, intimate Brooklyn spot offering creative, seasonal American cuisine with a lively atmosphere and a curated wine and cocktail selection.",
           "hotel_class": null,
           "price_level": 3,
           "price_range": {
@@ -777,99 +850,207 @@
             "currency": "usd"
           },
           "star_rating": null,
-          "event_spaces": null,
-          "neighborhood": "Lower East Side",
+          "event_spaces": false,
+          "neighborhood": "Bedford-Stuyvesant",
           "pet_friendly": false,
           "check_in_time": null,
           "primary_genre": {
-            "id": "urn:tag:genre:place:art_museum",
+            "id": "urn:tag:genre:place:restaurant:mediterranean",
             "akas": [
               {
-                "value": "\"Музей мистецтва\"",
+                "value": "\"មេឌីទែរ៉ាណេ\"",
                 "languages": [
-                  "uk"
+                  "km",
+                  "my"
                 ]
               },
               {
-                "value": "\"សារមន្ទីរសិល្បៈ\"",
+                "value": "\"Středomořský\"",
                 "languages": [
-                  "km"
+                  "cs"
                 ]
               },
               {
-                "value": "\"Sanat müzesi\"",
+                "value": "\"Mediterania\"",
                 "languages": [
-                  "tr"
+                  "sw",
+                  "id"
                 ]
               },
               {
-                "value": "\"Arte museoa\"",
-                "languages": [
-                  "eu"
-                ]
-              },
-              {
-                "value": "\"Művészeti múzeum\"",
+                "value": "\"Mediterrán\"",
                 "languages": [
                   "hu"
                 ]
               },
               {
-                "_truncated_items": 45
+                "value": "\"மத்திய தரைக்கடல்\"",
+                "languages": [
+                  "ta"
+                ]
+              },
+              {
+                "_truncated_items": 46
               }
             ],
-            "name": "Art museum",
+            "name": "Mediterranean restaurant",
             "type": "urn:tag:genre:place",
             "weight": null
           },
           "check_out_time": null,
-          "business_rating": 4.099999904632568,
+          "business_rating": 4.599999904632568,
           "loyalty_program": null,
           "number_of_rooms": null,
           "cost_description": null,
-          "specialty_dishes": null,
-          "short_description": "Contemporary art museum housed in a distinctive white stacked-box building with a lobby cafe and gift shop on the Bowery, Manhattan.",
+          "specialty_dishes": [
+            {
+              "id": "urn:tag:specialty_dish:place:clam_toast_pancetta",
+              "name": "Clam Toast With Pancetta",
+              "type": "urn:tag:specialty_dish:place",
+              "weight": 1
+            },
+            {
+              "id": "urn:tag:specialty_dish:place:lamb_burger_anchovies",
+              "name": "Lamb Burger With Anchovies",
+              "type": "urn:tag:specialty_dish:place",
+              "weight": 0.8888888888888888
+            },
+            {
+              "id": "urn:tag:specialty_dish:place:pork_milanese_fennel_pickled_peppers",
+              "name": "Pork Milanese Fennel And Pickled Peppers",
+              "type": "urn:tag:specialty_dish:place",
+              "weight": 0.7777777777777778
+            }
+          ],
+          "short_description": "Cozy, intimate Brooklyn spot offering creative, seasonal American cuisine with a lively atmosphere and a curated wine and cocktail selection.",
           "number_of_stations": null,
-          "cuisine_description": null,
-          "overall_description": "The New Museum is a premier destination for contemporary art located in the heart of Manhattan's historic Bowery district. Known for its avant-garde exhibitions and striking stacked-box architecture, it challenges visitors with provocative works from both established and emerging global artists. Bey",
-          "service_description": null,
-          "ambience_description": "The atmosphere is defined by its cutting-edge, experimental approach to contemporary art, housed within a striking and modern architectural space. It offers a stylish and thought-provoking environment that encourages cultural exploration and artistic discourse.",
-          "amenities_description": "The museum provides essential visitor amenities including a welcoming lobby cafe, a curated gift shop, and coat check services. Its facilities are designed to support a multi-floor art viewing experience, featuring both modern elevators and stair access, alongside accessible resources for visually i",
-          "unique_selling_points": "The museum is defined by its signature stacked-box architecture and its reputation for showcasing avant-garde, emerging contemporary artists. Its rooftop terrace provides one of the most distinctive 360-degree vantage points over the Manhattan cityscape.",
-          "neighborhood_description": "Located in the historic and creative Bowery district, the area is characterized by a vibrant, authentic atmosphere that blends urban grit with contemporary art culture. It provides a unique, less congested alternative to major Midtown tourist hubs while remaining centrally located in Manhattan.",
-          "physical_setting_description": "Housed in a distinctive white stacked-box structure on the Bowery in Manhattan, this museum serves as a vertical landmark in a bustling urban environment. It offers unique architectural features and expansive, high-altitude city vistas from its upper levels.",
+          "cuisine_description": "Hart's offers a creative, seasonal American menu with Mediterranean influences, focusing on small shareable plates and high-quality ingredients. The restaurant is well-known for signature items like clam toast and a lamb burger featuring anchovies. The dining experience is complemented by a curated ",
+          "overall_description": "A celebrated Brooklyn neighborhood institution, this restaurant is cherished for its intimate, lively environment and creative approach to seasonal American and Mediterranean-inspired cuisine. Its menu, anchored by iconic dishes like the clam toast and lamb burger, focuses on high-quality ingredient",
+          "service_description": "Hart's provides an intimate, neighborhood-focused dining experience with attentive and knowledgeable table service. It is highly suited for date nights, birthdays, and casual gatherings with friends, offering both indoor and outdoor seating options.",
+          "ambience_description": "The atmosphere is warm, intimate, and inherently social, often featuring a lively soundtrack and a buzz of conversation that makes guests feel part of a singular communal experience.",
+          "amenities_description": "The space provides counter seating with a view of the kitchen, outdoor tables for warmer days, and a curated menu focused on small, shareable plates paired with thoughtful wine and cocktail options.",
+          "unique_selling_points": "Famous for its signature lamb burger topped with anchovies and the widely celebrated clam toast, this spot is a quintessential neighborhood favorite known for its ever-evolving, high-quality, and creative seasonal menu.",
+          "neighborhood_description": "Situated in a vibrant and walk-friendly Brooklyn area, the neighborhood serves as a local hub for residents and visitors alike, characterized by a blend of residential charm and trendy, community-oriented businesses.",
+          "physical_setting_description": "Located in a bustling Brooklyn neighborhood, this intimate restaurant occupies a small, corner space with an open-concept kitchen and a cozy, well-used interior that feels like an extension of a living room.",
           "_truncated_keys": 2
         }
       },
       {
-        "name": "Royal Tenenbaums House",
-        "entity_id": "8121FA26-E005-4E74-ABE2-57FCA83DE043",
+        "name": "Boat",
+        "entity_id": "90745E29-755E-45CE-920E-77F32C0C2077",
         "type": "urn:entity",
         "subtype": "urn:entity:place",
-        "disambiguation": "339 Convent Ave New York, NY 10031",
+        "disambiguation": "175 Smith St Brooklyn, NY 11201",
         "properties": {
-          "hours": null,
+          "hours": {
+            "friday": [
+              {
+                "opens": "T17:00:00",
+                "closed": false,
+                "closes": "T04:00:00"
+              }
+            ],
+            "monday": [
+              {
+                "opens": "T17:00:00",
+                "closed": false,
+                "closes": "T04:00:00"
+              }
+            ],
+            "sunday": [
+              {
+                "opens": "T17:00:00",
+                "closed": false,
+                "closes": "T04:00:00"
+              }
+            ],
+            "tuesday": [
+              {
+                "opens": "T17:00:00",
+                "closed": false,
+                "closes": "T04:00:00"
+              }
+            ],
+            "saturday": [
+              {
+                "opens": "T17:00:00",
+                "closed": false,
+                "closes": "T04:00:00"
+              }
+            ],
+            "thursday": [
+              {
+                "opens": "T17:00:00",
+                "closed": false,
+                "closes": "T04:00:00"
+              }
+            ],
+            "wednesday": [
+              {
+                "opens": "T17:00:00",
+                "closed": false,
+                "closes": "T04:00:00"
+              }
+            ]
+          },
           "phone": "[redacted]",
           "images": [
             {
-              "url": "https://images.qloo.com/i/8121FA26-E005-4E74-ABE2-57FCA83DE043-2nwgvG-420x-outside.jpg",
+              "url": "https://images.qloo.com/i/90745E29-755E-45CE-920E-77F32C0C2077-0yvIV9-420x-outside.jpg",
               "type": "urn:image:place:unknown"
             }
           ],
-          "address": "339 Convent Ave New York, NY 10031",
+          "address": "175 Smith St Brooklyn, NY 11201",
           "geocode": {
             "city": "New York",
-            "name": "Hamilton Heights",
+            "name": null,
             "metro": "New York City",
             "country": "United States",
             "country_code": "US",
             "admin1_region": "New York",
-            "admin2_region": "New York County"
+            "admin2_region": "Kings County"
           },
           "parking": false,
           "website": null,
-          "good_for": null,
-          "keywords": null,
+          "good_for": [
+            {
+              "id": "urn:tag:genre:place:restaurant:bar",
+              "name": "Bar",
+              "type": "urn:tag:genre:place",
+              "weight": 1
+            },
+            {
+              "id": "urn:tag:cost_description:place:inexpensive",
+              "name": "Inexpensive",
+              "type": "urn:tag:cost_description:place",
+              "weight": null
+            }
+          ],
+          "keywords": [
+            {
+              "name": "prices",
+              "count": 14
+            },
+            {
+              "name": "pinball",
+              "count": 8
+            },
+            {
+              "name": "pool",
+              "count": 8
+            },
+            {
+              "name": "ping pong table",
+              "count": 7
+            },
+            {
+              "name": "happy hour",
+              "count": 6
+            },
+            {
+              "_truncated_items": 5
+            }
+          ],
           "locality": {
             "city": {
               "name": "New York",
@@ -902,12 +1083,12 @@
               "country_code": null
             },
             "county": {
-              "name": "New York County",
+              "name": "Kings County",
               "place": "county",
               "boundary": "administrative",
-              "entity_id": "CE2B08BB-3A5B-4DDD-92DF-2815614EEA72",
+              "entity_id": "E8DC52F4-985C-4B02-8518-0385E567C57C",
               "admin_level": 6,
-              "locality_id": "r2552485",
+              "locality_id": "r369518",
               "abbreviation": null,
               "country_code": null
             },
@@ -921,21 +1102,22 @@
               "abbreviation": "USA",
               "country_code": "US"
             },
-            "neighborhood": {
-              "name": "Hamilton Heights",
-              "place": "neighbourhood",
-              "boundary": "place",
-              "entity_id": "D8E87BE6-4DBE-4916-BC36-3A2B227B17AA",
-              "admin_level": 10,
-              "locality_id": "r8398077",
-              "abbreviation": null,
-              "country_code": null
-            }
+            "neighborhood": null
           },
           "menu_url": null,
           "is_closed": false,
-          "live_music": null,
+          "live_music": false,
           "localities": [
+            {
+              "name": "11201",
+              "place": "ZCTA",
+              "boundary": "ZCTA",
+              "entity_id": "7F76F66A-C77F-4F66-A802-6784B5765B4F",
+              "admin_level": 9,
+              "locality_id": "z11201",
+              "abbreviation": null,
+              "country_code": null
+            },
             {
               "name": "New York",
               "place": "city",
@@ -957,42 +1139,32 @@
               "country_code": null
             },
             {
-              "name": "Manhattan",
+              "name": "Brooklyn",
               "place": "borough",
               "boundary": "administrative",
-              "entity_id": "97F46DBA-ED36-4CCD-ACC1-4341D9E6EE47",
+              "entity_id": "86BAEBAE-2980-43B6-9E75-2A5CDB898628",
               "admin_level": 7,
-              "locality_id": "r8398124",
-              "abbreviation": null,
+              "locality_id": "r9691750",
+              "abbreviation": "BK",
               "country_code": null
             },
             {
-              "name": "New York County",
+              "name": "Kings County",
               "place": "county",
               "boundary": "administrative",
-              "entity_id": "CE2B08BB-3A5B-4DDD-92DF-2815614EEA72",
+              "entity_id": "E8DC52F4-985C-4B02-8518-0385E567C57C",
               "admin_level": 6,
-              "locality_id": "r2552485",
+              "locality_id": "r369518",
               "abbreviation": null,
               "country_code": null
             },
             {
-              "name": "Manhattan Community Board 9",
-              "place": null,
-              "boundary": "administrative",
-              "entity_id": "4B4FF6B5-5A95-4CCA-B31D-65491D6931A3",
-              "admin_level": 10,
-              "locality_id": "r7339672",
-              "abbreviation": null,
-              "country_code": null
-            },
-            {
-              "_truncated_items": 4
+              "_truncated_items": 2
             }
           ],
-          "description": "Historic Harlem townhouse featured as the exterior location in Wes Anderson's film The Royal Tenenbaums, noted for its distinctive red-brick facade.",
+          "description": "Dark, no-nonsense Brooklyn tavern serving inexpensive drinks and bar food with a lively jukebox and casual, no-frills atmosphere.",
           "hotel_class": null,
-          "price_level": null,
+          "price_level": 1,
           "price_range": {
             "to": null,
             "from": null,
@@ -1000,412 +1172,138 @@
           },
           "star_rating": null,
           "event_spaces": false,
-          "neighborhood": "Hamilton Heights",
-          "pet_friendly": false,
+          "neighborhood": null,
+          "pet_friendly": null,
           "check_in_time": null,
           "primary_genre": {
-            "id": "urn:tag:genre:place:historical_landmark",
+            "id": "urn:tag:genre:place:restaurant:bar",
             "akas": [
               {
-                "value": "\"Zgodovinska znamenitost\"",
+                "value": "\"Baar\"",
                 "languages": [
-                  "sl"
+                  "et"
                 ]
               },
               {
-                "value": "\"តំបន់ប្រវត្តិសាស្ត្រ\"",
-                "languages": [
-                  "km"
-                ]
-              },
-              {
-                "value": "\"ঐতিহাসিক নিদর্শন\"",
-                "languages": [
-                  "bn"
-                ]
-              },
-              {
-                "value": "\"Monument historik\"",
-                "languages": [
-                  "sq"
-                ]
-              },
-              {
-                "value": "\"வரலாற்றுச் சின்னம்\"",
-                "languages": [
-                  "ta"
-                ]
-              },
-              {
-                "_truncated_items": 52
-              }
-            ],
-            "name": "Historical landmark",
-            "type": "urn:tag:genre:place",
-            "weight": null
-          },
-          "check_out_time": null,
-          "business_rating": 5,
-          "loyalty_program": null,
-          "number_of_rooms": null,
-          "cost_description": null,
-          "specialty_dishes": null,
-          "short_description": "Historic Harlem townhouse featured as the exterior location in Wes Anderson's film The Royal Tenenbaums, noted for its distinctive red-brick facade.",
-          "number_of_stations": null,
-          "cuisine_description": null,
-          "overall_description": "This historic Harlem townhouse is a renowned cultural landmark famously serving as the home of the titular family in Wes Anderson's film. The structure is celebrated for its stately red-brick exterior and its role in cinematic history, drawing admirers of the film and architectural enthusiasts alike",
-          "service_description": null,
-          "ambience_description": "The site carries a nostalgic and cinematic atmosphere that evokes a distinct sense of place through its architectural presence. Visitors experience a quiet, reflective environment that highlights the intersection of local history and film legacy.",
-          "amenities_description": "As a private residential property, there are no public amenities or interior access available on-site.",
-          "unique_selling_points": "The house is globally recognized as the primary exterior film location for a critically acclaimed Wes Anderson motion picture. Its distinctive red-brick facade makes it a pilgrimage site for fans of cinema and architectural history.",
-          "neighborhood_description": "The surrounding neighborhood is a character-filled area in Harlem known for its preserved brownstone and townhouse architecture and tree-lined streets. It maintains a peaceful residential atmosphere while reflecting the rich cultural and architectural history of northern Manhattan.",
-          "physical_setting_description": "Located in the historic Hamilton Heights neighborhood, this iconic red-brick townhouse stands prominently as a classic example of New York City residential architecture. Its prominent exterior facade serves as a recognizable landmark set against the backdrop of an established urban streetscape.",
-          "_truncated_keys": 2
-        }
-      },
-      {
-        "name": "Little Italy",
-        "entity_id": "E95C069F-BA3E-4A70-82A3-04D4E50004A0",
-        "type": "urn:entity",
-        "subtype": "urn:entity:place",
-        "disambiguation": "189 Grand St New York, NY 10013",
-        "properties": {
-          "hours": {
-            "friday": [
-              {
-                "opens": null,
-                "closed": true,
-                "closes": null
-              }
-            ],
-            "monday": [
-              {
-                "opens": null,
-                "closed": true,
-                "closes": null
-              }
-            ],
-            "sunday": [
-              {
-                "opens": null,
-                "closed": true,
-                "closes": null
-              }
-            ],
-            "tuesday": [
-              {
-                "opens": null,
-                "closed": true,
-                "closes": null
-              }
-            ],
-            "saturday": [
-              {
-                "opens": null,
-                "closed": true,
-                "closes": null
-              }
-            ],
-            "thursday": [
-              {
-                "opens": null,
-                "closed": true,
-                "closes": null
-              }
-            ],
-            "wednesday": [
-              {
-                "opens": null,
-                "closed": true,
-                "closes": null
-              }
-            ]
-          },
-          "phone": "[redacted]",
-          "images": [
-            {
-              "url": "https://images.qloo.com/i/E95C069F-BA3E-4A70-82A3-04D4E50004A0-1N0bdZ-420x-outside.jpg",
-              "type": "urn:image:place:unknown"
-            }
-          ],
-          "address": "189 Grand St New York, NY 10013",
-          "geocode": {
-            "city": "New York",
-            "name": "Little Italy",
-            "metro": "New York City",
-            "country": "United States",
-            "country_code": "US",
-            "admin1_region": "New York",
-            "admin2_region": "New York County"
-          },
-          "parking": false,
-          "website": null,
-          "good_for": null,
-          "keywords": null,
-          "locality": {
-            "city": {
-              "name": "New York",
-              "place": "city",
-              "boundary": "administrative",
-              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
-              "admin_level": 5,
-              "locality_id": "r175905",
-              "abbreviation": "NYC",
-              "country_code": null
-            },
-            "metro": {
-              "name": "New York City",
-              "place": "metro",
-              "boundary": "metro",
-              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
-              "admin_level": 12,
-              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
-              "abbreviation": null,
-              "country_code": null
-            },
-            "state": {
-              "name": "New York",
-              "place": "state",
-              "boundary": "administrative",
-              "entity_id": "BDFC9271-4583-412E-84D8-F285BB8220FE",
-              "admin_level": 4,
-              "locality_id": "r61320",
-              "abbreviation": "N.Y.",
-              "country_code": null
-            },
-            "county": {
-              "name": "New York County",
-              "place": "county",
-              "boundary": "administrative",
-              "entity_id": "CE2B08BB-3A5B-4DDD-92DF-2815614EEA72",
-              "admin_level": 6,
-              "locality_id": "r2552485",
-              "abbreviation": null,
-              "country_code": null
-            },
-            "country": {
-              "name": "United States",
-              "place": "country",
-              "boundary": "administrative",
-              "entity_id": "FCA82A91-546B-4A8F-BC61-DB14088A7E94",
-              "admin_level": 2,
-              "locality_id": "r148838",
-              "abbreviation": "USA",
-              "country_code": "US"
-            },
-            "neighborhood": {
-              "name": "Little Italy",
-              "place": "neighbourhood",
-              "boundary": "place",
-              "entity_id": "99E91FBC-DFA4-44D5-8161-1E6666C3C0A4",
-              "admin_level": 10,
-              "locality_id": "r8398116",
-              "abbreviation": null,
-              "country_code": null
-            }
-          },
-          "menu_url": null,
-          "is_closed": false,
-          "live_music": true,
-          "localities": [
-            {
-              "name": "10013",
-              "place": "ZCTA",
-              "boundary": "ZCTA",
-              "entity_id": "9F2A8F92-E49A-436D-9D3D-8FBECFD3B04B",
-              "admin_level": 9,
-              "locality_id": "z10013",
-              "abbreviation": null,
-              "country_code": null
-            },
-            {
-              "name": "Little Italy",
-              "place": "neighbourhood",
-              "boundary": "place",
-              "entity_id": "99E91FBC-DFA4-44D5-8161-1E6666C3C0A4",
-              "admin_level": 10,
-              "locality_id": "r8398116",
-              "abbreviation": null,
-              "country_code": null
-            },
-            {
-              "name": "New York",
-              "place": "city",
-              "boundary": "administrative",
-              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
-              "admin_level": 5,
-              "locality_id": "r175905",
-              "abbreviation": "NYC",
-              "country_code": null
-            },
-            {
-              "name": "New York City",
-              "place": "metro",
-              "boundary": "metro",
-              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
-              "admin_level": 12,
-              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
-              "abbreviation": null,
-              "country_code": null
-            },
-            {
-              "name": "Manhattan",
-              "place": "borough",
-              "boundary": "administrative",
-              "entity_id": "97F46DBA-ED36-4CCD-ACC1-4341D9E6EE47",
-              "admin_level": 7,
-              "locality_id": "r8398124",
-              "abbreviation": null,
-              "country_code": null
-            },
-            {
-              "_truncated_items": 3
-            }
-          ],
-          "description": "Italian restaurant and market popular with tourists on Grand Street in Manhattan.",
-          "hotel_class": null,
-          "price_level": null,
-          "price_range": {
-            "to": null,
-            "from": null,
-            "currency": "usd"
-          },
-          "star_rating": null,
-          "event_spaces": true,
-          "neighborhood": "Little Italy",
-          "pet_friendly": true,
-          "check_in_time": null,
-          "primary_genre": {
-            "id": "urn:tag:genre:place:market",
-            "akas": [
-              {
-                "value": "\"Markt\"",
-                "languages": [
-                  "nl",
-                  "de"
-                ]
-              },
-              {
-                "value": "\"Tori\"",
+                "value": "\"Baari\"",
                 "languages": [
                   "fi"
                 ]
               },
               {
-                "value": "\"Tržiště\"",
+                "value": "\"บาร์\"",
                 "languages": [
-                  "cs"
+                  "th"
                 ]
               },
               {
-                "value": "\"Пазар\"",
+                "value": "\"বার\"",
                 "languages": [
-                  "bg",
-                  "mk"
+                  "bn"
                 ]
               },
               {
-                "value": "\"Treg\"",
+                "value": "\"بار\"",
                 "languages": [
-                  "sq"
+                  "ar"
                 ]
               },
               {
-                "_truncated_items": 43
+                "_truncated_items": 21
               }
             ],
-            "name": "Market",
+            "name": "Bar",
             "type": "urn:tag:genre:place",
             "weight": null
           },
           "check_out_time": null,
-          "business_rating": 4.5,
+          "business_rating": 4.199999809265137,
           "loyalty_program": null,
           "number_of_rooms": null,
           "cost_description": null,
           "specialty_dishes": null,
-          "short_description": "Italian restaurant and market popular with tourists on Grand Street in Manhattan.",
+          "short_description": "Dark, no-nonsense Brooklyn tavern serving inexpensive drinks and bar food with a lively jukebox and casual, no-frills atmosphere.",
           "number_of_stations": null,
-          "cuisine_description": "Little Italy features a wide array of Italian dining experiences, ranging from casual bistros and trattorias to classic eateries serving traditional pasta, pizza, and seafood. The area is famous for its authentic Italian desserts, particularly cannoli and gelato, alongside strong coffee culture. Whi",
-          "overall_description": "A storied and lively neighborhood in Lower Manhattan, celebrated as a cultural cornerstone that preserves the traditions, flavors, and history of Italian immigration. The area is renowned for its dense concentration of restaurants, cafes, and bakeries serving classic dishes like pasta, pizza, and ca",
-          "service_description": "The neighborhood provides a lively, bustling service environment with numerous restaurants offering both indoor and romantic outdoor al fresco dining. Service is generally quick and accommodating for casual visits, tourists, and groups, with the area serving as an iconic destination for cultural exp",
-          "ambience_description": "The atmosphere is bustling and filled with the sights and sounds of outdoor dining, live music, and friendly staff beckoning passersby. It maintains a charming, nostalgic energy that feels like a slice of history amidst the modernity of the surrounding city.",
-          "amenities_description": "The neighborhood provides extensive outdoor dining, numerous cafes and bistros, and various specialty shops. Visitors can access the area via multiple subway lines and enjoy a highly walkable environment with pedestrian-friendly street blocks.",
-          "unique_selling_points": "Famous for its authentic cannoli and traditional pasta dishes, this neighborhood is an iconic landmark of historical immigration and cultural preservation in New York City. It is also the site of the celebrated annual Feast of San Gennaro.",
-          "neighborhood_description": "A vibrant and dense historic enclave that feels distinct from the surrounding city, functioning as a hub for traditional food, social gatherings, and cultural heritage. It is characterized by a high energy, narrow streets, and a blend of long-standing institutions and shops.",
-          "physical_setting_description": "Situated in the heart of Lower Manhattan, this neighborhood primarily centers around the bustling Mulberry Street corridor. It is a compact, urban area defined by its dense rows of historic buildings, outdoor cafe seating, and close proximity to neighboring districts.",
+          "cuisine_description": "Boat is a dark, no-nonsense Brooklyn tavern serving inexpensive drinks and classic bar food in a casual, no-frills setting.",
+          "overall_description": "A quintessential, dark, and no-nonsense Brooklyn tavern that serves as a cornerstone for local social life. It offers an unpretentious environment where patrons can enjoy inexpensive drinks and bar food while engaging in games like pinball and ping pong. The establishment is prized for its laid-back",
+          "service_description": "The restaurant provides dine-in, takeout, and delivery options, featuring an outdoor seating area. It is well-suited for casual drinks, happy hour, and solo visits, offering a laid-back environment.",
+          "ambience_description": "The atmosphere is dark, unpretentious, and laid-back, prioritizing a relaxed social vibe over formal decor. It is a classic tavern environment that feels comfortable and welcoming for those seeking a simple, straightforward experience.",
+          "amenities_description": "The space is equipped with classic bar entertainment including a jukebox, multiple pinball machines, and a ping pong table. Outdoor seating is available alongside standard takeout and delivery service options.",
+          "unique_selling_points": "This spot is best known for its authentic, no-frills dive bar character and very affordable pricing on drinks and food. It stands out for providing a relaxed, reliable neighborhood social space with built-in classic games.",
+          "neighborhood_description": "Located in a highly active and walkable area, the surrounding neighborhood is defined by its authentic, gritty urban character and frequent pedestrian activity.",
+          "physical_setting_description": "Situated within a bustling city neighborhood, this establishment operates as a traditional, no-nonsense street-level tavern. It is embedded into the local urban fabric of its Brooklyn location.",
           "_truncated_keys": 2
         }
       },
       {
-        "name": "Whitney Museum of American Art",
-        "entity_id": "ABF5777A-1DE8-4F68-836C-147A63F0DA07",
+        "name": "Sid Gold's Request Room",
+        "entity_id": "A9991434-B53E-4514-9CE0-9685AA4227AD",
         "type": "urn:entity",
         "subtype": "urn:entity:place",
-        "disambiguation": "99 Gansevoort St New York, NY 10014",
+        "disambiguation": "165 W 26th St New York, NY 10001",
         "properties": {
           "hours": {
             "friday": [
               {
-                "opens": "T10:30:00",
+                "opens": "T17:00:00",
                 "closed": false,
-                "closes": "T22:00:00"
+                "closes": "T02:00:00"
               }
             ],
             "monday": [
               {
-                "opens": "T10:30:00",
+                "opens": "T19:00:00",
                 "closed": false,
-                "closes": "T18:00:00"
+                "closes": "T01:00:00"
               }
             ],
             "sunday": [
-              {
-                "opens": "T10:30:00",
-                "closed": false,
-                "closes": "T18:00:00"
-              }
-            ],
-            "tuesday": [
               {
                 "opens": null,
                 "closed": true,
                 "closes": null
               }
             ],
+            "tuesday": [
+              {
+                "opens": "T19:00:00",
+                "closed": false,
+                "closes": "T01:00:00"
+              }
+            ],
             "saturday": [
               {
-                "opens": "T10:30:00",
+                "opens": "T20:00:00",
                 "closed": false,
-                "closes": "T18:00:00"
+                "closes": "T02:00:00"
               }
             ],
             "thursday": [
               {
-                "opens": "T10:30:00",
+                "opens": "T17:00:00",
                 "closed": false,
-                "closes": "T18:00:00"
+                "closes": "T01:00:00"
               }
             ],
             "wednesday": [
               {
-                "opens": "T10:30:00",
+                "opens": "T19:00:00",
                 "closed": false,
-                "closes": "T18:00:00"
+                "closes": "T01:00:00"
               }
             ]
           },
           "phone": "[redacted]",
           "images": [
             {
-              "url": "https://images.qloo.com/i/ABF5777A-1DE8-4F68-836C-147A63F0DA07-0qQmT1-420x-outside.jpg",
+              "url": "https://images.qloo.com/i/A9991434-B53E-4514-9CE0-9685AA4227AD-4bV8rt-420x-outside.jpg",
               "type": "urn:image:place:unknown"
             }
           ],
-          "address": "99 Gansevoort St New York, NY 10014",
+          "address": "165 W 26th St New York, NY 10001",
           "geocode": {
             "city": "New York",
-            "name": "Meatpacking District",
+            "name": "Chelsea",
             "metro": "New York City",
             "country": "United States",
             "country_code": "US",
@@ -1413,757 +1311,28 @@
             "admin2_region": "New York County"
           },
           "parking": false,
-          "website": "https://whitney.org/",
-          "good_for": [
-            {
-              "id": "urn:tag:children:place:good_kids",
-              "name": "Good for kids",
-              "type": "urn:tag:children:place",
-              "weight": 0.6111111111111112
-            }
-          ],
-          "keywords": null,
-          "locality": {
-            "city": {
-              "name": "New York",
-              "place": "city",
-              "boundary": "administrative",
-              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
-              "admin_level": 5,
-              "locality_id": "r175905",
-              "abbreviation": "NYC",
-              "country_code": null
-            },
-            "metro": {
-              "name": "New York City",
-              "place": "metro",
-              "boundary": "metro",
-              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
-              "admin_level": 12,
-              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
-              "abbreviation": null,
-              "country_code": null
-            },
-            "state": {
-              "name": "New York",
-              "place": "state",
-              "boundary": "administrative",
-              "entity_id": "BDFC9271-4583-412E-84D8-F285BB8220FE",
-              "admin_level": 4,
-              "locality_id": "r61320",
-              "abbreviation": "N.Y.",
-              "country_code": null
-            },
-            "county": {
-              "name": "New York County",
-              "place": "county",
-              "boundary": "administrative",
-              "entity_id": "CE2B08BB-3A5B-4DDD-92DF-2815614EEA72",
-              "admin_level": 6,
-              "locality_id": "r2552485",
-              "abbreviation": null,
-              "country_code": null
-            },
-            "country": {
-              "name": "United States",
-              "place": "country",
-              "boundary": "administrative",
-              "entity_id": "FCA82A91-546B-4A8F-BC61-DB14088A7E94",
-              "admin_level": 2,
-              "locality_id": "r148838",
-              "abbreviation": "USA",
-              "country_code": "US"
-            },
-            "neighborhood": {
-              "name": "Meatpacking District",
-              "place": "neighbourhood",
-              "boundary": "place",
-              "entity_id": "7D8FFF34-DE8B-4CE6-977A-A0CA70FFBF5A",
-              "admin_level": 10,
-              "locality_id": "r8398108",
-              "abbreviation": null,
-              "country_code": null
-            }
-          },
-          "menu_url": null,
-          "is_closed": false,
-          "live_music": null,
-          "localities": [
-            {
-              "name": "Meatpacking District",
-              "place": "neighbourhood",
-              "boundary": "place",
-              "entity_id": "7D8FFF34-DE8B-4CE6-977A-A0CA70FFBF5A",
-              "admin_level": 10,
-              "locality_id": "r8398108",
-              "abbreviation": null,
-              "country_code": null
-            },
-            {
-              "name": "10014",
-              "place": "ZCTA",
-              "boundary": "ZCTA",
-              "entity_id": "36E5CA99-0F67-4E16-8304-145CC72C4659",
-              "admin_level": 9,
-              "locality_id": "z10014",
-              "abbreviation": null,
-              "country_code": null
-            },
-            {
-              "name": "New York",
-              "place": "city",
-              "boundary": "administrative",
-              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
-              "admin_level": 5,
-              "locality_id": "r175905",
-              "abbreviation": "NYC",
-              "country_code": null
-            },
-            {
-              "name": "New York City",
-              "place": "metro",
-              "boundary": "metro",
-              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
-              "admin_level": 12,
-              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
-              "abbreviation": null,
-              "country_code": null
-            },
-            {
-              "name": "Manhattan",
-              "place": "borough",
-              "boundary": "administrative",
-              "entity_id": "97F46DBA-ED36-4CCD-ACC1-4341D9E6EE47",
-              "admin_level": 7,
-              "locality_id": "r8398124",
-              "abbreviation": null,
-              "country_code": null
-            },
-            {
-              "_truncated_items": 3
-            }
-          ],
-          "description": "Museum dedicated to 20th-century and contemporary American art, showcasing living artists and the biennial, with modern galleries and city views in the Meatpacking District.",
-          "hotel_class": null,
-          "price_level": null,
-          "price_range": {
-            "to": null,
-            "from": null,
-            "currency": "usd"
-          },
-          "star_rating": null,
-          "event_spaces": true,
-          "neighborhood": "Meatpacking District",
-          "pet_friendly": false,
-          "check_in_time": null,
-          "primary_genre": {
-            "id": "urn:tag:genre:place:modern_art_museum",
-            "akas": [
-              {
-                "value": "\"Modern művészeti múzeum\"",
-                "languages": [
-                  "hu"
-                ]
-              },
-              {
-                "value": "\"Muzium seni moden\"",
-                "languages": [
-                  "ms"
-                ]
-              },
-              {
-                "value": "\"សារមន្ទីរសិល្បៈសម័យទំនើប\"",
-                "languages": [
-                  "km"
-                ]
-              },
-              {
-                "value": "\"Museo ng modernong sining\"",
-                "languages": [
-                  "tl"
-                ]
-              },
-              {
-                "value": "\"Muzej moderne umjetnosti\"",
-                "languages": [
-                  "hr",
-                  "bs"
-                ]
-              },
-              {
-                "_truncated_items": 48
-              }
-            ],
-            "name": "Modern art museum",
-            "type": "urn:tag:genre:place",
-            "weight": null
-          },
-          "check_out_time": null,
-          "business_rating": 4.5,
-          "loyalty_program": null,
-          "number_of_rooms": null,
-          "cost_description": null,
-          "specialty_dishes": null,
-          "short_description": "Museum dedicated to 20th-century and contemporary American art, showcasing living artists and the biennial, with modern galleries and city views in the Meatpacking District.",
-          "number_of_stations": null,
-          "cuisine_description": null,
-          "overall_description": "The Whitney Museum of American Art serves as a major cultural landmark in New York City, celebrated for its extensive collection of contemporary and 20th-century American works. Situated in the vibrant Meatpacking District at the base of the High Line, its modern architectural design seamlessly blen",
-          "service_description": null,
-          "ambience_description": "The museum offers a bright and airy atmosphere defined by its thoughtful, modern design that encourages exploration. It balances quiet contemplation of art with lively social spaces on its terraces and cafes, catering to both casual visitors and dedicated art enthusiasts.",
-          "amenities_description": "The facility provides comprehensive visitor amenities including multiple dining options, a curated gift shop, complimentary coat check, and accessible audio guides. Guests can also enjoy designated outdoor balconies and observation decks.",
-          "unique_selling_points": "As the preeminent institution dedicated exclusively to 20th-century and contemporary American art, the museum is distinguished by its biennial exhibition and the architectural integration of indoor galleries with expansive outdoor terraces offering iconic Manhattan views.",
-          "neighborhood_description": "The surrounding neighborhood is a bustling, trendy area known for its industrial history, upscale dining, fashion boutiques, and its direct connection to the elevated High Line park.",
-          "physical_setting_description": "Located in the historic Meatpacking District at the terminus of the High Line, the museum is housed in a prominent, modern architectural building along the Hudson River. The venue features multiple outdoor terraces that provide expansive views of the city skyline, the Hudson River, and neighboring b",
-          "_truncated_keys": 2
-        }
-      },
-      {
-        "name": "Columbia GSAPP M.S. Advanced Architectural Design Program",
-        "entity_id": "F74B603E-A8BF-4945-AD50-032D61CC71B1",
-        "type": "urn:entity",
-        "subtype": "urn:entity:place",
-        "disambiguation": "Avery Hall 1172 Amsterdam Ave New York, NY 10027",
-        "properties": {
-          "hours": null,
-          "phone": "[redacted]",
-          "images": [
-            null
-          ],
-          "address": "Avery Hall 1172 Amsterdam Ave New York, NY 10027",
-          "geocode": {
-            "city": "New York",
-            "name": "Morningside Heights",
-            "metro": "New York City",
-            "country": "United States",
-            "country_code": "US",
-            "admin1_region": "New York",
-            "admin2_region": "New York County"
-          },
-          "parking": false,
-          "website": "https://www.arch.columbia.edu/programs/3-m-s-advanced-architectural-design",
-          "good_for": null,
-          "keywords": null,
-          "locality": {
-            "city": {
-              "name": "New York",
-              "place": "city",
-              "boundary": "administrative",
-              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
-              "admin_level": 5,
-              "locality_id": "r175905",
-              "abbreviation": "NYC",
-              "country_code": null
-            },
-            "metro": {
-              "name": "New York City",
-              "place": "metro",
-              "boundary": "metro",
-              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
-              "admin_level": 12,
-              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
-              "abbreviation": null,
-              "country_code": null
-            },
-            "state": {
-              "name": "New York",
-              "place": "state",
-              "boundary": "administrative",
-              "entity_id": "BDFC9271-4583-412E-84D8-F285BB8220FE",
-              "admin_level": 4,
-              "locality_id": "r61320",
-              "abbreviation": "N.Y.",
-              "country_code": null
-            },
-            "county": {
-              "name": "New York County",
-              "place": "county",
-              "boundary": "administrative",
-              "entity_id": "CE2B08BB-3A5B-4DDD-92DF-2815614EEA72",
-              "admin_level": 6,
-              "locality_id": "r2552485",
-              "abbreviation": null,
-              "country_code": null
-            },
-            "country": {
-              "name": "United States",
-              "place": "country",
-              "boundary": "administrative",
-              "entity_id": "FCA82A91-546B-4A8F-BC61-DB14088A7E94",
-              "admin_level": 2,
-              "locality_id": "r148838",
-              "abbreviation": "USA",
-              "country_code": "US"
-            },
-            "neighborhood": {
-              "name": "Morningside Heights",
-              "place": "neighbourhood",
-              "boundary": "place",
-              "entity_id": "A0001B2B-9FE1-4D70-903A-D6930D5B721F",
-              "admin_level": 10,
-              "locality_id": "r8398079",
-              "abbreviation": null,
-              "country_code": null
-            }
-          },
-          "menu_url": null,
-          "is_closed": false,
-          "live_music": null,
-          "localities": [
-            {
-              "name": "New York",
-              "place": "city",
-              "boundary": "administrative",
-              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
-              "admin_level": 5,
-              "locality_id": "r175905",
-              "abbreviation": "NYC",
-              "country_code": null
-            },
-            {
-              "name": "New York City",
-              "place": "metro",
-              "boundary": "metro",
-              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
-              "admin_level": 12,
-              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
-              "abbreviation": null,
-              "country_code": null
-            },
-            {
-              "name": "Manhattan",
-              "place": "borough",
-              "boundary": "administrative",
-              "entity_id": "97F46DBA-ED36-4CCD-ACC1-4341D9E6EE47",
-              "admin_level": 7,
-              "locality_id": "r8398124",
-              "abbreviation": null,
-              "country_code": null
-            },
-            {
-              "name": "New York County",
-              "place": "county",
-              "boundary": "administrative",
-              "entity_id": "CE2B08BB-3A5B-4DDD-92DF-2815614EEA72",
-              "admin_level": 6,
-              "locality_id": "r2552485",
-              "abbreviation": null,
-              "country_code": null
-            },
-            {
-              "name": "Morningside Heights",
-              "place": "neighbourhood",
-              "boundary": "place",
-              "entity_id": "A0001B2B-9FE1-4D70-903A-D6930D5B721F",
-              "admin_level": 10,
-              "locality_id": "r8398079",
-              "abbreviation": null,
-              "country_code": null
-            },
-            {
-              "_truncated_items": 4
-            }
-          ],
-          "description": "A graduate architecture program focused on exploratory studios that examine architecture's future through diverse social, material, and environmental lenses.",
-          "hotel_class": null,
-          "price_level": null,
-          "price_range": {
-            "to": null,
-            "from": null,
-            "currency": "usd"
-          },
-          "star_rating": null,
-          "event_spaces": true,
-          "neighborhood": "Morningside Heights",
-          "pet_friendly": false,
-          "check_in_time": null,
-          "primary_genre": {
-            "id": "urn:tag:genre:place:academic_department",
-            "akas": [
-              {
-                "value": "\"Wydział akademicki\"",
-                "languages": [
-                  "pl"
-                ]
-              },
-              {
-                "value": "\"ដេប៉ាតឺម៉ង់សិក្សា\"",
-                "languages": [
-                  "km"
-                ]
-              },
-              {
-                "value": "\"Akadēmiskā nodaļa\"",
-                "languages": [
-                  "lv"
-                ]
-              },
-              {
-                "value": "\"学術部門\"",
-                "languages": [
-                  "ja"
-                ]
-              },
-              {
-                "value": "\"Akademik bölüm\"",
-                "languages": [
-                  "tr"
-                ]
-              },
-              {
-                "_truncated_items": 49
-              }
-            ],
-            "name": "Academic department",
-            "type": "urn:tag:genre:place",
-            "weight": null
-          },
-          "check_out_time": null,
-          "business_rating": null,
-          "loyalty_program": null,
-          "number_of_rooms": null,
-          "cost_description": null,
-          "specialty_dishes": null,
-          "short_description": "A graduate architecture program focused on exploratory studios that examine architecture's future through diverse social, material, and environmental lenses.",
-          "number_of_stations": null,
-          "cuisine_description": null,
-          "overall_description": "The M.S. Advanced Architectural Design program at Columbia GSAPP is a premier three-semester, post-professional degree designed for accomplished architectural practitioners. Through a robust curriculum of intensive design studios and critical seminars, students investigate the intersection of techno",
-          "service_description": null,
-          "ambience_description": "The atmosphere is one of intense intellectual rigor and creative exploration, fostering a space where historic academic prestige meets forward-looking architectural experimentation.",
-          "amenities_description": "The facility provides access to advanced design studios, specialized research libraries, and exhibition venues that support a research-intensive architectural curriculum.",
-          "unique_selling_points": "This post-professional program functions as a critical design framework, offering intensive exploratory studios that bridge technological, social, and environmental design concerns.",
-          "neighborhood_description": "The surrounding Morningside Heights neighborhood is a bustling academic hub characterized by its collegiate architecture and proximity to significant cultural and intellectual institutions.",
-          "physical_setting_description": "Located within the historic campus of Columbia University in New York City, the program operates out of Avery Hall. The setting is deeply embedded in a dense urban environment that serves as a living laboratory for architectural inquiry.",
-          "_truncated_keys": 2
-        }
-      },
-      {
-        "name": "MoMA PS1",
-        "entity_id": "E2C67B89-4050-4FA4-9E61-9ADC41730AE9",
-        "type": "urn:entity",
-        "subtype": "urn:entity:place",
-        "disambiguation": "22-25 Jackson Ave Queens, NY 11101",
-        "properties": {
-          "hours": {
-            "friday": [
-              {
-                "opens": "T12:00:00",
-                "closed": false,
-                "closes": "T18:00:00"
-              }
-            ],
-            "monday": [
-              {
-                "opens": "T12:00:00",
-                "closed": false,
-                "closes": "T18:00:00"
-              }
-            ],
-            "sunday": [
-              {
-                "opens": "T12:00:00",
-                "closed": false,
-                "closes": "T18:00:00"
-              }
-            ],
-            "tuesday": [
-              {
-                "opens": null,
-                "closed": true,
-                "closes": null
-              }
-            ],
-            "saturday": [
-              {
-                "opens": "T10:00:00",
-                "closed": false,
-                "closes": "T18:00:00"
-              }
-            ],
-            "thursday": [
-              {
-                "opens": "T12:00:00",
-                "closed": false,
-                "closes": "T18:00:00"
-              }
-            ],
-            "wednesday": [
-              {
-                "opens": null,
-                "closed": true,
-                "closes": null
-              }
-            ]
-          },
-          "phone": "[redacted]",
-          "images": [
-            {
-              "url": "https://images.qloo.com/i/E2C67B89-4050-4FA4-9E61-9ADC41730AE9-2ADsqY-420x-outside.jpg",
-              "type": "urn:image:place:unknown"
-            }
-          ],
-          "address": "22-25 Jackson Ave Queens, NY 11101",
-          "geocode": {
-            "city": "New York",
-            "name": "Long Island City",
-            "metro": "New York City",
-            "country": "United States",
-            "country_code": "US",
-            "admin1_region": "New York",
-            "admin2_region": "Queens County"
-          },
-          "parking": false,
-          "website": "https://www.momaps1.org/",
-          "good_for": [
-            {
-              "id": "urn:tag:children:place:good_kids",
-              "name": "Good for kids",
-              "type": "urn:tag:children:place",
-              "weight": 0.6111111111111112
-            }
-          ],
-          "keywords": null,
-          "locality": {
-            "city": {
-              "name": "New York",
-              "place": "city",
-              "boundary": "administrative",
-              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
-              "admin_level": 5,
-              "locality_id": "r175905",
-              "abbreviation": "NYC",
-              "country_code": null
-            },
-            "metro": {
-              "name": "New York City",
-              "place": "metro",
-              "boundary": "metro",
-              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
-              "admin_level": 12,
-              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
-              "abbreviation": null,
-              "country_code": null
-            },
-            "state": {
-              "name": "New York",
-              "place": "state",
-              "boundary": "administrative",
-              "entity_id": "BDFC9271-4583-412E-84D8-F285BB8220FE",
-              "admin_level": 4,
-              "locality_id": "r61320",
-              "abbreviation": "N.Y.",
-              "country_code": null
-            },
-            "county": {
-              "name": "Queens County",
-              "place": "county",
-              "boundary": "administrative",
-              "entity_id": "58A5144B-0837-4AA4-8722-089996FE59E0",
-              "admin_level": 6,
-              "locality_id": "r369519",
-              "abbreviation": null,
-              "country_code": null
-            },
-            "country": {
-              "name": "United States",
-              "place": "country",
-              "boundary": "administrative",
-              "entity_id": "FCA82A91-546B-4A8F-BC61-DB14088A7E94",
-              "admin_level": 2,
-              "locality_id": "r148838",
-              "abbreviation": "USA",
-              "country_code": "US"
-            },
-            "neighborhood": {
-              "name": "Long Island City",
-              "place": "suburb",
-              "boundary": "neighborhood",
-              "entity_id": "079C49B5-19B1-47F6-96A6-B323F74A2A1A",
-              "admin_level": 10,
-              "locality_id": "n158842914",
-              "abbreviation": "LIC",
-              "country_code": null
-            }
-          },
-          "menu_url": null,
-          "is_closed": false,
-          "live_music": null,
-          "localities": [
-            {
-              "name": "New York",
-              "place": "city",
-              "boundary": "administrative",
-              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
-              "admin_level": 5,
-              "locality_id": "r175905",
-              "abbreviation": "NYC",
-              "country_code": null
-            },
-            {
-              "name": "New York City",
-              "place": "metro",
-              "boundary": "metro",
-              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
-              "admin_level": 12,
-              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
-              "abbreviation": null,
-              "country_code": null
-            },
-            {
-              "name": "11101",
-              "place": "ZCTA",
-              "boundary": "ZCTA",
-              "entity_id": "1A836967-2B83-49F8-92E8-D9EC1B922968",
-              "admin_level": 9,
-              "locality_id": "z11101",
-              "abbreviation": null,
-              "country_code": null
-            },
-            {
-              "name": "Long Island City",
-              "place": "suburb",
-              "boundary": "neighborhood",
-              "entity_id": "079C49B5-19B1-47F6-96A6-B323F74A2A1A",
-              "admin_level": 10,
-              "locality_id": "n158842914",
-              "abbreviation": "LIC",
-              "country_code": null
-            },
-            {
-              "name": "Queens",
-              "place": "borough",
-              "boundary": "administrative",
-              "entity_id": "4395534B-B921-49AF-BAE9-BC8127AD43C1",
-              "admin_level": 7,
-              "locality_id": "r9691819",
-              "abbreviation": null,
-              "country_code": null
-            },
-            {
-              "_truncated_items": 3
-            }
-          ],
-          "description": "Experimental contemporary art venue in a former school building with rotating exhibitions and events.",
-          "hotel_class": null,
-          "price_level": null,
-          "price_range": {
-            "to": null,
-            "from": null,
-            "currency": "usd"
-          },
-          "star_rating": null,
-          "event_spaces": true,
-          "neighborhood": "Long Island City",
-          "pet_friendly": false,
-          "check_in_time": null,
-          "primary_genre": {
-            "id": "urn:tag:genre:place:modern_art_museum",
-            "akas": [
-              {
-                "value": "\"Modern művészeti múzeum\"",
-                "languages": [
-                  "hu"
-                ]
-              },
-              {
-                "value": "\"Muzium seni moden\"",
-                "languages": [
-                  "ms"
-                ]
-              },
-              {
-                "value": "\"សារមន្ទីរសិល្បៈសម័យទំនើប\"",
-                "languages": [
-                  "km"
-                ]
-              },
-              {
-                "value": "\"Museo ng modernong sining\"",
-                "languages": [
-                  "tl"
-                ]
-              },
-              {
-                "value": "\"Muzej moderne umjetnosti\"",
-                "languages": [
-                  "hr",
-                  "bs"
-                ]
-              },
-              {
-                "_truncated_items": 48
-              }
-            ],
-            "name": "Modern art museum",
-            "type": "urn:tag:genre:place",
-            "weight": null
-          },
-          "check_out_time": null,
-          "business_rating": 4.400000095367432,
-          "loyalty_program": null,
-          "number_of_rooms": null,
-          "cost_description": null,
-          "specialty_dishes": null,
-          "short_description": "Experimental contemporary art venue in a former school building with rotating exhibitions and events.",
-          "number_of_stations": null,
-          "cuisine_description": null,
-          "overall_description": "MoMA PS1 is a renowned contemporary art venue located in a historic former public school in Long Island City, Queens. Dedicated to showcasing experimental, emerging, and thought-provoking art, it provides a raw and unconventional museum experience distinct from its Manhattan counterpart. Visitors ca",
-          "service_description": null,
-          "ambience_description": "The atmosphere is raw, creative, and intellectually stimulating, characterized by its non-traditional, schoolhouse layout. It ranges from a peaceful, contemplative space for viewing art to a vibrant, social hub during its popular outdoor music events.",
-          "amenities_description": "The museum offers a curated bookstore, an on-site cafe serving Greek-inspired cuisine, and an outdoor courtyard frequently used for events. Facilities include accessible elevators and seating areas throughout the galleries.",
-          "unique_selling_points": "The museum is defined by its experimental, boundary-pushing contemporary art housed in an iconic former public school building. Signature experiences include the James Turrell permanent installation and the popular summer music warm-up series.",
-          "neighborhood_description": "Located in Long Island City, the museum sits in an evolving neighborhood that balances its industrial roots with a vibrant, modern cultural scene. It is conveniently situated near public transportation, offering an accessible urban experience.",
-          "physical_setting_description": "Housed in a repurposed former public school building, this venue features a blend of historic architecture and contemporary art spaces, including a courtyard and basement areas. The industrial, gritty aesthetic of the old school provides a unique backdrop for experimental installations.",
-          "_truncated_keys": 2
-        }
-      },
-      {
-        "name": "Brooklyn Bridge",
-        "entity_id": "56674AEE-A6BD-4C0A-AD13-A6989B2D9054",
-        "type": "urn:entity",
-        "subtype": "urn:entity:place",
-        "disambiguation": "New York, NY 10038",
-        "properties": {
-          "hours": null,
-          "phone": "[redacted]",
-          "images": [
-            {
-              "url": "https://images.qloo.com/i/56674AEE-A6BD-4C0A-AD13-A6989B2D9054-37zlIJ-420x-outside.jpg",
-              "type": "urn:image:place:unknown"
-            }
-          ],
-          "address": "New York, NY 10038",
-          "geocode": {
-            "city": "New York",
-            "name": "Two Bridges",
-            "metro": "New York City",
-            "country": "United States",
-            "country_code": "US",
-            "admin1_region": "New York",
-            "admin2_region": "New York County"
-          },
-          "parking": false,
-          "website": "https://www.nyc.gov/html/dot/html/infrastructure/brooklyn-bridge.shtml",
+          "website": "https://sidgolds.com/new-york/",
           "good_for": null,
           "keywords": [
             {
-              "name": "iconic bridge",
-              "count": 1251
+              "name": "piano",
+              "count": 109
             },
             {
-              "name": "manhattan skyline",
-              "count": 419
+              "name": "atmosphere",
+              "count": 29
             },
             {
-              "name": "statue of liberty",
-              "count": 625
+              "name": "bartender",
+              "count": 18
             },
             {
-              "name": "sunset views",
-              "count": 1784
+              "name": "crowd",
+              "count": 16
             },
             {
-              "name": "city views",
-              "count": 470
+              "name": "party",
+              "count": 14
             },
             {
               "_truncated_items": 5
@@ -2221,12 +1390,315 @@
               "country_code": "US"
             },
             "neighborhood": {
-              "name": "Two Bridges",
+              "name": "Chelsea",
               "place": "neighbourhood",
               "boundary": "place",
-              "entity_id": "0E49FF02-810F-4BE4-8019-2C1E0F17C560",
+              "entity_id": "4BFB8B7C-8A4E-40BC-BCE3-8DE9D6DDE441",
               "admin_level": 10,
-              "locality_id": "r8398121",
+              "locality_id": "r8398107",
+              "abbreviation": null,
+              "country_code": null
+            }
+          },
+          "menu_url": "https://sidgolds.com/new-york/digital-menu/",
+          "is_closed": false,
+          "live_music": true,
+          "localities": [
+            {
+              "name": "New York",
+              "place": "city",
+              "boundary": "administrative",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "Chelsea",
+              "place": "neighbourhood",
+              "boundary": "place",
+              "entity_id": "4BFB8B7C-8A4E-40BC-BCE3-8DE9D6DDE441",
+              "admin_level": 10,
+              "locality_id": "r8398107",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "Manhattan Community Board 5",
+              "place": null,
+              "boundary": "administrative",
+              "entity_id": "DD0C2C54-2CFA-459B-B5D7-BFE3B4D52BBB",
+              "admin_level": 10,
+              "locality_id": "r7340060",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "10001",
+              "place": "ZCTA",
+              "boundary": "ZCTA",
+              "entity_id": "D7DC462C-E1B2-4D1C-9DC5-B89A99E6409B",
+              "admin_level": 9,
+              "locality_id": "z10001",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "_truncated_items": 4
+            }
+          ],
+          "description": "Modern piano bar offering alcove booth seating, classic cocktails and live music in Chelsea.",
+          "hotel_class": null,
+          "price_level": 2,
+          "price_range": {
+            "to": null,
+            "from": null,
+            "currency": "usd"
+          },
+          "star_rating": null,
+          "event_spaces": true,
+          "neighborhood": "Chelsea",
+          "pet_friendly": null,
+          "check_in_time": null,
+          "primary_genre": {
+            "id": "urn:tag:genre:place:restaurant:karaoke_bar",
+            "akas": [
+              {
+                "value": "\"Karaoke-taberna\"",
+                "languages": [
+                  "eu"
+                ]
+              },
+              {
+                "value": "\"노래방\"",
+                "languages": [
+                  "ko"
+                ]
+              },
+              {
+                "value": "\"Καραόκε μπαρ\"",
+                "languages": [
+                  "el"
+                ]
+              },
+              {
+                "value": "\"Karaoke-Bar\"",
+                "languages": [
+                  "de"
+                ]
+              },
+              {
+                "value": "\"ຄາຣາໂອເກະບາ\"",
+                "languages": [
+                  "lo"
+                ]
+              },
+              {
+                "_truncated_items": 31
+              }
+            ],
+            "name": "Karaoke bar",
+            "type": "urn:tag:genre:place",
+            "weight": null
+          },
+          "check_out_time": null,
+          "business_rating": 4.5,
+          "loyalty_program": null,
+          "number_of_rooms": null,
+          "cost_description": null,
+          "specialty_dishes": [
+            {
+              "id": "urn:tag:specialty_dish:place:always_on_my_mind",
+              "name": "Always On My Mind",
+              "type": "urn:tag:specialty_dish:place",
+              "weight": 1
+            }
+          ],
+          "short_description": "Modern piano bar offering alcove booth seating, classic cocktails and live music in Chelsea.",
+          "number_of_stations": null,
+          "cuisine_description": "Sid Gold's Request Room functions primarily as a piano bar and live music venue. While it does not serve full meals, it offers a selection of bar snacks such as peanuts and popcorn alongside a full bar menu featuring cocktails, wine, beer, and spirits.",
+          "overall_description": "A vibrant and distinct destination in Chelsea, this venue serves as a modern take on the classic piano bar. It is widely recognized for its unique live-piano karaoke format, which replaces traditional machines with professional musicians capable of playing thousands of songs. The space is thoughtful",
+          "service_description": "This modern piano bar provides a lively atmosphere centered around live piano karaoke. It offers both indoor table and booth seating, accommodates private parties and group events, and features a happy hour. While dining services are limited to light snacks, guests can enjoy a variety of cocktails a",
+          "ambience_description": "The atmosphere is energetic and unpretentious, defined by the communal spirit of piano-led karaoke and a theater-inspired vibe. It balances a cozy, inviting feel with a high-energy performance environment that encourages audience participation.",
+          "amenities_description": "The venue offers live musical accompaniment for guests, professional piano performers, and a selection of cocktails, wine, and beer. Seating is provided in booth-style arrangements that prioritize viewing of the central performance area.",
+          "unique_selling_points": "This spot is defined by its signature live-piano karaoke experience where patrons sing along to professional accompaniment instead of pre-recorded tracks. The intimate, theater-inspired setting often attracts talented vocalists and performers, creating a uniquely New York-style social performance en",
+          "neighborhood_description": "Situated in the vibrant and walkable Chelsea neighborhood, the surrounding area is well-known for its proximity to popular art, design, and recreational landmarks.",
+          "physical_setting_description": "Located in Chelsea, this venue features a distinct two-room layout with a quieter front bar area and a dedicated, curtains-enclosed performance space in the back. The interior is designed with intimate alcove booth seating arranged specifically to encourage interaction around the piano.",
+          "_truncated_keys": 2
+        }
+      },
+      {
+        "name": "Artists & Fleas Williamsburg",
+        "entity_id": "30C210DA-301E-4873-AEAD-BFF1B69AE921",
+        "type": "urn:entity",
+        "subtype": "urn:entity:place",
+        "disambiguation": "70 N 7th St Brooklyn, NY 11249",
+        "properties": {
+          "hours": {
+            "friday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "monday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "sunday": [
+              {
+                "opens": "T11:00:00",
+                "closed": false,
+                "closes": "T19:00:00"
+              }
+            ],
+            "tuesday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "saturday": [
+              {
+                "opens": "T11:00:00",
+                "closed": false,
+                "closes": "T19:00:00"
+              }
+            ],
+            "thursday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "wednesday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ]
+          },
+          "phone": "[redacted]",
+          "images": [
+            {
+              "url": "https://images.qloo.com/i/30C210DA-301E-4873-AEAD-BFF1B69AE921-2qSFuC-420x-outside.jpg",
+              "type": "urn:image:place:unknown"
+            }
+          ],
+          "address": "70 N 7th St Brooklyn, NY 11249",
+          "geocode": {
+            "city": "New York",
+            "name": "Williamsburg",
+            "metro": "New York City",
+            "country": "United States",
+            "country_code": "US",
+            "admin1_region": "New York",
+            "admin2_region": "Kings County"
+          },
+          "parking": false,
+          "website": "http://www.artistsandfleas.com/",
+          "good_for": null,
+          "keywords": [
+            {
+              "name": "vintage",
+              "count": 26
+            },
+            {
+              "name": "gifts",
+              "count": 22
+            },
+            {
+              "name": "artisans",
+              "count": 13
+            },
+            {
+              "name": "candles",
+              "count": 13
+            },
+            {
+              "name": "DJ",
+              "count": 8
+            },
+            {
+              "_truncated_items": 5
+            }
+          ],
+          "locality": {
+            "city": {
+              "name": "New York",
+              "place": "city",
+              "boundary": "administrative",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            "metro": {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "state": {
+              "name": "New York",
+              "place": "state",
+              "boundary": "administrative",
+              "entity_id": "BDFC9271-4583-412E-84D8-F285BB8220FE",
+              "admin_level": 4,
+              "locality_id": "r61320",
+              "abbreviation": "N.Y.",
+              "country_code": null
+            },
+            "county": {
+              "name": "Kings County",
+              "place": "county",
+              "boundary": "administrative",
+              "entity_id": "E8DC52F4-985C-4B02-8518-0385E567C57C",
+              "admin_level": 6,
+              "locality_id": "r369518",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "country": {
+              "name": "United States",
+              "place": "country",
+              "boundary": "administrative",
+              "entity_id": "FCA82A91-546B-4A8F-BC61-DB14088A7E94",
+              "admin_level": 2,
+              "locality_id": "r148838",
+              "abbreviation": "USA",
+              "country_code": "US"
+            },
+            "neighborhood": {
+              "name": "Williamsburg",
+              "place": "suburb",
+              "boundary": "neighborhood",
+              "entity_id": "C16A1E1D-D3F4-4720-9E5A-448CE374E35D",
+              "admin_level": 10,
+              "locality_id": "n158863515",
               "abbreviation": null,
               "country_code": null
             }
@@ -2236,15 +1708,309 @@
           "live_music": null,
           "localities": [
             {
-              "name": "Two Bridges",
-              "place": "neighbourhood",
-              "boundary": "place",
-              "entity_id": "0E49FF02-810F-4BE4-8019-2C1E0F17C560",
+              "name": "Williamsburg",
+              "place": "suburb",
+              "boundary": "neighborhood",
+              "entity_id": "C16A1E1D-D3F4-4720-9E5A-448CE374E35D",
               "admin_level": 10,
-              "locality_id": "r8398121",
+              "locality_id": "n158863515",
               "abbreviation": null,
               "country_code": null
             },
+            {
+              "name": "11249",
+              "place": "ZCTA",
+              "boundary": "ZCTA",
+              "entity_id": "13491A1E-7453-4F3E-ACDA-46814A56AD32",
+              "admin_level": 9,
+              "locality_id": "z11249",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "New York",
+              "place": "city",
+              "boundary": "administrative",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "Brooklyn",
+              "place": "borough",
+              "boundary": "administrative",
+              "entity_id": "86BAEBAE-2980-43B6-9E75-2A5CDB898628",
+              "admin_level": 7,
+              "locality_id": "r9691750",
+              "abbreviation": "BK",
+              "country_code": null
+            },
+            {
+              "_truncated_items": 3
+            }
+          ],
+          "description": "Weekend indoor market in Williamsburg showcasing curated handmade art, vintage clothing, and independent designers.",
+          "hotel_class": null,
+          "price_level": null,
+          "price_range": {
+            "to": null,
+            "from": null,
+            "currency": "usd"
+          },
+          "star_rating": null,
+          "event_spaces": false,
+          "neighborhood": "Williamsburg",
+          "pet_friendly": null,
+          "check_in_time": null,
+          "primary_genre": {
+            "id": "urn:tag:genre:place:flea_market",
+            "akas": [
+              {
+                "value": "\"벼룩시장\"",
+                "languages": [
+                  "ko"
+                ]
+              },
+              {
+                "value": "\"ตลาดนัดของมือสอง\"",
+                "languages": [
+                  "th"
+                ]
+              },
+              {
+                "value": "\"Mercado de pulgas\"",
+                "languages": [
+                  "pt",
+                  "es_la"
+                ]
+              },
+              {
+                "value": "\"Mercat de puces\"",
+                "languages": [
+                  "ca"
+                ]
+              },
+              {
+                "value": "\"Vlooienmarkt\"",
+                "languages": [
+                  "nl"
+                ]
+              },
+              {
+                "_truncated_items": 51
+              }
+            ],
+            "name": "Flea market",
+            "type": "urn:tag:genre:place",
+            "weight": null
+          },
+          "check_out_time": null,
+          "business_rating": 4.300000190734863,
+          "loyalty_program": null,
+          "number_of_rooms": null,
+          "cost_description": null,
+          "specialty_dishes": null,
+          "short_description": "Weekend indoor market in Williamsburg showcasing curated handmade art, vintage clothing, and independent designers.",
+          "number_of_stations": null,
+          "cuisine_description": null,
+          "overall_description": "Artists & Fleas in Williamsburg is a premier indoor marketplace that brings together a curated collection of local artisans, independent designers, and vintage collectors. Since its inception in 2003, it has functioned as a vital platform for small businesses to showcase original art, jewelry, fashi",
+          "service_description": null,
+          "ambience_description": "The market features a dynamic and energetic vibe, enhanced by curated music and a constantly evolving lineup of independent merchants. It feels like an authentic community hub for discovering original art and fashion.",
+          "amenities_description": "The facility is fully indoors and climate-controlled, offering essential amenities like electricity, WiFi, and an on-site coffee option to enhance the shopping experience.",
+          "unique_selling_points": "The market serves as a platform for independent designers and local artists, offering a rotating roster of merchants that ensures a fresh, one-of-a-kind discovery experience every time.",
+          "neighborhood_description": "The surrounding area is a vibrant and highly walkable Brooklyn neighborhood, famous for its creative spirit, independent boutiques, and diverse culinary scene. It offers a distinct urban atmosphere that attracts both locals and tourists throughout the weekend.",
+          "physical_setting_description": "Located in the heart of Williamsburg, this indoor market provides a climate-controlled, vibrant space for artisans and vintage vendors to showcase their work. It is situated in a neighborhood known for its industrial roots and thriving artistic community.",
+          "_truncated_keys": 2
+        }
+      },
+      {
+        "name": "Fort Tryon",
+        "entity_id": "3B885AD7-9AD4-4CFA-A7D5-7A1D6C6E6C2C",
+        "type": "urn:entity",
+        "subtype": "urn:entity:place",
+        "disambiguation": "99 Margaret Corbin Dr #67 New York, NY 10040",
+        "properties": {
+          "hours": {
+            "friday": [
+              {
+                "opens": "T06:00:00",
+                "closed": false,
+                "closes": "T01:00:00"
+              }
+            ],
+            "monday": [
+              {
+                "opens": "T06:00:00",
+                "closed": false,
+                "closes": "T01:00:00"
+              }
+            ],
+            "sunday": [
+              {
+                "opens": "T06:00:00",
+                "closed": false,
+                "closes": "T01:00:00"
+              }
+            ],
+            "tuesday": [
+              {
+                "opens": "T06:00:00",
+                "closed": false,
+                "closes": "T01:00:00"
+              }
+            ],
+            "saturday": [
+              {
+                "opens": "T06:00:00",
+                "closed": false,
+                "closes": "T01:00:00"
+              }
+            ],
+            "thursday": [
+              {
+                "opens": "T06:00:00",
+                "closed": false,
+                "closes": "T01:00:00"
+              }
+            ],
+            "wednesday": [
+              {
+                "opens": "T06:00:00",
+                "closed": false,
+                "closes": "T01:00:00"
+              }
+            ]
+          },
+          "phone": "[redacted]",
+          "images": [
+            {
+              "url": "https://images.qloo.com/i/3B885AD7-9AD4-4CFA-A7D5-7A1D6C6E6C2C-00Bxu6-420x-outside.jpg",
+              "type": "urn:image:place:unknown"
+            }
+          ],
+          "address": "99 Margaret Corbin Dr #67 New York, NY 10040",
+          "geocode": {
+            "city": "New York",
+            "name": "Fort George",
+            "metro": "New York City",
+            "country": "United States",
+            "country_code": "US",
+            "admin1_region": "New York",
+            "admin2_region": "New York County"
+          },
+          "parking": true,
+          "website": "https://www.forttryonparktrust.org/",
+          "good_for": [
+            {
+              "id": "urn:tag:children:place:good_kids",
+              "name": "Good for kids",
+              "type": "urn:tag:children:place",
+              "weight": 0.5
+            }
+          ],
+          "keywords": [
+            {
+              "name": "beautiful",
+              "count": 26
+            },
+            {
+              "name": "walk",
+              "count": 25
+            },
+            {
+              "name": "the cloisters",
+              "count": 15
+            },
+            {
+              "name": "trails",
+              "count": 7
+            },
+            {
+              "name": "spring",
+              "count": 4
+            },
+            {
+              "_truncated_items": 5
+            }
+          ],
+          "locality": {
+            "city": {
+              "name": "New York",
+              "place": "city",
+              "boundary": "administrative",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            "metro": {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "state": {
+              "name": "New York",
+              "place": "state",
+              "boundary": "administrative",
+              "entity_id": "BDFC9271-4583-412E-84D8-F285BB8220FE",
+              "admin_level": 4,
+              "locality_id": "r61320",
+              "abbreviation": "N.Y.",
+              "country_code": null
+            },
+            "county": {
+              "name": "New York County",
+              "place": "county",
+              "boundary": "administrative",
+              "entity_id": "CE2B08BB-3A5B-4DDD-92DF-2815614EEA72",
+              "admin_level": 6,
+              "locality_id": "r2552485",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "country": {
+              "name": "United States",
+              "place": "country",
+              "boundary": "administrative",
+              "entity_id": "FCA82A91-546B-4A8F-BC61-DB14088A7E94",
+              "admin_level": 2,
+              "locality_id": "r148838",
+              "abbreviation": "USA",
+              "country_code": "US"
+            },
+            "neighborhood": {
+              "name": "Fort George",
+              "place": "neighbourhood",
+              "boundary": "place",
+              "entity_id": "893F783B-9F8E-4157-827B-142AAE533DEF",
+              "admin_level": 10,
+              "locality_id": "r8398073",
+              "abbreviation": null,
+              "country_code": null
+            }
+          },
+          "menu_url": null,
+          "is_closed": false,
+          "live_music": null,
+          "localities": [
             {
               "name": "New York",
               "place": "city",
@@ -2286,10 +2052,20 @@
               "country_code": null
             },
             {
-              "_truncated_items": 2
+              "name": "Fort George",
+              "place": "neighbourhood",
+              "boundary": "place",
+              "entity_id": "893F783B-9F8E-4157-827B-142AAE533DEF",
+              "admin_level": 10,
+              "locality_id": "r8398073",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "_truncated_items": 4
             }
           ],
-          "description": "Historic 1883 suspension bridge connecting Manhattan and Brooklyn with Gothic stone towers, elevated pedestrian promenade, and sweeping East River and skyline views.",
+          "description": "Riverside park in upper Manhattan featuring terraced gardens, sweeping Hudson River views, and a renowned medieval art museum within a historic landscape.",
           "hotel_class": null,
           "price_level": null,
           "price_range": {
@@ -2298,51 +2074,56 @@
             "currency": "usd"
           },
           "star_rating": null,
-          "event_spaces": false,
-          "neighborhood": "Two Bridges",
+          "event_spaces": true,
+          "neighborhood": "Fort George",
           "pet_friendly": true,
           "check_in_time": null,
           "primary_genre": {
-            "id": "urn:tag:genre:place:bridge",
+            "id": "urn:tag:genre:place:park",
             "akas": [
               {
-                "value": "\"Bridge\"",
-                "languages": [
-                  "en_gb"
-                ]
-              },
-              {
-                "value": "\"Körpü\"",
-                "languages": [
-                  "az"
-                ]
-              },
-              {
-                "value": "\"Ponte\"",
+                "value": "\"Parque\"",
                 "languages": [
                   "gl",
-                  "pt_pt",
                   "pt",
-                  "it"
+                  "es",
+                  "es_la",
+                  "pt_pt",
+                  {
+                    "_truncated_items": 1
+                  }
                 ]
               },
               {
-                "value": "\"Көпір\"",
+                "value": "\"Саябақ\"",
                 "languages": [
                   "kk"
                 ]
               },
               {
-                "value": "\"Híd\"",
+                "value": "\"Hifadhi\"",
                 "languages": [
-                  "hu"
+                  "sw"
                 ]
               },
               {
-                "_truncated_items": 37
+                "value": "\"பூங்கா\"",
+                "languages": [
+                  "ta"
+                ]
+              },
+              {
+                "value": "\"公園\"",
+                "languages": [
+                  "ja",
+                  "zh_tw"
+                ]
+              },
+              {
+                "_truncated_items": 23
               }
             ],
-            "name": "Bridge",
+            "name": "Park",
             "type": "urn:tag:genre:place",
             "weight": null
           },
@@ -2352,32 +2133,32 @@
           "number_of_rooms": null,
           "cost_description": null,
           "specialty_dishes": null,
-          "short_description": "Historic 1883 suspension bridge connecting Manhattan and Brooklyn with Gothic stone towers, elevated pedestrian promenade, and sweeping East River and skyline views.",
+          "short_description": "Riverside park in upper Manhattan featuring terraced gardens, sweeping Hudson River views, and a renowned medieval art museum within a historic landscape.",
           "number_of_stations": null,
           "cuisine_description": null,
-          "overall_description": "The Brooklyn Bridge is a historic 1883 suspension bridge that serves as a vital and iconic link between the boroughs of Manhattan and Brooklyn. Renowned for its massive Gothic stone towers and intricate cable design, it has become a must-visit destination for those seeking a quintessential New York ",
+          "overall_description": "Fort Tryon Park is a picturesque, 67-acre oasis located at the northern tip of Manhattan, celebrated for its sweeping views of the Hudson River and the New Jersey Palisades. Designed by the Olmsted Brothers, the park balances historic significance with natural beauty, featuring lush terraced gardens",
           "service_description": null,
-          "ambience_description": "The atmosphere is grand and timeless, characterized by a lively energy driven by locals and tourists alike. It offers a classic urban experience defined by the architectural majesty of the bridge and the panoramic cityscape.",
-          "amenities_description": "The structure features an elevated wooden pedestrian promenade and a dedicated bicycle path that provide safe, scenic passage for visitors across the East River.",
-          "unique_selling_points": "As an 1883 architectural marvel, the bridge is famous for its distinctive Gothic revival stone arches and suspension cable design. It provides one of the most celebrated vantage points for viewing the Manhattan and Brooklyn skylines.",
-          "neighborhood_description": "The surrounding area is a vibrant, bustling urban environment that blends historic charm with modern city life. It serves as a central connector, attracting crowds of pedestrians and tourists who enjoy the lively atmosphere of both boroughs.",
-          "physical_setting_description": "Spanning the East River, this historic suspension bridge links Manhattan and Brooklyn. It features iconic Gothic stone towers and an elevated pedestrian promenade that offers expansive views of the city skyline.",
+          "ambience_description": "The park offers a serene and peaceful atmosphere, serving as a lush sanctuary where visitors can connect with nature. It is an exceptionally calm environment, perfect for quiet reflection, romantic walks, and enjoying expansive outdoor vistas.",
+          "amenities_description": "The park provides a variety of amenities including extensive paved trails, manicured gardens, large dog runs, and multiple playgrounds. It also houses a significant museum facility within its grounds and offers ample seating throughout.",
+          "unique_selling_points": "The park is home to the world-renowned Cloisters museum, a unique medieval art destination set within a meticulously preserved historic landscape that includes the restored Heather Garden.",
+          "neighborhood_description": "The surrounding area is a peaceful, residential enclave of Upper Manhattan that offers a calm retreat from the typical bustle of the city. It is characterized by its hilly terrain, local charm, and significant historical presence.",
+          "physical_setting_description": "Situated on a high, schist-based ridge in upper Manhattan, this park provides expansive, terraced landscapes overlooking the Hudson River and the New Jersey Palisades. Its 67-acre grounds feature meticulously maintained gardens, wooded trails, and historic medieval architecture.",
           "_truncated_keys": 2
         }
       },
       {
-        "name": "Leslie-Lohman Museum of Art",
-        "entity_id": "A0577EDC-1035-46B5-8F99-61DB7E8037C6",
+        "name": "Society of Illustrators",
+        "entity_id": "41B53C01-7C44-4CF2-9128-6A81E9EA11F4",
         "type": "urn:entity",
         "subtype": "urn:entity:place",
-        "disambiguation": "26 Wooster St New York, NY 10013",
+        "disambiguation": "128 E 63rd St New York, NY 10065",
         "properties": {
           "hours": {
             "friday": [
               {
-                "opens": "T12:00:00",
+                "opens": "T11:00:00",
                 "closed": false,
-                "closes": "T18:00:00"
+                "closes": "T17:00:00"
               }
             ],
             "monday": [
@@ -2389,9 +2170,9 @@
             ],
             "sunday": [
               {
-                "opens": "T12:00:00",
-                "closed": false,
-                "closes": "T18:00:00"
+                "opens": null,
+                "closed": true,
+                "closes": null
               }
             ],
             "tuesday": [
@@ -2403,21 +2184,21 @@
             ],
             "saturday": [
               {
-                "opens": "T12:00:00",
+                "opens": "T11:00:00",
                 "closed": false,
-                "closes": "T18:00:00"
+                "closes": "T17:00:00"
               }
             ],
             "thursday": [
               {
-                "opens": "T12:00:00",
+                "opens": "T11:00:00",
                 "closed": false,
-                "closes": "T18:00:00"
+                "closes": "T17:00:00"
               }
             ],
             "wednesday": [
               {
-                "opens": "T12:00:00",
+                "opens": "T11:00:00",
                 "closed": false,
                 "closes": "T17:00:00"
               }
@@ -2426,14 +2207,14 @@
           "phone": "[redacted]",
           "images": [
             {
-              "url": "https://images.qloo.com/i/A0577EDC-1035-46B5-8F99-61DB7E8037C6-25UuMH-420x-outside.jpg",
+              "url": "https://images.qloo.com/i/41B53C01-7C44-4CF2-9128-6A81E9EA11F4-003ruw-420x-outside.jpg",
               "type": "urn:image:place:unknown"
             }
           ],
-          "address": "26 Wooster St New York, NY 10013",
+          "address": "128 E 63rd St New York, NY 10065",
           "geocode": {
             "city": "New York",
-            "name": "SoHo",
+            "name": "Lenox Hill",
             "metro": "New York City",
             "country": "United States",
             "country_code": "US",
@@ -2441,28 +2222,47 @@
             "admin2_region": "New York County"
           },
           "parking": false,
-          "website": "http://www.leslielohman.org/",
-          "good_for": null,
+          "website": "http://www.societyillustrators.org/",
+          "good_for": [
+            {
+              "id": "urn:tag:ambience:place:large_group",
+              "name": "Large Group",
+              "type": "urn:tag:ambience:place",
+              "weight": 0.7666666666666666
+            },
+            {
+              "id": "urn:tag:event:place:anniversary",
+              "name": "Anniversary",
+              "type": "urn:tag:event:place",
+              "weight": 0.5
+            },
+            {
+              "id": "urn:tag:children:place:good_kids",
+              "name": "Good for kids",
+              "type": "urn:tag:children:place",
+              "weight": 0.5555555555555556
+            }
+          ],
           "keywords": [
             {
               "name": "exhibit",
-              "count": 31
+              "count": 54
             },
             {
-              "name": "LGBTQ",
-              "count": 21
+              "name": "illustrations",
+              "count": 33
             },
             {
-              "name": "donation",
-              "count": 14
+              "name": "bar",
+              "count": 32
             },
             {
-              "name": "artists",
-              "count": 14
+              "name": "sketch",
+              "count": 19
             },
             {
-              "name": "queer",
-              "count": 9
+              "name": "comic book",
+              "count": 10
             },
             {
               "_truncated_items": 5
@@ -2520,12 +2320,12 @@
               "country_code": "US"
             },
             "neighborhood": {
-              "name": "SoHo",
+              "name": "Lenox Hill",
               "place": "neighbourhood",
               "boundary": "place",
-              "entity_id": "5BCCC357-DE0D-4DEC-BD31-6E4C4B944088",
+              "entity_id": "0D8FFD70-B1A4-48DE-833D-C60E49AE4A2C",
               "admin_level": 10,
-              "locality_id": "r8398115",
+              "locality_id": "r8398089",
               "abbreviation": null,
               "country_code": null
             }
@@ -2535,22 +2335,326 @@
           "live_music": null,
           "localities": [
             {
-              "name": "10013",
-              "place": "ZCTA",
-              "boundary": "ZCTA",
-              "entity_id": "9F2A8F92-E49A-436D-9D3D-8FBECFD3B04B",
-              "admin_level": 9,
-              "locality_id": "z10013",
+              "name": "New York",
+              "place": "city",
+              "boundary": "administrative",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
               "abbreviation": null,
               "country_code": null
             },
             {
-              "name": "SoHo",
+              "name": "Lenox Hill",
               "place": "neighbourhood",
               "boundary": "place",
-              "entity_id": "5BCCC357-DE0D-4DEC-BD31-6E4C4B944088",
+              "entity_id": "0D8FFD70-B1A4-48DE-833D-C60E49AE4A2C",
               "admin_level": 10,
-              "locality_id": "r8398115",
+              "locality_id": "r8398089",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "10065",
+              "place": "ZCTA",
+              "boundary": "ZCTA",
+              "entity_id": "30A2BF9D-6DF0-4FD7-8272-C79CBAB1F112",
+              "admin_level": 9,
+              "locality_id": "z10065",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "Manhattan Community Board 8",
+              "place": null,
+              "boundary": "administrative",
+              "entity_id": "1423F527-8642-4527-A0CC-C4C7C0F5A22F",
+              "admin_level": 10,
+              "locality_id": "r7340018",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "_truncated_items": 4
+            }
+          ],
+          "description": "Museum of illustration showcasing rotating exhibitions, live drawing sessions, a shop, and an on-site café on the Upper East Side.",
+          "hotel_class": null,
+          "price_level": null,
+          "price_range": {
+            "to": null,
+            "from": null,
+            "currency": "usd"
+          },
+          "star_rating": null,
+          "event_spaces": true,
+          "neighborhood": "Lenox Hill",
+          "pet_friendly": false,
+          "check_in_time": null,
+          "primary_genre": {
+            "id": "urn:tag:genre:place:museum",
+            "akas": [
+              {
+                "value": "\"متحف\"",
+                "languages": [
+                  "ar"
+                ]
+              },
+              {
+                "value": "\"Muzeum\"",
+                "languages": [
+                  "pl",
+                  "cs"
+                ]
+              },
+              {
+                "value": "\"Makumbusho\"",
+                "languages": [
+                  "sw"
+                ]
+              },
+              {
+                "value": "\"博物馆\"",
+                "languages": [
+                  "zh"
+                ]
+              },
+              {
+                "value": "\"Müze\"",
+                "languages": [
+                  "tr"
+                ]
+              },
+              {
+                "_truncated_items": 30
+              }
+            ],
+            "name": "Museum",
+            "type": "urn:tag:genre:place",
+            "weight": null
+          },
+          "check_out_time": null,
+          "business_rating": 4.699999809265137,
+          "loyalty_program": null,
+          "number_of_rooms": null,
+          "cost_description": null,
+          "specialty_dishes": null,
+          "short_description": "Museum of illustration showcasing rotating exhibitions, live drawing sessions, a shop, and an on-site café on the Upper East Side.",
+          "number_of_stations": null,
+          "cuisine_description": null,
+          "overall_description": "The Society of Illustrators is a niche, historic townhouse museum dedicated to celebrating the art of illustration through rotating exhibits and community engagement. Visitors can explore diverse collections ranging from comic book art to editorial covers while enjoying a relaxed atmosphere that inc",
+          "service_description": null,
+          "ambience_description": "The museum offers an intimate and cozy atmosphere that feels like a home away from home, characterized by a friendly, laid-back vibe.",
+          "amenities_description": "The facility features rotating art galleries across three floors, a bar and cafe serving food and drinks, a gift shop, and a seasonal outdoor garden patio.",
+          "unique_selling_points": "As a preeminent institution for illustrators, the museum showcases a rare collection of original comic art, editorial illustrations, and movie posters in an intimate townhouse setting. It also serves as an active community hub through its popular live sketch nights and social events.",
+          "neighborhood_description": "Situated in a refined residential neighborhood, the area offers a quiet and convenient retreat from the bustling pace of Manhattan.",
+          "physical_setting_description": "Located in a historic townhouse on the Upper East Side, this intimate museum features multi-level galleries connected by stairwells lined with artwork. The venue includes a third-floor bar and an outdoor garden patio.",
+          "_truncated_keys": 2
+        }
+      },
+      {
+        "name": "Baby's All Right",
+        "entity_id": "CF8503DF-2014-42D7-9437-0082A70CC58E",
+        "type": "urn:entity",
+        "subtype": "urn:entity:place",
+        "disambiguation": "146 Broadway Brooklyn, NY 11211",
+        "properties": {
+          "hours": {
+            "friday": [
+              {
+                "opens": "T18:00:00",
+                "closed": false,
+                "closes": "T04:00:00"
+              }
+            ],
+            "monday": [
+              {
+                "opens": "T18:00:00",
+                "closed": false,
+                "closes": "T04:00:00"
+              }
+            ],
+            "sunday": [
+              {
+                "opens": "T18:00:00",
+                "closed": false,
+                "closes": "T04:00:00"
+              }
+            ],
+            "tuesday": [
+              {
+                "opens": "T18:00:00",
+                "closed": false,
+                "closes": "T04:00:00"
+              }
+            ],
+            "saturday": [
+              {
+                "opens": "T18:00:00",
+                "closed": false,
+                "closes": "T04:00:00"
+              }
+            ],
+            "thursday": [
+              {
+                "opens": "T18:00:00",
+                "closed": false,
+                "closes": "T04:00:00"
+              }
+            ],
+            "wednesday": [
+              {
+                "opens": "T18:00:00",
+                "closed": false,
+                "closes": "T04:00:00"
+              }
+            ]
+          },
+          "phone": "[redacted]",
+          "images": [
+            {
+              "url": "https://images.qloo.com/i/CF8503DF-2014-42D7-9437-0082A70CC58E-3LLWRY-420x-outside.jpg",
+              "type": "urn:image:place:unknown"
+            }
+          ],
+          "address": "146 Broadway Brooklyn, NY 11211",
+          "geocode": {
+            "city": "New York",
+            "name": "Williamsburg",
+            "metro": "New York City",
+            "country": "United States",
+            "country_code": "US",
+            "admin1_region": "New York",
+            "admin2_region": "Kings County"
+          },
+          "parking": false,
+          "website": "http://babysallright.com/",
+          "good_for": [
+            {
+              "id": "urn:tag:genre:place:restaurant:bar",
+              "name": "Bar",
+              "type": "urn:tag:genre:place",
+              "weight": 0.9998
+            }
+          ],
+          "keywords": [
+            {
+              "name": "brunch",
+              "count": 41
+            },
+            {
+              "name": "intimate",
+              "count": 20
+            },
+            {
+              "name": "bartender",
+              "count": 17
+            },
+            {
+              "name": "djs",
+              "count": 14
+            },
+            {
+              "name": "tickets",
+              "count": 12
+            },
+            {
+              "_truncated_items": 5
+            }
+          ],
+          "locality": {
+            "city": {
+              "name": "New York",
+              "place": "city",
+              "boundary": "administrative",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            "metro": {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "state": {
+              "name": "New York",
+              "place": "state",
+              "boundary": "administrative",
+              "entity_id": "BDFC9271-4583-412E-84D8-F285BB8220FE",
+              "admin_level": 4,
+              "locality_id": "r61320",
+              "abbreviation": "N.Y.",
+              "country_code": null
+            },
+            "county": {
+              "name": "Kings County",
+              "place": "county",
+              "boundary": "administrative",
+              "entity_id": "E8DC52F4-985C-4B02-8518-0385E567C57C",
+              "admin_level": 6,
+              "locality_id": "r369518",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "country": {
+              "name": "United States",
+              "place": "country",
+              "boundary": "administrative",
+              "entity_id": "FCA82A91-546B-4A8F-BC61-DB14088A7E94",
+              "admin_level": 2,
+              "locality_id": "r148838",
+              "abbreviation": "USA",
+              "country_code": "US"
+            },
+            "neighborhood": {
+              "name": "Williamsburg",
+              "place": "suburb",
+              "boundary": "neighborhood",
+              "entity_id": "C16A1E1D-D3F4-4720-9E5A-448CE374E35D",
+              "admin_level": 10,
+              "locality_id": "n158863515",
+              "abbreviation": null,
+              "country_code": null
+            }
+          },
+          "menu_url": null,
+          "is_closed": false,
+          "live_music": true,
+          "localities": [
+            {
+              "name": "Williamsburg",
+              "place": "suburb",
+              "boundary": "neighborhood",
+              "entity_id": "C16A1E1D-D3F4-4720-9E5A-448CE374E35D",
+              "admin_level": 10,
+              "locality_id": "n158863515",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "11211",
+              "place": "ZCTA",
+              "boundary": "ZCTA",
+              "entity_id": "9E9376B5-A3EF-4B00-BA7C-8BFB8F8C7D89",
+              "admin_level": 9,
+              "locality_id": "z11211",
               "abbreviation": null,
               "country_code": null
             },
@@ -2575,20 +2679,20 @@
               "country_code": null
             },
             {
-              "name": "Manhattan",
+              "name": "Brooklyn",
               "place": "borough",
               "boundary": "administrative",
-              "entity_id": "97F46DBA-ED36-4CCD-ACC1-4341D9E6EE47",
+              "entity_id": "86BAEBAE-2980-43B6-9E75-2A5CDB898628",
               "admin_level": 7,
-              "locality_id": "r8398124",
-              "abbreviation": null,
+              "locality_id": "r9691750",
+              "abbreviation": "BK",
               "country_code": null
             },
             {
               "_truncated_items": 3
             }
           ],
-          "description": "Dedicated museum and community space showcasing queer, LGBTQIA+ visual art—including social, political, and erotic work—plus exhibitions, performances, and educational programming.",
+          "description": "Brooklyn spot with nightly live music, creative cocktails, and gourmet bar fare, plus weekend brunch.",
           "hotel_class": null,
           "price_level": null,
           "price_range": {
@@ -2598,102 +2702,377 @@
           },
           "star_rating": null,
           "event_spaces": true,
-          "neighborhood": "SoHo",
-          "pet_friendly": null,
+          "neighborhood": "Williamsburg",
+          "pet_friendly": false,
           "check_in_time": null,
           "primary_genre": {
-            "id": "urn:tag:genre:place:art_museum",
+            "id": "urn:tag:genre:place:live_music_venue",
             "akas": [
               {
-                "value": "\"Музей мистецтва\"",
+                "value": "\"Salle de concert\"",
                 "languages": [
-                  "uk"
+                  "fr_ca",
+                  "fr"
                 ]
               },
               {
-                "value": "\"សារមន្ទីរសិល្បៈ\"",
+                "value": "\"Sala de conciertos\"",
                 "languages": [
-                  "km"
+                  "es_ar",
+                  "es",
+                  "es_la"
                 ]
               },
               {
-                "value": "\"Sanat müzesi\"",
+                "value": "\"Local de música en directo\"",
                 "languages": [
-                  "tr"
+                  "gl"
                 ]
               },
               {
-                "value": "\"Arte museoa\"",
+                "value": "\"Konzertveranstaltungsort\"",
                 "languages": [
-                  "eu"
+                  "de"
                 ]
               },
               {
-                "value": "\"Művészeti múzeum\"",
+                "value": "\"現場音樂表演場地\"",
                 "languages": [
-                  "hu"
+                  "zh_tw"
                 ]
               },
               {
-                "_truncated_items": 45
+                "_truncated_items": 52
               }
             ],
-            "name": "Art museum",
+            "name": "Live music venue",
             "type": "urn:tag:genre:place",
             "weight": null
           },
           "check_out_time": null,
-          "business_rating": 4.5,
+          "business_rating": 4.400000095367432,
           "loyalty_program": null,
           "number_of_rooms": null,
           "cost_description": null,
           "specialty_dishes": null,
-          "short_description": "Dedicated museum and community space showcasing queer, LGBTQIA+ visual art—including social, political, and erotic work—plus exhibitions, performances, and educational programming.",
+          "short_description": "Brooklyn spot with nightly live music, creative cocktails, and gourmet bar fare, plus weekend brunch.",
           "number_of_stations": null,
-          "cuisine_description": null,
-          "overall_description": "The Leslie-Lohman Museum of Art is a pioneering institution in New York City, serving as the world's only dedicated repository for LGBTQIA+ visual art. Located in the heart of SoHo, it offers a thought-provoking collection of over 25,000 works that explore themes of identity, sexuality, and politics",
-          "service_description": null,
-          "ambience_description": "The museum offers a calm and intimate atmosphere that encourages deep reflection on challenging and moving subject matter. It maintains a welcoming and accessible vibe, characterized by friendly staff and an open, community-oriented spirit.",
-          "amenities_description": "The museum provides a dedicated space for visual arts, including multiple gallery rooms, specialized window exhibitions, and areas for hosting workshops, performances, and scholarly discourse.",
-          "unique_selling_points": "This is the only art museum in the world specifically dedicated to the preservation and exhibition of LGBTQIA+ art, housing an extensive collection of over 25,000 works. It serves as a vital catalyst for discourse on the intersections of art, queerness, and social justice.",
-          "neighborhood_description": "The surrounding SoHo neighborhood is a vibrant and historic district known for its cast-iron architecture, high-end galleries, and polished urban energy. It serves as a dense, pedestrian-friendly cultural corridor filled with boutiques and creative institutions.",
-          "physical_setting_description": "Located in the heart of the historic SoHo district in New York City, this museum occupies a street-level space on a bustling, character-filled thoroughfare. The facility features interior galleries and dedicated window displays that engage directly with the passing streetscape.",
+          "cuisine_description": "Baby's All Right serves gourmet bar fare alongside creative cocktails in an intimate setting that also functions as a live music venue, featuring popular items like tacos and nachos.",
+          "overall_description": "Located in the heart of Williamsburg, this venue is a cultural staple renowned for its intimate concert experiences and role as a launchpad for up-and-coming musicians. Beyond its music programming, it functions as a vibrant restaurant and bar serving craft cocktails and gourmet snacks. The space ba",
+          "service_description": "This intimate Williamsburg venue serves as both a restaurant and a live music spot, offering table service and a full bar, making it a popular choice for those looking to enjoy music performances and bar food.",
+          "ambience_description": "The atmosphere is energetic and unpretentious, defined by its small, intimate footprint that fosters a strong connection during live performances. The interior features a modern, laid-back vibe suitable for socializing over drinks and food.",
+          "amenities_description": "The facility functions as both a dedicated live music stage and a restaurant, offering a focused selection of gourmet bar fare and craft cocktails.",
+          "unique_selling_points": "Known for hosting breakout talent before they reach mainstream fame, this venue offers an exceptionally intimate space for live performances combined with elevated bar cuisine.",
+          "neighborhood_description": "Located in a highly walkable, trend-setting neighborhood, the area is characterized by its high energy and concentration of cultural hubs. It serves as a focal point for the local music and dining scene.",
+          "physical_setting_description": "Situated in a bustling urban center, the space occupies an intimate indoor layout designed for both musical performances and dining. Its compact footprint ensures a close proximity between the audience and the stage.",
+          "_truncated_keys": 2
+        }
+      },
+      {
+        "name": "Greenwood Park",
+        "entity_id": "5BF171D1-F41B-41AC-9C20-B85C7A9B2CC8",
+        "type": "urn:entity",
+        "subtype": "urn:entity:place",
+        "disambiguation": "555 7th Ave Brooklyn, NY 11215",
+        "properties": {
+          "hours": {
+            "friday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "monday": [
+              {
+                "opens": "T15:00:00",
+                "closed": false,
+                "closes": "T23:00:00"
+              }
+            ],
+            "sunday": [
+              {
+                "opens": "T12:00:00",
+                "closed": false,
+                "closes": "T23:00:00"
+              }
+            ],
+            "tuesday": [
+              {
+                "opens": "T15:00:00",
+                "closed": false,
+                "closes": "T23:00:00"
+              }
+            ],
+            "saturday": [
+              {
+                "opens": null,
+                "closed": true,
+                "closes": null
+              }
+            ],
+            "thursday": [
+              {
+                "opens": "T15:00:00",
+                "closed": false,
+                "closes": "T23:00:00"
+              }
+            ],
+            "wednesday": [
+              {
+                "opens": "T15:00:00",
+                "closed": false,
+                "closes": "T23:00:00"
+              }
+            ]
+          },
+          "phone": "[redacted]",
+          "images": [
+            {
+              "url": "https://images.qloo.com/i/5BF171D1-F41B-41AC-9C20-B85C7A9B2CC8-0ADoJ0-420x-outside.jpg",
+              "type": "urn:image:place:unknown"
+            }
+          ],
+          "address": "555 7th Ave Brooklyn, NY 11215",
+          "geocode": {
+            "city": "New York",
+            "name": "Greenwood Heights",
+            "metro": "New York City",
+            "country": "United States",
+            "country_code": "US",
+            "admin1_region": "New York",
+            "admin2_region": "Kings County"
+          },
+          "parking": false,
+          "website": "https://www.greenwoodparkbk.com/",
+          "good_for": [
+            {
+              "id": "urn:tag:genre:place:restaurant:bar",
+              "name": "Bar",
+              "type": "urn:tag:genre:place",
+              "weight": 0.9997202014549524
+            }
+          ],
+          "keywords": null,
+          "locality": {
+            "city": {
+              "name": "New York",
+              "place": "city",
+              "boundary": "administrative",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            "metro": {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "state": {
+              "name": "New York",
+              "place": "state",
+              "boundary": "administrative",
+              "entity_id": "BDFC9271-4583-412E-84D8-F285BB8220FE",
+              "admin_level": 4,
+              "locality_id": "r61320",
+              "abbreviation": "N.Y.",
+              "country_code": null
+            },
+            "county": {
+              "name": "Kings County",
+              "place": "county",
+              "boundary": "administrative",
+              "entity_id": "E8DC52F4-985C-4B02-8518-0385E567C57C",
+              "admin_level": 6,
+              "locality_id": "r369518",
+              "abbreviation": null,
+              "country_code": null
+            },
+            "country": {
+              "name": "United States",
+              "place": "country",
+              "boundary": "administrative",
+              "entity_id": "FCA82A91-546B-4A8F-BC61-DB14088A7E94",
+              "admin_level": 2,
+              "locality_id": "r148838",
+              "abbreviation": "USA",
+              "country_code": "US"
+            },
+            "neighborhood": {
+              "name": "Greenwood Heights",
+              "place": "neighbourhood",
+              "boundary": null,
+              "entity_id": "9EFB848A-A3F6-44B9-BBC3-34D1C212D9AE",
+              "admin_level": 10,
+              "locality_id": "r12520114",
+              "abbreviation": null,
+              "country_code": null
+            }
+          },
+          "menu_url": null,
+          "is_closed": false,
+          "live_music": false,
+          "localities": [
+            {
+              "name": "New York",
+              "place": "city",
+              "boundary": "administrative",
+              "entity_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "admin_level": 5,
+              "locality_id": "r175905",
+              "abbreviation": "NYC",
+              "country_code": null
+            },
+            {
+              "name": "Greenwood Heights",
+              "place": "neighbourhood",
+              "boundary": null,
+              "entity_id": "9EFB848A-A3F6-44B9-BBC3-34D1C212D9AE",
+              "admin_level": 10,
+              "locality_id": "r12520114",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "11215",
+              "place": "ZCTA",
+              "boundary": "ZCTA",
+              "entity_id": "5DD8F410-AA36-4FC9-AF85-142C2A7C66CA",
+              "admin_level": 9,
+              "locality_id": "z11215",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "New York City",
+              "place": "metro",
+              "boundary": "metro",
+              "entity_id": "8451A8C4-166B-4072-B4D1-050810D90654",
+              "admin_level": 12,
+              "locality_id": "81E61924-6CEE-4AB4-93D3-282A5C784AB8",
+              "abbreviation": null,
+              "country_code": null
+            },
+            {
+              "name": "Brooklyn",
+              "place": "borough",
+              "boundary": "administrative",
+              "entity_id": "86BAEBAE-2980-43B6-9E75-2A5CDB898628",
+              "admin_level": 7,
+              "locality_id": "r9691750",
+              "abbreviation": "BK",
+              "country_code": null
+            },
+            {
+              "_truncated_items": 3
+            }
+          ],
+          "description": "Expansive American pub and beer garden with large indoor/outdoor spaces, bocce courts, and a wide beer selection in a converted gas station.",
+          "hotel_class": null,
+          "price_level": 2,
+          "price_range": {
+            "to": null,
+            "from": null,
+            "currency": "usd"
+          },
+          "star_rating": null,
+          "event_spaces": true,
+          "neighborhood": "Greenwood Heights",
+          "pet_friendly": false,
+          "check_in_time": null,
+          "primary_genre": {
+            "id": "urn:tag:genre:place:restaurant:american",
+            "akas": [
+              {
+                "value": "\"American\"",
+                "languages": [
+                  "ro",
+                  "en_gb"
+                ]
+              },
+              {
+                "value": "\"Amerikaans\"",
+                "languages": [
+                  "nl",
+                  "af"
+                ]
+              },
+              {
+                "value": "\"Αμερικανικό\"",
+                "languages": [
+                  "el"
+                ]
+              },
+              {
+                "value": "\"Américain\"",
+                "languages": [
+                  "fr",
+                  "fr_ca"
+                ]
+              },
+              {
+                "value": "\"Amerykański\"",
+                "languages": [
+                  "pl"
+                ]
+              },
+              {
+                "_truncated_items": 40
+              }
+            ],
+            "name": "American restaurant",
+            "type": "urn:tag:genre:place",
+            "weight": null
+          },
+          "check_out_time": null,
+          "business_rating": 4.400000095367432,
+          "loyalty_program": null,
+          "number_of_rooms": null,
+          "cost_description": null,
+          "specialty_dishes": [
+            {
+              "id": "urn:tag:specialty_dish:place:fries",
+              "name": "And Fries",
+              "type": "urn:tag:specialty_dish:place",
+              "weight": 1
+            },
+            {
+              "id": "urn:tag:specialty_dish:place:margherita_pizza",
+              "name": "Margherita Pizza",
+              "type": "urn:tag:specialty_dish:place",
+              "weight": 0.9333333333333333
+            },
+            {
+              "id": "urn:tag:specialty_dish:place:greenwood_burger",
+              "name": "Greenwood Burger",
+              "type": "urn:tag:specialty_dish:place",
+              "weight": 0.8666666666666667
+            }
+          ],
+          "short_description": "Expansive American pub and beer garden with large indoor/outdoor spaces, bocce courts, and a wide beer selection in a converted gas station.",
+          "number_of_stations": null,
+          "cuisine_description": "Greenwood Park serves American pub fare in a casual setting. The menu features classic comfort foods, including various burgers, chicken sandwiches, wings, loaded nachos, and pizza. Vegetarian and vegan options are available, such as the Impossible burger and farro salad. A wide selection of beer, c",
+          "overall_description": "This converted gas station serves as an expansive and popular neighborhood beer garden in Brooklyn. It provides a unique, industrial-chic environment with a massive outdoor space for groups to gather, eat, and play bocce. Known for its extensive selection of craft beers and American pub fare, it is ",
+          "service_description": "The restaurant provides dine-in, takeout, and delivery services with expansive indoor and outdoor seating areas. It is suitable for a wide range of occasions, including casual gatherings, sports watching, and private celebrations.",
+          "ambience_description": "The atmosphere is energetic and social, centered around a sprawling open-air space that feels like a classic beer garden. It is a vibrant, bustling environment ideal for relaxed drinking and outdoor leisure.",
+          "amenities_description": "The facility features a massive outdoor patio with picnic tables, bocce courts, and a full bar, alongside an indoor area equipped with multiple televisions for sports.",
+          "unique_selling_points": "The massive, converted gas station grounds offer a distinct outdoor beer garden experience that is rare in the urban landscape. Its expansive size makes it one of the premier locations for large group gatherings and outdoor recreation.",
+          "neighborhood_description": "Located in a largely residential area, the space functions as a neighborhood social hub that serves the local community as well as visitors.",
+          "physical_setting_description": "This expansive space is a repurposed gas station that features a large outdoor beer garden and indoor seating, providing a unique industrial feel. It is set in an urban environment with ample room for groups.",
           "_truncated_keys": 2
         }
       }
     ],
-    "explainability_fields": [
-      "query.explainability"
-    ],
+    "explainability_fields": [],
     "query_present": true,
-    "query_explainability": {
-      "signal.interests.entities": {
-        "effect_on_top3_recs": [
-          {
-            "entity_id": "70CAE5BF-2F4C-445C-A3E5-4EDACFC3591C",
-            "avg_score": 1
-          }
-        ],
-        "effect_on_top5_recs": [
-          {
-            "entity_id": "70CAE5BF-2F4C-445C-A3E5-4EDACFC3591C",
-            "avg_score": 1
-          }
-        ],
-        "effect_on_top10_recs": [
-          {
-            "entity_id": "70CAE5BF-2F4C-445C-A3E5-4EDACFC3591C",
-            "avg_score": 1
-          }
-        ],
-        "effect_on_all_recs": [
-          {
-            "entity_id": "70CAE5BF-2F4C-445C-A3E5-4EDACFC3591C",
-            "avg_score": 1
-          }
-        ]
-      }
-    },
+    "query_explainability": null,
     "explainability_present": true
   },
   "artifact_note": "Summary compacted to stay within artifact size limit."
