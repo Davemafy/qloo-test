@@ -1,11 +1,11 @@
 # Qloo API Probe Harness
 
-A deliberately quota-conservative harness for validating one cross-domain Qloo Insights request.
+A deliberately quota-conservative harness for validating one cross-domain Qloo Insights request, with a location-aware place recommendation probe.
 
 ## Safety model
 
 - The probe requires `QLOO_API_KEY` and `MAX_REQUESTS=1`; otherwise it exits before making a request.
-- The script makes one fixed `GET /v2/insights` request: Radiohead as the interest signal, books as the target entity type.
+- The script makes one fixed `GET /v2/insights` request: Radiohead as the interest signal and places in Abuja, Nigeria as the target domain.
 - There are no retries, loops, fallback hosts, or redirect following.
 - The API key is read only from the `QLOO_API_KEY` environment variable. Never put it in source, artifacts, logs, or chat.
 - Response bytes are bounded. Successful responses are reduced to a compact schema/result summary; the full response body is not persisted.
@@ -28,7 +28,7 @@ These tests use synthetic payloads. They do not validate live API access or the 
 2. Select **Qloo probe** and click **Run workflow**.
 3. Keep `mode=insights` and `max_requests=1`.
 4. Download the `qloo-insights-results` artifact.
-5. Inspect `results.json` for HTTP status, detected result collection, result count, a few entity fields, and explainability fields.
+5. Inspect `results.json` for HTTP status, detected result collection, result count, a few entity fields, and the captured explainability payload.
 
 The workflow also has a dedicated sentinel-file push trigger. Do not create or push that sentinel unless you intend to spend one Qloo request. Do not rerun a failed request until its failure status and endpoint are understood.
 
@@ -36,4 +36,4 @@ The workflow also has a dedicated sentinel-file push trigger. Do not create or p
 
 The probe uses `https://hackathon.api.qloo.com/v2/insights`. It does not try alternate hosts automatically. Confirm the host against official hackathon onboarding materials before a live run.
 
-A successful HTTP status confirms only that the endpoint returned successfully. It does not, by itself, prove that the response contains book recommendations or validate the cultural hypothesis.
+A successful HTTP status confirms only that the endpoint returned successfully. It does not, by itself, prove that the response contains place recommendations or validate the cultural hypothesis.
