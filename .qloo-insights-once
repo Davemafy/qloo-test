@@ -6,3 +6,5 @@ Control run: omit all taste signals and retrieve New York City places; one reque
 Taste run: Radiohead entity to New York City places; one request only.
 
 Taste contrast: indie-music tag to New York City places; one request only.
+
+Taste contrast: hip-hop music tag to New York City places; one request only.
