@@ -1,6 +1,11 @@
 name: Qloo probe
 
 on:
+  # One-time bootstrap run: only the commit that adds this guard can call Qloo.
+  # All ordinary future pushes skip the job. Manual runs remain available.
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       mode:
@@ -27,12 +32,11 @@ concurrency:
 
 jobs:
   smoke:
-    if: ${{ inputs.mode == 'smoke' && inputs.max_requests == '1' }}
+    if: ${{ (github.event_name == 'push' && github.event.head_commit.message == 'ci: run one-time Qloo smoke test') || (github.event_name == 'workflow_dispatch' && inputs.mode == 'smoke' && inputs.max_requests == '1') }}
     runs-on: ubuntu-latest
     timeout-minutes: 2
     env:
       QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}
-      QLOO_BASE_URL: https://hackathon.api.qloo.com
       MAX_REQUESTS: "1"
       PYTHONUNBUFFERED: "1"
     steps:
@@ -44,6 +48,8 @@ jobs:
             exit 1
           fi
           echo "API secret is configured. Value will not be printed."
+      - name: Check out repository
+        uses: actions/checkout@v4
       - name: Run exactly one search smoke test
         run: python scripts/probe.py
       - name: Upload sanitized result
