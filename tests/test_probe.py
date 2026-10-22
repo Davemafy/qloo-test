@@ -23,6 +23,11 @@ class InsightsSummaryTests(unittest.TestCase):
         self.assertEqual(summary["entities"][0]["name"], "Book One")
         self.assertEqual(summary["explainability_present"], True)
 
+    def test_detects_query_metadata_as_explainability(self):
+        summary = summarize_response({"query": {"signals": ["artist"]}})
+        self.assertTrue(summary["query_present"])
+        self.assertTrue(summary["explainability_present"])
+
     def test_supports_list_results_shape(self):
         summary = summarize_response({"results": [{"title": "Book A"}, {"name": "Book B"}]})
         self.assertEqual(summary["entity_collection"], "results")
