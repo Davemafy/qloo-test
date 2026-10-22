@@ -134,11 +134,75 @@ def summarize_response(payload, api_key=None):
 
     collect_explanation_keys(payload)
     summary["explainability_fields"] = sorted(set(summary["explainability_fields"]))
+    # Query metadata alone is not explainability.
     summary["explainability_present"] = (
         query_explainability is not None or bool(summary["explainability_fields"])
-        or summary["query_present"]
     )
     return summary
+
+
+
+def serialize_bounded_result(result, limit=MAX_ARTIFACT_CHARS):
+    """Serialize a result within the artifact cap, progressively dropping bulky fields."""
+    def dump():
+        return json.dumps(result, indent=2, ensure_ascii=False)
+
+    serialized = dump()
+    if len(serialized) <= limit:
+        return serialized
+
+    summary = result.get("response_summary")
+    if isinstance(summary, dict):
+        compact_entities = []
+        for entity in summary.get("entities", []):
+            if not isinstance(entity, dict):
+                continue
+            compact = {}
+            for field in ("name", "title", "entity_id", "id", "type", "score", "affinity", "subtype"):
+                if field in entity:
+                    compact[field] = entity[field]
+            if "description" in entity:
+                compact["description"] = str(entity["description"])[:120]
+            compact_entities.append(compact)
+        summary["entities"] = compact_entities[:10]
+        summary["top_level_keys"] = summary.get("top_level_keys", [])[:15]
+        summary["results_keys"] = summary.get("results_keys", [])[:15]
+        summary["explainability_fields"] = summary.get("explainability_fields", [])[:10]
+        if summary.get("query_explainability") is not None:
+            explanation = json.dumps(sanitize(summary["query_explainability"]), ensure_ascii=False)
+            if len(explanation) > 1000:
+                summary["query_explainability"] = "[omitted: explanation exceeded compact limit]"
+    result["artifact_note"] = "Summary compacted to stay within artifact size limit."
+    serialized = dump()
+    if len(serialized) <= limit:
+        return serialized
+
+    if isinstance(summary, dict):
+        summary["entities"] = [
+            {key: entity[key] for key in ("name", "title", "entity_id", "id", "type", "score", "affinity")
+             if key in entity}
+            for entity in summary.get("entities", [])[:5] if isinstance(entity, dict)
+        ]
+        summary["query_explainability"] = None
+        summary["explainability_fields"] = summary.get("explainability_fields", [])[:5]
+        summary["top_level_keys"] = summary.get("top_level_keys", [])[:10]
+        summary["results_keys"] = summary.get("results_keys", [])[:10]
+    serialized = dump()
+    if len(serialized) <= limit:
+        return serialized
+
+    compact_result = {
+        key: result[key] for key in (
+            "timestamp_utc", "test", "request_budget", "requests_attempted",
+            "endpoint_host", "endpoint_path", "query", "http_status", "error",
+            "artifact_note"
+        ) if key in result
+    }
+    compact_result["artifact_note"] = "Payload omitted to enforce artifact size limit."
+    serialized = json.dumps(compact_result, indent=2, ensure_ascii=False)
+    if len(serialized) > limit:
+        raise ValueError("Minimal result metadata exceeds artifact size limit")
+    return serialized
 
 
 def main():
@@ -151,7 +215,7 @@ def main():
         print("Safety stop: MAX_REQUESTS must equal 1; no request made.", file=sys.stderr)
         return 2
 
-    # Exactly one control request: New York City places with no taste signal.
+    # Exactly one request: New York City places with a hip-hop tag signal.
     # No retries, loops, or fallback hosts.
     params = {
         "filter.type": "urn:entity:place",
@@ -217,18 +281,7 @@ def main():
     finally:
         api_key = None
 
-    serialized = json.dumps(result, indent=2, ensure_ascii=False)
-    if len(serialized) > MAX_ARTIFACT_CHARS:
-        summary = result.get("response_summary")
-        if isinstance(summary, dict):
-            summary["entities"] = summary.get("entities", [])[:10]
-            summary["top_level_keys"] = summary.get("top_level_keys", [])[:15]
-            summary["results_keys"] = summary.get("results_keys", [])[:15]
-            explanation = summary.get("query_explainability")
-            if isinstance(explanation, (dict, list, str)):
-                summary["query_explainability"] = sanitize(explanation)
-        result["artifact_note"] = "Summary compacted to stay within artifact size limit."
-        serialized = json.dumps(result, indent=2, ensure_ascii=False)
+    serialized = serialize_bounded_result(result)
     with open("results.json", "w", encoding="utf-8") as output:
         output.write(serialized + "\n")
 
