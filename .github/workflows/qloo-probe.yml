@@ -1,15 +1,10 @@
 name: Qloo probe
 
 on:
-  # One-time bootstrap run: only the commit that adds this guard can call Qloo.
-  # All ordinary future pushes skip the job. Manual runs remain available.
-  push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       mode:
-        description: "Start with the one-request smoke test"
+        description: "One-request authentication and search smoke test"
         required: true
         type: choice
         options:
@@ -32,7 +27,7 @@ concurrency:
 
 jobs:
   smoke:
-    if: ${{ (github.event_name == 'push' && github.event.head_commit.message == 'ci: run one-time Qloo smoke test') || (github.event_name == 'workflow_dispatch' && inputs.mode == 'smoke' && inputs.max_requests == '1') }}
+    if: ${{ inputs.mode == 'smoke' && inputs.max_requests == '1' }}
     runs-on: ubuntu-latest
     timeout-minutes: 2
     env:
