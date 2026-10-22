@@ -1,11 +1,13 @@
 name: Qloo probe
 
 on:
-  # One-time, exact-message trigger for the controlled Insights experiment.
-  # Ordinary pushes do not run the job; manual runs remain available.
+  # Only the dedicated sentinel path can trigger a push run.
+  # Ordinary code/docs pushes cannot spend Qloo quota.
   push:
     branches:
       - main
+    paths:
+      - ".qloo-insights-once"
   workflow_dispatch:
     inputs:
       mode:
@@ -31,8 +33,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  smoke:
-    if: ${{ (github.event_name == 'push' && github.event.head_commit.message == 'ci: run one-request insights probe') || (github.event_name == 'workflow_dispatch' && inputs.mode == 'insights' && inputs.max_requests == '1') }}
+  insights:
+    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'insights' && inputs.max_requests == '1') }}
     runs-on: ubuntu-latest
     timeout-minutes: 2
     env:
@@ -56,7 +58,7 @@ jobs:
         if: always() && hashFiles('results.json') != ''
         uses: actions/upload-artifact@v4
         with:
-          name: qloo-probe-results
+          name: qloo-insights-results
           path: results.json
           if-no-files-found: error
           retention-days: 3
