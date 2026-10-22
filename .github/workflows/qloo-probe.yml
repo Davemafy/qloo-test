@@ -1,15 +1,20 @@
 name: Qloo probe
 
 on:
+  # One-time, exact-message trigger for the controlled Insights experiment.
+  # Ordinary pushes do not run the job; manual runs remain available.
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       mode:
-        description: "One-request authentication and search smoke test"
+        description: "One-request cross-domain Insights probe"
         required: true
         type: choice
         options:
-          - smoke
-        default: smoke
+          - insights
+        default: insights
       max_requests:
         description: "Hard request ceiling for this run"
         required: true
@@ -27,7 +32,7 @@ concurrency:
 
 jobs:
   smoke:
-    if: ${{ inputs.mode == 'smoke' && inputs.max_requests == '1' }}
+    if: ${{ (github.event_name == 'push' && github.event.head_commit.message == 'ci: run one-request insights probe') || (github.event_name == 'workflow_dispatch' && inputs.mode == 'insights' && inputs.max_requests == '1') }}
     runs-on: ubuntu-latest
     timeout-minutes: 2
     env:
@@ -45,7 +50,7 @@ jobs:
           echo "API secret is configured. Value will not be printed."
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Run exactly one search smoke test
+      - name: Run exactly one cross-domain Insights request
         run: python scripts/probe.py
       - name: Upload sanitized result
         if: always() && hashFiles('results.json') != ''
