@@ -1,2 +1,4 @@
 One-time trigger for a single Qloo Insights request. Validate Abuja-only place recommendations using the locality filter with radius zero and preserve returned place metadata. One request only.
 Contrast run: use a broad indie-music tag instead of Radiohead as the taste signal; one request only.
+
+Control run: omit all taste signals and retrieve Abuja places; one request only.
