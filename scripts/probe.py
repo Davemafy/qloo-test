@@ -157,6 +157,7 @@ def main():
         "filter.type": "urn:entity:place",
         "filter.location.query": "New York City",
         "filter.location.radius": "0",
+        "signal.interests.entities": "70CAE5BF-2F4C-445C-A3E5-4EDACFC3591C",
         "take": "10",
         "feature.explainability": "true",
     }
@@ -174,14 +175,14 @@ def main():
     opener = urllib.request.build_opener(NoRedirect)
     result = {
         "timestamp_utc": datetime.now(timezone.utc).isoformat(),
-        "test": "no_signal_control_to_nyc_places",
+        "test": "radiohead_to_nyc_places",
         "request_budget": 1,
         "requests_attempted": 1,
         "endpoint_host": "hackathon.api.qloo.com",
         "endpoint_path": "/v2/insights",
         "query": params,
         "hypothesis": "Control condition: retrieve New York City places without a taste signal to compare with Radiohead- and indie-tag-seeded results.",
-        "seed_signal": None,
+        "seed_signal": {"type": "entity", "name": "Radiohead", "entity_id": "70CAE5BF-2F4C-445C-A3E5-4EDACFC3591C"},
         "result_type": "urn:entity:place",
         "location": "New York City",
         "location_radius": 0,
