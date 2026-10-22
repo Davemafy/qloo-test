@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Quota-safe, single-request Qloo smoke test. Never prints or persists credentials."""
+"""Quota-safe, single-request Qloo Insights probe. Never prints or persists credentials."""
 import json
 import os
 import sys
@@ -12,6 +12,7 @@ BASE_URL = "https://hackathon.api.qloo.com"
 MAX_RESPONSE_BYTES = 256_000
 MAX_ARTIFACT_CHARS = 30_000
 SECRET_FIELDS = ("api_key", "apikey", "authorization", "token", "secret", "email", "phone")
+RADIOHEAD_ENTITY_ID = "70CAE5BF-2F4C-445C-A3E5-4EDACFC3591C"
 
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -66,12 +67,16 @@ def main():
         print("Safety stop: MAX_REQUESTS must equal 1; no request made.", file=sys.stderr)
         return 2
 
-    # One fixed endpoint and one fixed query. No retries, loops, or fallback hosts.
-    query = urllib.parse.urlencode({
-        "query": "Radiohead",
-        "types": "urn:entity:artist",
-    })
-    url = f"{BASE_URL}/search?{query}"
+    # Exactly one cross-domain Insights request: Radiohead -> book recommendations.
+    # No retries, loops, or fallback hosts.
+    params = {
+        "filter.type": "urn:entity:book",
+        "signal.interests.entities": RADIOHEAD_ENTITY_ID,
+        "take": "10",
+        "feature.explainability": "true",
+    }
+    query = urllib.parse.urlencode(params)
+    url = f"{BASE_URL}/v2/insights?{query}"
     request = urllib.request.Request(
         url,
         headers={
@@ -84,12 +89,15 @@ def main():
     opener = urllib.request.build_opener(NoRedirect)
     result = {
         "timestamp_utc": datetime.now(timezone.utc).isoformat(),
-        "test": "single_search_smoke",
+        "test": "single_insights_cross_domain",
         "request_budget": 1,
         "requests_attempted": 1,
         "endpoint_host": "hackathon.api.qloo.com",
-        "endpoint_path": "/search",
-        "query": {"query": "Radiohead", "types": "urn:entity:artist"},
+        "endpoint_path": "/v2/insights",
+        "query": params,
+        "hypothesis": "A music-artist signal can retrieve Qloo-affinity-ranked books, exposing a cross-domain taste association.",
+        "seed_entity": {"name": "Radiohead", "entity_id": RADIOHEAD_ENTITY_ID},
+        "result_type": "urn:entity:book",
     }
 
     try:
@@ -106,7 +114,6 @@ def main():
             except (UnicodeDecodeError, json.JSONDecodeError):
                 result["response_text_preview"] = safe_preview(body, api_key)
     except urllib.error.HTTPError as exc:
-        # No retries. Redirects are blocked, so an HTTP 3xx is recorded safely.
         result["http_status"] = exc.code
         result["error"] = "HTTP error response; inspect status and sanitized body preview."
         try:
@@ -120,7 +127,6 @@ def main():
     except TimeoutError:
         result["error"] = "Request timed out after 20 seconds; no retry attempted."
     finally:
-        # The credential is never copied into the output object.
         api_key = None
 
     serialized = json.dumps(result, indent=2, ensure_ascii=False)
@@ -132,12 +138,15 @@ def main():
     with open("results.json", "w", encoding="utf-8") as output:
         output.write(serialized + "\n")
 
-    # Print only high-level metadata. Full sanitized result is available as a short-lived artifact.
+    response = result.get("response", {})
+    results = response.get("results", []) if isinstance(response, dict) else []
     print(json.dumps({
         "test": result["test"],
         "http_status": result.get("http_status"),
         "requests_attempted": result["requests_attempted"],
-        "result_keys": list(result.get("response", {}).keys()) if isinstance(result.get("response"), dict) else [],
+        "result_count": len(results) if isinstance(results, list) else None,
+        "first_result_names": [x.get("name") for x in results[:5] if isinstance(x, dict)] if isinstance(results, list) else [],
+        "explainability_present": "query" in response if isinstance(response, dict) else False,
         "error": result.get("error"),
         "artifact": "results.json",
     }, ensure_ascii=False))
