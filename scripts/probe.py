@@ -154,7 +154,8 @@ def main():
     # Exactly one cross-domain Insights request: Radiohead -> book recommendations.
     # No retries, loops, or fallback hosts.
     params = {
-        "filter.type": "urn:entity:book",
+        "filter.type": "urn:entity:place",
+        "filter.location.query": "Abuja, Nigeria",
         "signal.interests.entities": RADIOHEAD_ENTITY_ID,
         "take": "10",
         "feature.explainability": "true",
@@ -179,9 +180,10 @@ def main():
         "endpoint_host": "hackathon.api.qloo.com",
         "endpoint_path": "/v2/insights",
         "query": params,
-        "hypothesis": "A music-artist signal can retrieve Qloo-affinity-ranked books, exposing a cross-domain taste association.",
+        "hypothesis": "A music-artist signal can retrieve location-aware place recommendations, testing whether Qloo exposes a non-music taste association.",
         "seed_entity": {"name": "Radiohead", "entity_id": RADIOHEAD_ENTITY_ID},
-        "result_type": "urn:entity:book",
+        "result_type": "urn:entity:place",
+        "location": "Abuja, Nigeria",
     }
 
     try:
