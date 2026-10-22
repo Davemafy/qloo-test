@@ -106,7 +106,7 @@ def summarize_response(payload, api_key=None):
     }
 
     if entities is not None:
-        for entity in entities[:5]:
+        for entity in entities[:10]:
             if not isinstance(entity, dict):
                 summary["entities"].append({"value_type": type(entity).__name__})
                 continue
@@ -220,7 +220,7 @@ def main():
     if len(serialized) > MAX_ARTIFACT_CHARS:
         summary = result.get("response_summary")
         if isinstance(summary, dict):
-            summary["entities"] = summary.get("entities", [])[:2]
+            summary["entities"] = summary.get("entities", [])[:10]
             summary["top_level_keys"] = summary.get("top_level_keys", [])[:15]
             summary["results_keys"] = summary.get("results_keys", [])[:15]
             explanation = summary.get("query_explainability")
