@@ -204,7 +204,7 @@ def main():
             summary["entities"] = summary.get("entities", [])[:2]
             summary["top_level_keys"] = summary.get("top_level_keys", [])[:15]
             summary["results_keys"] = summary.get("results_keys", [])[:15]
-        result["error"] = result.get("error", "Response summary compacted") + " Artifact summary compacted to stay within size limit."
+        result["artifact_note"] = "Summary compacted to stay within artifact size limit."
         serialized = json.dumps(result, indent=2, ensure_ascii=False)
     with open("results.json", "w", encoding="utf-8") as output:
         output.write(serialized + "\n")
