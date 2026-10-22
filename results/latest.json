@@ -1,0 +1,66 @@
+{
+  "timestamp_utc": "2026-10-22T14:58:16.248531+00:00",
+  "test": "single_insights_cross_domain",
+  "request_budget": 1,
+  "requests_attempted": 1,
+  "endpoint_host": "hackathon.api.qloo.com",
+  "endpoint_path": "/v2/insights",
+  "query": {
+    "filter.type": "urn:entity:book",
+    "signal.interests.entities": "70CAE5BF-2F4C-445C-A3E5-4EDACFC3591C",
+    "take": "10",
+    "feature.explainability": "true"
+  },
+  "hypothesis": "A music-artist signal can retrieve Qloo-affinity-ranked books, exposing a cross-domain taste association.",
+  "seed_entity": {
+    "name": "Radiohead",
+    "entity_id": "70CAE5BF-2F4C-445C-A3E5-4EDACFC3591C"
+  },
+  "result_type": "urn:entity:book",
+  "http_status": 200,
+  "response_summary": {
+    "top_level_keys": [
+      "success",
+      "results",
+      "query"
+    ],
+    "results_type": "dict",
+    "results_keys": [
+      "entities"
+    ],
+    "entity_collection": "results.entities",
+    "result_count": 10,
+    "entities": [
+      {
+        "name": "Paul McCartney: The Life",
+        "entity_id": "D3436CAD-ACE1-4C5A-B0B8-50B6E1B62ACE",
+        "type": "urn:entity"
+      },
+      {
+        "name": "John Lennon 1980: The Last Days in the Life",
+        "entity_id": "37002388-766F-4BEB-B3C7-AC9FE96F293B",
+        "type": "urn:entity"
+      },
+      {
+        "name": "The John Lennon Letters",
+        "entity_id": "193D088A-5911-4CF5-AEC5-4D43E204EF0E",
+        "type": "urn:entity"
+      },
+      {
+        "name": "Tune In (The Beatles: All These Years, #1)",
+        "entity_id": "6DACF6E3-B4C4-41C4-8DD1-4CCDF323DED7",
+        "type": "urn:entity"
+      },
+      {
+        "name": "Lennon: The Man, the Myth, the Music - The Definitive Life",
+        "entity_id": "0279219C-2A8F-4430-A42C-3CE9BA01A57A",
+        "type": "urn:entity"
+      }
+    ],
+    "explainability_fields": [
+      "query.explainability"
+    ],
+    "query_present": true,
+    "explainability_present": true
+  }
+}
