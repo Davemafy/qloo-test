@@ -151,11 +151,11 @@ def main():
         print("Safety stop: MAX_REQUESTS must equal 1; no request made.", file=sys.stderr)
         return 2
 
-    # Exactly one control request: Abuja places with no taste signal.
+    # Exactly one control request: New York City places with no taste signal.
     # No retries, loops, or fallback hosts.
     params = {
         "filter.type": "urn:entity:place",
-        "filter.location.query": "Abuja",
+        "filter.location.query": "New York City",
         "filter.location.radius": "0",
         "take": "10",
         "feature.explainability": "true",
@@ -174,16 +174,16 @@ def main():
     opener = urllib.request.build_opener(NoRedirect)
     result = {
         "timestamp_utc": datetime.now(timezone.utc).isoformat(),
-        "test": "no_signal_control_to_abuja_places",
+        "test": "no_signal_control_to_nyc_places",
         "request_budget": 1,
         "requests_attempted": 1,
         "endpoint_host": "hackathon.api.qloo.com",
         "endpoint_path": "/v2/insights",
         "query": params,
-        "hypothesis": "Control condition: retrieve Abuja places without a taste signal to compare with Radiohead- and indie-tag-seeded results.",
+        "hypothesis": "Control condition: retrieve New York City places without a taste signal to compare with Radiohead- and indie-tag-seeded results.",
         "seed_signal": None,
         "result_type": "urn:entity:place",
-        "location": "Abuja",
+        "location": "New York City",
         "location_radius": 0,
     }
 
