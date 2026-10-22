@@ -1,6 +1,6 @@
 {
-  "timestamp_utc": "2026-10-22T15:24:11.466840+00:00",
-  "test": "indie_tag_to_abuja_places",
+  "timestamp_utc": "2026-10-22T15:29:39.093337+00:00",
+  "test": "no_signal_control_to_abuja_places",
   "request_budget": 1,
   "requests_attempted": 1,
   "endpoint_host": "hackathon.api.qloo.com",
@@ -9,15 +9,11 @@
     "filter.type": "urn:entity:place",
     "filter.location.query": "Abuja",
     "filter.location.radius": "0",
-    "signal.interests.tags": "urn:tag:genre:music:indie",
     "take": "10",
     "feature.explainability": "true"
   },
-  "hypothesis": "Contrast a broad indie-music taste tag against the prior Radiohead-seeded Abuja places to test whether the taste signal materially shapes recommendations.",
-  "seed_signal": {
-    "type": "tag",
-    "value": "urn:tag:genre:music:indie"
-  },
+  "hypothesis": "Control condition: retrieve Abuja places without a taste signal to compare with Radiohead- and indie-tag-seeded results.",
+  "seed_signal": null,
   "result_type": "urn:entity:place",
   "location": "Abuja",
   "location_radius": 0,
@@ -37,21 +33,71 @@
     "result_count": 10,
     "entities": [
       {
-        "name": "The Nordic Hospitality Suites",
-        "entity_id": "1CC2860B-EDBB-4252-9196-F883F240A33B",
+        "name": "Shoprite Jabi Lake Abuja",
+        "entity_id": "E5540015-4B96-4F7F-949F-AC118D33CC96",
         "type": "urn:entity",
         "subtype": "urn:entity:place",
-        "disambiguation": "14 Patrick. O. Bokkor Cres Jabi Abuja 234001 Federal Capital Territory, Nigeria",
+        "disambiguation": "Plot 1265 Jabi Lake Mall Abuja 240102 Federal Capital Territory Nigeria",
         "properties": {
-          "hours": null,
+          "hours": {
+            "friday": [
+              {
+                "opens": "T09:00:00",
+                "closed": false,
+                "closes": "T21:00:00"
+              }
+            ],
+            "monday": [
+              {
+                "opens": "T09:00:00",
+                "closed": false,
+                "closes": "T21:00:00"
+              }
+            ],
+            "sunday": [
+              {
+                "opens": "T09:00:00",
+                "closed": false,
+                "closes": "T21:00:00"
+              }
+            ],
+            "tuesday": [
+              {
+                "opens": "T09:00:00",
+                "closed": false,
+                "closes": "T21:00:00"
+              }
+            ],
+            "saturday": [
+              {
+                "opens": "T09:00:00",
+                "closed": false,
+                "closes": "T21:00:00"
+              }
+            ],
+            "thursday": [
+              {
+                "opens": "T09:00:00",
+                "closed": false,
+                "closes": "T21:00:00"
+              }
+            ],
+            "wednesday": [
+              {
+                "opens": "T09:00:00",
+                "closed": false,
+                "closes": "T21:00:00"
+              }
+            ]
+          },
           "phone": "[redacted]",
           "images": [
             {
-              "url": "https://images.qloo.com/i/1CC2860B-EDBB-4252-9196-F883F240A33B-0ildJg-420x-outside.jpg",
+              "url": "https://images.qloo.com/i/E5540015-4B96-4F7F-949F-AC118D33CC96-4mQk8X-420x-outside.jpg",
               "type": "urn:image:place:unknown"
             }
           ],
-          "address": "14 Patrick. O. Bokkor Cres Jabi Abuja 234001 Federal Capital Territory, Nigeria",
+          "address": "Plot 1265 Jabi Lake Mall Abuja 240102 Federal Capital Territory Nigeria",
           "geocode": {
             "city": "Abuja",
             "name": "Jabi",
@@ -62,28 +108,28 @@
             "admin2_region": "Municipal Area Council"
           },
           "parking": true,
-          "website": "http://nordichospitalitysuites.com/",
+          "website": "https://shoprite.ng/",
           "good_for": null,
           "keywords": [
             {
-              "name": "clean environment",
-              "count": 12
+              "name": "lake view",
+              "count": 133
             },
             {
-              "name": "homey feel",
-              "count": 2
+              "name": "outlets",
+              "count": 45
             },
             {
-              "name": "spacious rooms",
-              "count": 6
+              "name": "dominos",
+              "count": 13
             },
             {
-              "name": "cosy place",
-              "count": 2
+              "name": "one stop shop",
+              "count": 22
             },
             {
-              "name": "nice staff",
-              "count": 10
+              "name": "shoprite",
+              "count": 16
             },
             {
               "_truncated_items": 5
@@ -135,7 +181,7 @@
           },
           "menu_url": null,
           "is_closed": false,
-          "live_music": null,
+          "live_music": false,
           "localities": [
             {
               "name": "Jabi",
@@ -178,100 +224,99 @@
               "country_code": "NG"
             }
           ],
-          "description": "Boutique hotel in Jabi offering modern, spacious rooms with designer furniture and amenities for business and leisure travelers.",
-          "hotel_class": 3,
-          "price_level": null,
+          "description": "Supermarket offering brand-name and house-label groceries, bakery and deli, with delivery, pickup, and in-store shopping.",
+          "hotel_class": null,
+          "price_level": 2,
           "price_range": {
-            "to": 128,
-            "from": 13,
+            "to": null,
+            "from": null,
             "currency": "usd"
           },
-          "star_rating": 3,
+          "star_rating": null,
           "event_spaces": false,
           "neighborhood": "Jabi",
-          "pet_friendly": null,
+          "pet_friendly": false,
           "check_in_time": null,
           "primary_genre": {
-            "id": "urn:tag:genre:place:hotel",
+            "id": "urn:tag:genre:place:supermarket",
             "akas": [
               {
-                "value": "\"Ξενοδοχείο\"",
+                "value": "\"စူပါမားကတ်\"",
+                "languages": [
+                  "my"
+                ]
+              },
+              {
+                "value": "\"סופרמרקט\"",
+                "languages": [
+                  "he"
+                ]
+              },
+              {
+                "value": "\"Σούπερ μάρκετ\"",
                 "languages": [
                   "el"
                 ]
               },
               {
-                "value": "\"Otel\"",
+                "value": "\"Duka la bidhaa\"",
                 "languages": [
-                  "tr",
-                  "az"
+                  "sw"
                 ]
               },
               {
-                "value": "\"Отель\"",
+                "value": "\"சூப்பர் மார்க்கெட்\"",
                 "languages": [
-                  "ru"
+                  "ta"
                 ]
               },
               {
-                "value": "\"Khách sạn\"",
-                "languages": [
-                  "vi"
-                ]
-              },
-              {
-                "value": "\"Hotelli\"",
-                "languages": [
-                  "fi"
-                ]
-              },
-              {
-                "_truncated_items": 26
+                "_truncated_items": 28
               }
             ],
-            "name": "Hotel",
+            "name": "Supermarket",
             "type": "urn:tag:genre:place",
             "weight": null
           },
           "check_out_time": null,
-          "business_rating": 3.9000000953674316,
+          "business_rating": 4.400000095367432,
           "loyalty_program": null,
-          "number_of_rooms": 22,
+          "number_of_rooms": null,
           "cost_description": null,
           "specialty_dishes": null,
-          "short_description": "Boutique hotel in Jabi offering modern, spacious rooms with designer furniture and amenities for business and leisure travelers.",
+          "short_description": "Supermarket offering brand-name and house-label groceries, bakery and deli, with delivery, pickup, and in-store shopping.",
           "number_of_stations": null,
-          "cuisine_description": null,
-          "overall_description": "This boutique hotel provides a quiet and modern retreat for travelers visiting Abuja, specifically within the Jabi area. With a focus on interior design and functional space, the property offers amenities tailored for both business tasks and leisurely relaxation. Guests can enjoy a serene environmen",
-          "service_description": null,
-          "ambience_description": "The overall vibe is defined by a serene and understated character, aiming to provide a tranquil respite with modern furnishings that create a sense of being at home.",
-          "amenities_description": "The Nordic Hospitality Suites is a boutique hotel featuring 22 unique, modern-styled rooms with designer furniture. Amenities include a 24/7 front desk, daily housekeeping, room service, an on-site restaurant, and free breakfast. Each room is equipped with a 32-inch flat-screen TV, high-speed intern",
-          "unique_selling_points": "The property features uniquely designed rooms equipped with modern designer furniture and dedicated workspaces, making it equally suitable for business productivity and romantic relaxation.",
-          "neighborhood_description": "The surrounding area is a largely residential and quiet part of the capital, offering a calmer pace of life while remaining central enough for convenient access to local business and leisure hubs.",
-          "physical_setting_description": "Situated within the Jabi neighborhood of Abuja, this boutique establishment offers a quiet, localized environment tucked away from the main city buzz. The property focuses on a self-contained, modern aesthetic within a standard urban residential setting.",
+          "cuisine_description": "The destination features a variety of dining options, including local Nigerian cuisine, international favorites like pizza and American fast food, and Indian dining. The food court and lakeside restaurants provide a range of culinary experiences from casual fast food to more scenic dining options ov",
+          "overall_description": "This facility is a premier retail and entertainment destination in Abuja, anchored by a large-scale supermarket that provides a comprehensive range of groceries and household essentials. Beyond the store, the complex acts as a vibrant hub featuring a cinema, various retail boutiques, and an array of",
+          "service_description": "The mall provides a comprehensive one-stop experience featuring in-store shopping, grocery pickup, and delivery services. Visitors can enjoy lakeside outdoor seating, a cinema, and a variety of dining options suitable for families, casual hangouts, and sightseeing trips.",
+          "ambience_description": "The interior is expansive, well-lit, and organized to facilitate a modern shopping experience, while the exterior lakeside area provides a relaxed and refreshing atmosphere.",
+          "amenities_description": "The site provides extensive amenities including a wide variety of retail outlets, a cinema, and a food court with diverse dining options. Patrons also benefit from abundant parking facilities and accessible walkways.",
+          "unique_selling_points": "The establishment serves as a flagship retail destination that uniquely integrates a massive, well-stocked supermarket with a stunning, direct lakeside view. It offers a one-stop-shop experience where utility meets leisure in a scenic environment.",
+          "neighborhood_description": "The surrounding area serves as a vibrant, highly accessible commercial hub known for its integrated mall and recreational features. It acts as a focal point for the local community, blending retail functions with natural leisure spaces.",
+          "physical_setting_description": "Located within a prominent commercial mall, the facility features a serene lakeside setting that offers natural breezes and expansive views. The architecture is designed to accommodate high traffic with ample underground and surface parking.",
           "_truncated_keys": 2
         }
       },
       {
-        "name": "Comfy’s Nails",
-        "entity_id": "1E8578BC-230C-4AD8-999E-715F8CDB6223",
+        "name": "MK Curtains",
+        "entity_id": "DC5E6E7B-43BB-4467-A8F7-04874151E437",
         "type": "urn:entity",
         "subtype": "urn:entity:place",
-        "disambiguation": "Amssco platinum city Galadinmawa Abuja 900211 Federal Capital Territory, Nigeria",
+        "disambiguation": "Wuse Market Rd Wuse Abuja 904101 Federal Capital Territory, Nigeria",
         "properties": {
           "hours": {
             "friday": [
               {
-                "opens": "T09:00:00",
-                "closed": false,
-                "closes": "T17:00:00"
+                "opens": null,
+                "closed": true,
+                "closes": null
               }
             ],
             "monday": [
               {
-                "opens": "T09:00:00",
-                "closed": false,
-                "closes": "T18:00:00"
+                "opens": null,
+                "closed": true,
+                "closes": null
               }
             ],
             "sunday": [
@@ -283,80 +328,73 @@
             ],
             "tuesday": [
               {
-                "opens": "T09:00:00",
-                "closed": false,
-                "closes": "T17:00:00"
+                "opens": null,
+                "closed": true,
+                "closes": null
               }
             ],
             "saturday": [
               {
-                "opens": "T09:00:00",
-                "closed": false,
-                "closes": "T17:00:00"
+                "opens": null,
+                "closed": true,
+                "closes": null
               }
             ],
             "thursday": [
               {
-                "opens": "T09:00:00",
-                "closed": false,
-                "closes": "T17:00:00"
+                "opens": null,
+                "closed": true,
+                "closes": null
               }
             ],
             "wednesday": [
               {
-                "opens": "T09:00:00",
-                "closed": false,
-                "closes": "T17:00:00"
+                "opens": null,
+                "closed": true,
+                "closes": null
               }
             ]
           },
           "phone": "[redacted]",
           "images": [
             {
-              "url": "https://images.qloo.com/i/1E8578BC-230C-4AD8-999E-715F8CDB6223-2fgf5H-420x-outside.jpg",
+              "url": "https://images.qloo.com/i/DC5E6E7B-43BB-4467-A8F7-04874151E437-3E2kDw-420x-outside.jpg",
               "type": "urn:image:place:unknown"
             }
           ],
-          "address": "Amssco platinum city Galadinmawa Abuja 900211 Federal Capital Territory, Nigeria",
+          "address": "Wuse Market Rd Wuse Abuja 904101 Federal Capital Territory, Nigeria",
           "geocode": {
             "city": "Abuja",
-            "name": null,
+            "name": "Wuse",
             "metro": null,
             "country": "Nigeria",
             "country_code": "NG",
             "admin1_region": "Federal Capital Territory",
             "admin2_region": "Municipal Area Council"
           },
-          "parking": null,
+          "parking": true,
           "website": null,
-          "good_for": [
-            {
-              "id": "urn:tag:children:place:good_kids",
-              "name": "Good for kids",
-              "type": "urn:tag:children:place",
-              "weight": null
-            }
-          ],
+          "good_for": null,
           "keywords": [
             {
-              "name": "environment",
-              "count": 43
+              "name": "phone accessories",
+              "count": 51
             },
             {
-              "name": "security",
-              "count": 15
+              "name": "phones",
+              "count": 148
             },
             {
-              "name": "residential",
-              "count": 5
+              "name": "fabrics",
+              "count": 55
             },
             {
-              "name": "housing estate",
-              "count": 5
+              "name": "buy gold",
+              "count": 7
             },
             {
-              "name": "mosque",
-              "count": 5
+              "name": "phone repair",
+              "count": 23
             },
             {
               "_truncated_items": 5
@@ -395,12 +433,31 @@
               "abbreviation": null,
               "country_code": "NG"
             },
-            "neighborhood": null
+            "neighborhood": {
+              "name": "Wuse",
+              "place": "suburb",
+              "boundary": "administrative",
+              "entity_id": "29C34BB5-E20E-4888-9A68-414A8F3506CC",
+              "admin_level": 7,
+              "locality_id": "r12193652",
+              "abbreviation": null,
+              "country_code": null
+            }
           },
           "menu_url": null,
           "is_closed": false,
           "live_music": null,
           "localities": [
+            {
+              "name": "Wuse",
+              "place": "suburb",
+              "boundary": "administrative",
+              "entity_id": "29C34BB5-E20E-4888-9A68-414A8F3506CC",
+              "admin_level": 7,
+              "locality_id": "r12193652",
+              "abbreviation": null,
+              "country_code": null
+            },
             {
               "name": "Municipal Area Council",
               "place": null,
@@ -432,7 +489,7 @@
               "country_code": "NG"
             }
           ],
-          "description": "Nail salon located in a modern, serene residential plaza near Galadinmawa roundabout, offering manicure and pedicure services within a well-equipped estate.",
+          "description": "Retail and wholesale mobile phone shop in Wuse Market, Abuja, serving individual customers and business clients.",
           "hotel_class": null,
           "price_level": null,
           "price_range": {
@@ -441,67 +498,69 @@
             "currency": "usd"
           },
           "star_rating": null,
-          "event_spaces": null,
-          "neighborhood": null,
-          "pet_friendly": null,
+          "event_spaces": false,
+          "neighborhood": "Wuse",
+          "pet_friendly": false,
           "check_in_time": null,
           "primary_genre": {
-            "id": "urn:tag:genre:place:nail_salon",
+            "id": "urn:tag:genre:place:market",
             "akas": [
               {
-                "value": "\"Салон за маникюр\"",
+                "value": "\"Markt\"",
                 "languages": [
-                  "bg"
+                  "nl",
+                  "de"
                 ]
               },
               {
-                "value": "\"Neglesalon\"",
+                "value": "\"Tori\"",
                 "languages": [
-                  "da"
+                  "fi"
                 ]
               },
               {
-                "value": "\"Salon za nohte\"",
+                "value": "\"Tržiště\"",
                 "languages": [
-                  "sl"
+                  "cs"
                 ]
               },
               {
-                "value": "\"Neglesalong\"",
+                "value": "\"Пазар\"",
                 "languages": [
-                  "nb"
+                  "bg",
+                  "mk"
                 ]
               },
               {
-                "value": "\"네일 살롱\"",
+                "value": "\"Treg\"",
                 "languages": [
-                  "ko"
+                  "sq"
                 ]
               },
               {
-                "_truncated_items": 51
+                "_truncated_items": 43
               }
             ],
-            "name": "Nail salon",
+            "name": "Market",
             "type": "urn:tag:genre:place",
             "weight": null
           },
           "check_out_time": null,
-          "business_rating": 4.300000190734863,
+          "business_rating": 3.9000000953674316,
           "loyalty_program": null,
           "number_of_rooms": null,
           "cost_description": null,
           "specialty_dishes": null,
-          "short_description": "Nail salon located in a modern, serene residential plaza near Galadinmawa roundabout, offering manicure and pedicure services within a well-equipped estate.",
+          "short_description": "Retail and wholesale mobile phone shop in Wuse Market, Abuja, serving individual customers and business clients.",
           "number_of_stations": null,
           "cuisine_description": null,
-          "overall_description": null,
+          "overall_description": "MK Phones is a primary destination for mobile technology and accessories, situated within the prominent Wuse Market in Abuja. Offering a mix of retail and wholesale options, the shop caters to a diverse range of customers looking for smartphones and tech support in a central, commercial setting. Its",
           "service_description": null,
-          "ambience_description": null,
-          "amenities_description": null,
-          "unique_selling_points": null,
-          "neighborhood_description": null,
-          "physical_setting_description": null,
+          "ambience_description": "The atmosphere is fast-paced and transaction-oriented, typical of a bustling central market where customers focus on finding quality electronics and engaging in trade.",
+          "amenities_description": "The shop is supported by the broader market facilities, which include designated parking areas, convenient access to banking services and ATMs, and modern payment methods like POS and digital transfers.",
+          "unique_selling_points": "This retailer distinguishes itself by providing a dedicated hub for both wholesale and retail mobile technology in a convenient, central location that allows for gadget trade-ins.",
+          "neighborhood_description": "The surrounding area is a vibrant and essential commercial district known for its orderly market layout, providing easy access to a variety of goods and essential services.",
+          "physical_setting_description": "Located within the busy Wuse Market in the heart of Abuja, this shop serves as a central hub for electronics and mobile technology within a structured, well-organized retail environment.",
           "_truncated_keys": 2
         }
       }
