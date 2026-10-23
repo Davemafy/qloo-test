@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/insights",
+      "destination": "/api/insights.ts"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
