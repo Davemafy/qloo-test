@@ -8,6 +8,7 @@ const ALLOWED_CITIES = new Set([
   'Lagos',
   'Abuja',
 ]);
+const ALLOWED_TYPES = new Set(['place', 'artist', 'movie', 'tv_show', 'book', 'brand']);
 const ALLOWED_TASTES = new Set([
   'hip_hop',
   'indie_rock',
@@ -52,11 +53,17 @@ export default async function handler(
   const q = req.query || {};
   const city = String(q.city || 'New York City');
   const taste = String(q.taste || 'hip_hop');
+  const type = String(q.type || 'place');
 
   // Strict allowlists prevent arbitrary upstream query construction.
   if (!ALLOWED_CITIES.has(city)) {
     res.statusCode = 400;
     res.end(JSON.stringify({ error: 'Unsupported city.' }));
+    return;
+  }
+  if (!ALLOWED_TYPES.has(type)) {
+    res.statusCode = 400;
+    res.end(JSON.stringify({ error: 'Unsupported cultural category.' }));
     return;
   }
   if (!ALLOWED_TASTES.has(taste)) {
@@ -66,9 +73,11 @@ export default async function handler(
   }
 
   const url = new URL('https://hackathon.api.qloo.com/v2/insights');
-  url.searchParams.set('filter.type', 'urn:entity:place');
-  url.searchParams.set('filter.location.query', city);
-  url.searchParams.set('filter.location.radius', '0');
+  url.searchParams.set('filter.type', 'urn:entity:' + type);
+  if (type === 'place') {
+    url.searchParams.set('filter.location.query', city);
+    url.searchParams.set('filter.location.radius', '0');
+  }
   url.searchParams.set('signal.interests.tags', 'urn:tag:genre:music:' + taste);
   url.searchParams.set('take', '10');
   url.searchParams.set('feature.explainability', 'true');
@@ -91,6 +100,7 @@ export default async function handler(
       mode: 'live',
       city,
       taste,
+      type,
       results: body?.results?.entities || body?.results || [],
       warnings: body?.warnings || [],
     }));
