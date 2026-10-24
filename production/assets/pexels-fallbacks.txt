@@ -1,0 +1,21 @@
+# Explicit licensed-source substitutes for inaccessible Unsplash candidates
+# ID|provider|replacement photo page
+A01|Pexels|https://www.pexels.com/photo/sunlight-filtering-through-misty-forest-trees-30485717/
+A02|Pexels|https://www.pexels.com/photo/golden-sunlight-through-misty-trees-at-dawn-29607492/
+A03|Pexels|https://www.pexels.com/photo/window-covered-with-curtain-11846962/
+A04|Pexels|https://www.pexels.com/photo/sunlight-filtering-through-sheer-curtain-30519220/
+A05|Pexels|https://www.pexels.com/photo/elegant-window-drapes-with-soft-sunlight-35979770/
+A06|Pexels|https://www.pexels.com/photo/people-walking-on-street-5182103/
+A07|Pexels|https://www.pexels.com/photo/people-on-a-street-in-japan-at-night-20188510/
+A08|Pexels|https://www.pexels.com/photo/moody-night-scene-in-tokyo-s-streets-31667360/
+A09|Pexels|https://www.pexels.com/photo/cityscape-of-tokyo-at-sunset-19270612/
+A10|Pexels|https://www.pexels.com/photo/man-in-black-suit-playing-a-trumpet-12448194/
+A11|Pexels|https://www.pexels.com/photo/close-up-photo-of-vinyl-record-player-9586608/
+A12|Pexels|https://www.pexels.com/photo/band-performing-on-the-stage-9001998/
+A13|Pexels|https://www.pexels.com/photo/lens-of-movie-projector-5515483/
+A15|Pexels|https://www.pexels.com/photo/delicious-bowl-of-traditional-japanese-ramen-30856693/
+A17|Pexels|https://www.pexels.com/photo/present-box-with-open-me-inscription-on-tag-5708963/
+A18|Pexels|https://www.pexels.com/photo/assorted-gift-boxes-on-wooden-surface-1303096/
+A19|Pexels|https://www.pexels.com/photo/books-and-plants-on-a-table-in-sunlight-20750334/
+A20|Pexels|https://www.pexels.com/photo/stack-of-vintage-books-in-warm-sunlight-38825373/
+A33|Pexels|https://www.pexels.com/photo/sunlight-filtering-through-sheer-curtains-in-a-cozy-room-37448677/
