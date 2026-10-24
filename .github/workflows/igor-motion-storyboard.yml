@@ -47,15 +47,9 @@ jobs:
           cd dist
           zip -q -r -6 IGOR_OutcomeOS_Storyboards_16_Shots.zip storyboard/
           ls -lh IGOR_OutcomeOS_Storyboards_16_Shots.zip
-      - name: Upload frames and production ZIP
+      - name: Upload editor-ready storyboard files
         uses: actions/upload-artifact@v4
         with:
-          name: IGOR-OutcomeOS-Storyboards-16-Scenes
-          path: |
-            dist/IGOR_OutcomeOS_Storyboards_16_Shots.zip
-            dist/storyboard/OVERVIEW_01.jpg
-            dist/storyboard/OVERVIEW_02.jpg
-            dist/storyboard/OVERVIEW_03.jpg
-            dist/storyboard/OVERVIEW_04.jpg
-            dist/storyboard/SHOT_LIST.json
+          name: IGOR-OutcomeOS-Photographic-Storyboard
+          path: dist/storyboard/
           retention-days: 30
