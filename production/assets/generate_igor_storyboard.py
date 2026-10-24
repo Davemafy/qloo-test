@@ -142,7 +142,7 @@ finish(15,'Outcome revision','01:40–01:49',['A17','A22','A25','A27','A30'],c,a
 c=new('#121B19')
 for i,id in enumerate(ids):
     x=25+(i%9)*208;y=20+(i//9)*260
-    put(c,id,(200,250))
+    put(c,id,(x,y,200,250))
 a=overlay(c,206)
 text(a,'One conversation.\nMany outcomes.',116,370,106,WHITE,True)
 small(a,'IGOR   /   OUTCOMEOS   /   POWERED BY QLOO',120,900,WHITE)
