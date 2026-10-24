@@ -9,6 +9,24 @@ def object_schema(properties, required):
     return {"type": "object", "properties": properties, "required": required, "additionalProperties": False}
 
 
+def validate_case(text, args):
+    if args.get("supported") is not True or args.get("intent") != "revision":
+        raise ValueError("invalid_revision_classification")
+    proposed = args.get("actions") or []
+    if not isinstance(proposed, list) or len(proposed) > 8:
+        raise ValueError("invalid_actions")
+    if any(a.get("kind") not in {"resolve", "facts", "preference", "artifact"} for a in proposed):
+        raise ValueError("unauthorized_action")
+    if text.startswith("Use ") and not any(a.get("kind") == "resolve" and a.get("choice") in {"2016", "2955F3C4-36AB-49F3-A818-3597F35EF46C"} for a in proposed):
+        raise ValueError("missing_identity_correction")
+    if text.startswith("For ") and not all(any(a.get("kind") == "facts" and a.get("candidate") in {"Children of Men", "BB9AA6CE-8012-44B8-B554-54BE8A374A5E"} and a.get(field) == value for a in proposed) for field, value in [("cost", 5), ("duration", 80), ("available", True)]):
+        raise ValueError("incorrect_practical_facts")
+    if text.startswith("Replace ") and not all(any(a.get("kind") == "preference" and a.get("value") == value and a.get("polarity") == polarity for a in proposed) for value, polarity in [("Radiohead", "unknown"), ("Kendrick Lamar", "like")]):
+        raise ValueError("incorrect_replacement_semantics")
+    if text.startswith("Invitation:") and not (args.get("wording") == "Bring your curiosity." or any(a.get("kind") == "artifact" and a.get("artifactId") == "invitation" and a.get("content") == "Bring your curiosity." for a in proposed)):
+        raise ValueError("incorrect_invitation")
+
+
 def main():
     h = Harness()
     report = {"at": now(), "status": "blocked", "scope": "Fresh Gemini extraction of four synthetic corrections. Not execution of the private application.", "cases": []}
@@ -37,21 +55,7 @@ def main():
                 _, call = h.model([{"role": "user", "parts": [{"text": text}]}], tool, system)
                 args = call.get("args", {})
                 case["interpretation"] = args
-                if args.get("supported") is not True or args.get("intent") != "revision":
-                    raise ValueError("invalid_revision_classification")
-                proposed = args.get("actions") or []
-                if not isinstance(proposed, list) or len(proposed) > 8:
-                    raise ValueError("invalid_actions")
-                if any(a.get("kind") not in {"resolve", "facts", "preference", "artifact"} for a in proposed):
-                    raise ValueError("unauthorized_action")
-                if text.startswith("Use ") and not any(a.get("kind") == "resolve" and a.get("choice") in {"2016", "2955F3C4-36AB-49F3-A818-3597F35EF46C"} for a in proposed):
-                    raise ValueError("missing_identity_correction")
-                if text.startswith("For ") and not any(a.get("kind") == "facts" and a.get("cost") == 5 and a.get("duration") == 80 and a.get("available") is True for a in proposed):
-                    raise ValueError("incorrect_practical_facts")
-                if text.startswith("Replace ") and not all(any(a.get("kind") == "preference" and a.get("value") == value and a.get("polarity") == polarity for a in proposed) for value, polarity in [("Radiohead", "unknown"), ("Kendrick Lamar", "like")]):
-                    raise ValueError("incorrect_replacement_semantics")
-                if text.startswith("Invitation:") and not (args.get("wording") == "Bring your curiosity." or any(a.get("kind") == "artifact" and a.get("artifactId") == "invitation" and a.get("content") == "Bring your curiosity." for a in proposed)):
-                    raise ValueError("incorrect_invitation")
+                validate_case(text, args)
                 case["status"] = "passed"
             except Exception as e:
                 case["error"] = str(e)[:180]
