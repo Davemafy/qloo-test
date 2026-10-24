@@ -78,6 +78,15 @@ class Harness:
         self.records = []
         self.model_records = []
         self.opener = urllib.request.build_opener(NoRedirect())
+        prior = Path("prior/gathering-probe.json")
+        if prior.exists():
+            recorded = json.loads(prior.read_text())
+            for record in recorded.get("qloo_records", []):
+                if record.get("status") == "ok":
+                    rows(record["response"])
+                    cache_key = record["path"] + "?" + urllib.parse.urlencode(sorted(record["params"].items()))
+                    self.cache[cache_key] = record["response"]
+                    self.records.append({**record, "delivery": "CACHED", "original_run": 40093676803})
 
     def send(self, url, key, body=None):
         headers = {"Accept": "application/json", "x-goog-api-key" if body is not None else "X-Api-Key": key}
@@ -174,6 +183,14 @@ def main():
                 body = h.qloo("/search", {"query": text, "types": "urn:entity:" + domain, "take": "10"})
                 resolution = resolve(body, text, domain)
                 report["resolution"][pid] = {"text": text, "type": domain, **resolution}
+                if pid == "eli" and resolution["status"] == "ambiguous":
+                    # Explicit operator choice for this synthetic profile, never a silent first-match rule.
+                    choice = "2955F3C4-36AB-49F3-A818-3597F35EF46C"
+                    matched = [r for r in rows(body) if r["entity_id"] == choice and r.get("properties", {}).get("release_year") == 2016]
+                    if len(matched) == 1 and choice in {m["id"] for m in resolution["matches"]}:
+                        report["resolution"][pid]["operator_confirmation"] = {"providerId": choice, "intended_year": 2016,
+                            "source": "Explicit synthetic-profile operator input; not a real participant interview or inferred preference."}
+                        resolution = {**resolution, "status": "resolved", "providerId": choice}
                 if resolution["status"] != "resolved":
                     report["warnings"].append(pid + ": seed unresolved; no affinity inferred")
                     continue

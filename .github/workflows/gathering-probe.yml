@@ -1,5 +1,5 @@
 name: Six-profile cultural comparison
-# Accept the types array observed in actual Qloo search responses.
+# Resume genuine archived results and explicitly confirm the sample's 2016 Moonlight identity.
 on:
   workflow_dispatch:
   push:
@@ -7,6 +7,7 @@ on:
     paths: [.github/workflows/gathering-probe.yml]
 permissions:
   contents: read
+  actions: read
 jobs:
   providers:
     runs-on: ubuntu-latest
@@ -20,6 +21,13 @@ jobs:
           python-version: '3.12'
       - name: Offline contracts
         run: python -m unittest discover -s scripts -p 'test_*probe.py' -v
+      - name: Reuse genuine captured pool without repeating its Qloo requests
+        uses: actions/download-artifact@v4
+        with:
+          name: six-profile-provider-evidence
+          run-id: 40093676803
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: prior
       - name: Bounded fresh Qloo pool and independent Gemini arms
         env:
           QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}
