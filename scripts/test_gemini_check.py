@@ -1,6 +1,6 @@
 import copy
 import unittest
-from gemini_check import PROFILES, request_body, validate
+from gemini_check import PROFILES, request_body, validate, choose_model
 
 
 def response():
@@ -11,6 +11,17 @@ def response():
 
 
 class Contracts(unittest.TestCase):
+    def test_model_discovery_filters_untrusted_or_unsuitable_models(self):
+        names = ["models/gemini-2.5-flash-lite", "models/gemini-2.5-flash-image", "https://evil.test/flash", "models/gemini-pro", "models/gemini-flash-preview"]
+        selected, available = choose_model({"models": [{"name": n, "supportedGenerationMethods": ["generateContent"]} for n in names]})
+        self.assertEqual(selected, "gemini-2.5-flash-lite")
+        self.assertEqual(available, ["models/gemini-2.5-flash-lite"])
+
+    def test_empty_or_non_generation_model_listing_blocks(self):
+        for data in ({}, {"models": [{"name": "models/gemini-2.5-flash", "supportedGenerationMethods": ["embedContent"]}]}):
+            with self.assertRaises(ValueError):
+                choose_model(data)
+
     def test_valid(self):
         self.assertEqual(validate(response())["budget"], 60)
 

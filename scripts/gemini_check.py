@@ -1,6 +1,7 @@
 """Standalone public-safe model check. No Igor imports or Qloo requests."""
 import json
 import os
+import re
 import socket
 import urllib.error
 import urllib.request
@@ -8,6 +9,23 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 MODEL = "gemini-2.5-flash"
+
+
+def choose_model(data):
+    allowed = []
+    for model in data.get("models", []):
+        name = model.get("name", "")
+        if (re.fullmatch(r"models/gemini-[a-z0-9.-]+", name)
+                and "flash" in name
+                and not any(word in name for word in ("image", "audio", "live", "native", "tts", "preview", "exp"))
+                and "generateContent" in model.get("supportedGenerationMethods", [])):
+            allowed.append(name)
+    if not allowed:
+        raise ValueError("no_supported_stable_flash_model")
+    for preferred in ("models/gemini-2.5-flash-lite", "models/gemini-3.5-flash", "models/gemini-2.5-flash"):
+        if preferred in allowed:
+            return preferred.removeprefix("models/"), sorted(allowed)
+    return sorted(allowed)[-1].removeprefix("models/"), sorted(allowed)
 PROFILES = [
     {"id": "amara", "likes": ["Radiohead"]},
     {"id": "leo", "likes": ["Kendrick Lamar"]},
@@ -83,7 +101,7 @@ def main():
     out = Path("artifacts")
     out.mkdir(exist_ok=True)
     report = {"at": datetime.now(timezone.utc).isoformat(), "model_requested": MODEL,
-              "model_requests": 0, "qloo_requests": 0, "status": "blocked",
+              "model_requests": 0, "discovery_requests": 0, "qloo_requests": 0, "status": "blocked",
               "scope": "Structured brief extraction only; not product integration or Qloo value evaluation.",
               "profile_origin": "synthetic sample profiles", "request": request_body()}
     code = 1
@@ -91,12 +109,26 @@ def main():
     try:
         if not key:
             raise ValueError("missing_gemini_secret")
+        opener = urllib.request.build_opener(NoRedirect())
+        report["discovery_requests"] = 1
+        listing = urllib.request.Request(
+            "https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000",
+            headers={"x-goog-api-key": key})
+        with opener.open(listing, timeout=30) as result:
+            listing_raw = result.read(1000001)
+        if len(listing_raw) > 1000000:
+            raise ValueError("model_listing_size_limit")
+        model, names = choose_model(json.loads(listing_raw))
+        report["available_stable_flash_models"] = names
+        report["model_requested"] = model
+        if not model.startswith("gemini-2.5-"):
+            report["request"]["generationConfig"].pop("thinkingConfig", None)
         request = urllib.request.Request(
-            f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent",
+            f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
             data=json.dumps(report["request"]).encode(),
             headers={"Content-Type": "application/json", "x-goog-api-key": key}, method="POST")
         report["model_requests"] = 1
-        with urllib.request.build_opener(NoRedirect()).open(request, timeout=45) as result:
+        with opener.open(request, timeout=45) as result:
             raw = result.read(100001)
         if len(raw) > 100000:
             raise ValueError("response_size_limit")
