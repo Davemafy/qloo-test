@@ -1,5 +1,5 @@
 name: Gemini structured brief check
-# Prefer current listed Flash after the older model returned service unavailable.
+# Use listed Flash Lite to avoid high-demand Flash failures.
 on:
   workflow_dispatch:
   push:

@@ -22,7 +22,7 @@ def choose_model(data):
             allowed.append(name)
     if not allowed:
         raise ValueError("no_supported_stable_flash_model")
-    for preferred in ("models/gemini-3.8-flash", "models/gemini-3.5-flash", "models/gemini-2.5-flash-lite", "models/gemini-2.5-flash"):
+    for preferred in ("models/gemini-3.5-flash-lite", "models/gemini-3.8-flash", "models/gemini-3.5-flash", "models/gemini-2.5-flash-lite", "models/gemini-2.5-flash"):
         if preferred in allowed:
             return preferred.removeprefix("models/"), sorted(allowed)
     return sorted(allowed)[-1].removeprefix("models/"), sorted(allowed)
@@ -128,7 +128,7 @@ def main():
             data=json.dumps(report["request"]).encode(),
             headers={"Content-Type": "application/json", "x-goog-api-key": key}, method="POST")
         report["model_requests"] = 1
-        with opener.open(request, timeout=45) as result:
+        with opener.open(request, timeout=75) as result:
             raw = result.read(100001)
         if len(raw) > 100000:
             raise ValueError("response_size_limit")
