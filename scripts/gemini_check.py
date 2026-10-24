@@ -133,6 +133,7 @@ def main():
         if len(raw) > 100000:
             raise ValueError("response_size_limit")
         response = json.loads(raw)
+        report["provider_response"] = response
         report["result"] = validate(response)
         report["model_returned"] = response.get("modelVersion")
         usage = response.get("usageMetadata", {})
@@ -150,8 +151,9 @@ def main():
         report["error"] = "timeout"
     except urllib.error.URLError:
         report["error"] = "network_error"
-    except (ValueError, KeyError, TypeError, AttributeError):
+    except (ValueError, KeyError, TypeError, AttributeError) as error:
         report["error"] = "invalid_response_or_configuration"
+        report["validation_error"] = str(error)[:300]
     serialized = json.dumps(report, indent=2)
     if key:
         serialized = serialized.replace(key, "[REDACTED]")

@@ -1,5 +1,5 @@
 name: Gemini structured brief check
-# Discover a supported current Flash model; retain sanitized provider errors.
+# Retain bounded, redacted model output to diagnose contract failures.
 on:
   workflow_dispatch:
   push:
