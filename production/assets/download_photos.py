@@ -31,7 +31,7 @@ def attempt(row):
     provider, page = FALLBACKS.get(ident, (original_provider, original_page))
     candidates = []
     if provider == "Pexels":
-        n = re.search(r"-(\\d+)/?$", page).group(1)
+        n = page.rstrip("/").split("-")[-1]
         candidates.append(f"https://images.pexels.com/photos/{n}/pexels-photo-{n}.jpeg?auto=compress&cs=tinysrgb&w=2600")
     else:
         ident2 = page.split("/")[-1].split("-")[-1]
