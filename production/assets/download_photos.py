@@ -18,42 +18,66 @@ def get(url):
         data.extend(c)
         if len(data)>28000000: raise ValueError("oversize")
     return bytes(data),r
+FALLBACKS = {}
+fallback_file = ROOT / "production/assets/pexels-fallbacks.txt"
+if fallback_file.exists():
+    for line in fallback_file.read_text().splitlines():
+        if line.strip() and not line.startswith("#"):
+            ident, provider, page = line.split("|", 2)
+            FALLBACKS[ident] = (provider, page)
+
 def attempt(row):
-    ident,provider,page=row
-    candidates=[]
-    if provider=="Pexels":
-        n=re.search(r"-(\d+)/?$",page).group(1)
+    ident, original_provider, original_page = row
+    provider, page = FALLBACKS.get(ident, (original_provider, original_page))
+    candidates = []
+    if provider == "Pexels":
+        n = re.search(r"-(\\d+)/?$", page).group(1)
         candidates.append(f"https://images.pexels.com/photos/{n}/pexels-photo-{n}.jpeg?auto=compress&cs=tinysrgb&w=2600")
     else:
-        ident2=page.split("/")[-1].split("-")[-1]
+        ident2 = page.split("/")[-1].split("-")[-1]
         try:
-            data,r=get("https://unsplash.com/napi/photos/"+ident2)
-            obj=json.loads(data)
-            for key in ("full","raw","regular"):
-                u=obj.get("urls",{}).get(key)
-                if u: candidates.append(u+("&" if "?" in u else "?")+"w=2600&q=90")
-        except Exception: pass
-        candidates.append(page+"/download?force=true&w=2600")
+            data, _ = get("https://unsplash.com/napi/photos/" + ident2)
+            obj = json.loads(data)
+            for key in ("full", "raw", "regular"):
+                u = obj.get("urls", {}).get(key)
+                if u:
+                    candidates.append(u + ("&" if "?" in u else "?") + "w=2600&q=90")
+        except Exception:
+            pass
+        candidates.append(page + "/download?force=true&w=2600")
     try:
-        html,_=get(page)
-        soup=BeautifulSoup(html,"html.parser")
-        for key in ("og:image:secure_url","og:image","twitter:image"):
-            for tag in soup.find_all("meta",attrs={"property":key})+soup.find_all("meta",attrs={"name":key}):
-                u=tag.get("content")
-                if u and u.startswith("https://"): candidates.append(u)
-    except Exception: pass
-    errors=[]
+        html, _ = get(page)
+        soup = BeautifulSoup(html, "html.parser")
+        for key in ("og:image:secure_url", "og:image", "twitter:image"):
+            for tag in soup.find_all("meta", attrs={"property": key}) + soup.find_all("meta", attrs={"name": key}):
+                u = tag.get("content")
+                if u and u.startswith("https://"):
+                    candidates.append(u)
+    except Exception:
+        pass
+    provenance = {"id": ident, "provider": provider, "page": page,
+                  "original_provider": original_provider, "original_page": original_page,
+                  "is_substitute": page != original_page}
+    errors = []
     for url in dict.fromkeys(candidates):
         try:
-            data,_=get(url)
-            im=Image.open(io.BytesIO(data)); im.load()
-            if min(im.size)<550 or max(im.size)<1000: raise ValueError(f"low resolution {im.size}")
-            path=PHOTOS/(ident+".jpg")
-            im.convert("RGB").save(path,"JPEG",quality=93,optimize=True)
-            b=path.read_bytes()
-            return {"id":ident,"provider":provider,"page":page,"status":"downloaded","file":"photos/"+path.name,"width":im.width,"height":im.height,"bytes":len(b),"sha256":hashlib.sha256(b).hexdigest(),"source_image":url,"error":""}
-        except Exception as e: errors.append(str(e)[:120])
-    return {"id":ident,"provider":provider,"page":page,"status":"failed","file":"","width":"","height":"","bytes":"","sha256":"","source_image":"","error":" | ".join(errors[-3:]) or "No download candidates"}
+            data, _ = get(url)
+            im = Image.open(io.BytesIO(data))
+            im.load()
+            if min(im.size) < 550 or max(im.size) < 1000:
+                raise ValueError(f"low resolution {im.size}")
+            path = PHOTOS / (ident + ".jpg")
+            im.convert("RGB").save(path, "JPEG", quality=93, optimize=True)
+            b = path.read_bytes()
+            return {**provenance, "status": "downloaded", "file": "photos/" + path.name,
+                    "width": im.width, "height": im.height, "bytes": len(b),
+                    "sha256": hashlib.sha256(b).hexdigest(), "source_image": url, "error": ""}
+        except Exception as e:
+            errors.append(str(e)[:120])
+    return {**provenance, "status": "failed", "file": "",
+            "width": "", "height": "", "bytes": "", "sha256": "", "source_image": "",
+            "error": " | ".join(errors[-3:]) or "No download candidates"}
+
 def main():
     PHOTOS.mkdir(parents=True,exist_ok=True)
     rows=[tuple(line.strip().split("|",2)) for line in (ROOT/"production/assets/igor-photo-sources.txt").read_text().splitlines() if line.strip() and not line.startswith("#")]
