@@ -1,0 +1,31 @@
+name: Bounded place discovery contracts
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [.github/workflows/place-probe.yml]
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Offline provider contracts
+        run: python -m unittest discover -s scripts -p 'test_*probe.py' -v
+      - name: At most four Qloo calls and no model calls
+        env:
+          QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}
+        run: python scripts/place_probe.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: place-provider-evidence
+          path: artifacts/place-probe.json
+          retention-days: 7
