@@ -124,7 +124,7 @@ S.append(scene(10,'An invitation—not just advice','01:03–01:11',[26],
     'The itinerary folds into a printed-looking invitation; real blank stationery grounds the transition.',
     'ACTUAL COMPOSE TOOL OUTPUT + PHOTOGRAPH','And an invitation ready to edit and share.','Label unsent draft; do not claim the user shared it.'))
 # 11: creator / event brief
-a=canvas(WH);photo(a,27,(0,0,1182,H));photo(a,28,(1190,0,730,465));block(a,WH,(1190,472,730,608));plate=a.copy()
+a=canvas(WH);photo(a,27,(0,0,1182,H));photo(a,28,(1190,0,730,465));block(a,WH,(1190,472,1920,1080));plate=a.copy()
 label(a,'OUTCOME 05  /  CREATE',1258,528,ACC);txt(a,'For a creator.',1257,591,62,b=True)
 line(a,1261,715,1831,715);txt(a,'Audience insight',1263,749,30);txt(a,'Creative direction',1263,799,30);txt(a,'Usable brief',1263,849,30)
 save(11,a,plate,S)
@@ -133,7 +133,7 @@ S.append(scene(11,'From taste to creative work','01:11–01:19',[27,28],
     'VEO subtle source-photo push + REAL CREATIVE OUTPUT','For a creator, a concept becomes a working brief.','Do not claim unbuilt creative tools are functional.'))
 # 12: concierge / professional
 a=canvas(WH);photo(a,29,(0,0,1031,H));photo(a,30,(1039,0,881,454));photo(a,16,(1039,462,419,618))
-block(a,WH,(1466,462,454,618));plate=a.copy()
+block(a,WH,(1466,462,1920,1080));plate=a.copy()
 label(a,'OUTCOME 06',1502,539,ACC);txt(a,'For a',1500,598,54,b=True);txt(a,'guest.',1500,659,65,b=True)
 line(a,1505,765,1835,765);txt(a,'A considered',1506,798,29);txt(a,'experience proposal.',1506,851,26)
 save(12,a,plate,S)
@@ -155,7 +155,7 @@ S.append(scene(13,'The signature cross-outcome correction','01:27–01:37',[31],
 a=canvas(WH)
 for n,b in [(17,(0,0,474,518)),(21,(481,0,474,518)),(25,(962,0,474,518)),(27,(1443,0,477,518)),(29,(0,525,616,555)),(6,(623,525,565,555))]:
     photo(a,n,b)
-block(a,WH,(1197,526,723,554));plate=a.copy()
+block(a,WH,(1197,526,1920,1080));plate=a.copy()
 txt(a,'Not six apps.',1253,628,58,b=True);txt(a,'One OutcomeOS.',1253,715,53,b=True)
 line(a,1254,830,1818,830);txt(a,'One intention. Connected outcomes.',1253,859,26)
 save(14,a,plate,S)
