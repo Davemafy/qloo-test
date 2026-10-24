@@ -1,4 +1,5 @@
 name: Conversational correction contracts
+# Revision 2: enum action names, explicit revision semantics, all four cases retained.
 on:
   workflow_dispatch:
   push:
