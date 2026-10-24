@@ -1,0 +1,31 @@
+name: Gemini structured brief check
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [.github/workflows/gemini-check.yml]
+permissions:
+  contents: read
+jobs:
+  model-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Offline contract tests
+        run: python -m unittest discover -s scripts -p test_gemini_check.py -v
+      - name: One bounded Gemini request
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gemini_check.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gemini-structured-brief
+          path: artifacts/gemini-check.json
+          retention-days: 3
