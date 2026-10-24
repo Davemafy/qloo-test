@@ -1,0 +1,293 @@
+[
+  {
+    "shot": 1,
+    "title": "The world",
+    "timecode": "00:00\u201300:07",
+    "source_assets": [
+      "A01",
+      "A02",
+      "A03",
+      "A04",
+      "A05",
+      "A06",
+      "A07",
+      "A08",
+      "A09",
+      "A10",
+      "A11",
+      "A12",
+      "A13",
+      "A14",
+      "A15",
+      "A16",
+      "A17",
+      "A18",
+      "A19",
+      "A20",
+      "A21",
+      "A22",
+      "A23",
+      "A24",
+      "A25",
+      "A26",
+      "A27",
+      "A28",
+      "A29",
+      "A30",
+      "A31",
+      "A32",
+      "A33",
+      "A34"
+    ],
+    "production": "2D motion",
+    "motion": "Photography enters in staggered film-strip beats, not UI cards",
+    "frame": "frames/01_storyframe.jpg",
+    "clean": "plates/01_clean.jpg"
+  },
+  {
+    "shot": 2,
+    "title": "The problem",
+    "timecode": "00:07\u201300:14",
+    "source_assets": [
+      "A01",
+      "A02"
+    ],
+    "production": "Veo",
+    "motion": "Slow photoreal push through actual forest light, no added objects",
+    "frame": "frames/02_storyframe.jpg",
+    "clean": "plates/02_clean.jpg"
+  },
+  {
+    "shot": 3,
+    "title": "An idea",
+    "timecode": "00:14\u201300:20",
+    "source_assets": [
+      "A03",
+      "A05"
+    ],
+    "production": "2D motion",
+    "motion": "Split physical curtains; typographic entrance via window edge",
+    "frame": "frames/03_storyframe.jpg",
+    "clean": "plates/03_clean.jpg"
+  },
+  {
+    "shot": 4,
+    "title": "Introducing Igor",
+    "timecode": "00:20\u201300:26",
+    "source_assets": [
+      "A04"
+    ],
+    "production": "2D brand motion",
+    "motion": "Curtain light slides out; Igor wordmark enters on locked typographic grid",
+    "frame": "frames/04_storyframe.jpg",
+    "clean": "plates/04_clean.jpg"
+  },
+  {
+    "shot": 5,
+    "title": "The request",
+    "timecode": "00:26\u201300:34",
+    "source_assets": [
+      "A11",
+      "A19"
+    ],
+    "production": "REAL UI",
+    "motion": "Replace art text with exact live Igor prompt in post. No generated chat bubbles",
+    "frame": "frames/05_storyframe.jpg",
+    "clean": "plates/05_clean.jpg"
+  },
+  {
+    "shot": 6,
+    "title": "Cultural judgment",
+    "timecode": "00:34\u201300:42",
+    "source_assets": [
+      "A07",
+      "A10",
+      "A11",
+      "A13",
+      "A15",
+      "A20"
+    ],
+    "production": "2D + REAL QLOO",
+    "motion": "Use real entity resolution and Qloo evidence, not fabricated affinity percentages",
+    "frame": "frames/06_storyframe.jpg",
+    "clean": "plates/06_clean.jpg"
+  },
+  {
+    "shot": 7,
+    "title": "Gift outcome",
+    "timecode": "00:42\u201300:49",
+    "source_assets": [
+      "A17",
+      "A18"
+    ],
+    "production": "Veo + REAL UI",
+    "motion": "Macro move on photographed ribbon. Display actual rationale in compositing",
+    "frame": "frames/07_storyframe.jpg",
+    "clean": "plates/07_clean.jpg"
+  },
+  {
+    "shot": 8,
+    "title": "Shared experience",
+    "timecode": "00:49\u201300:56",
+    "source_assets": [
+      "A21",
+      "A22"
+    ],
+    "production": "Veo",
+    "motion": "Subtle candle flame motion, practical camera drift; no invented bookings",
+    "frame": "frames/08_storyframe.jpg",
+    "clean": "plates/08_clean.jpg"
+  },
+  {
+    "shot": 9,
+    "title": "Cultural atmosphere",
+    "timecode": "00:56\u201301:03",
+    "source_assets": [
+      "A10",
+      "A12",
+      "A14"
+    ],
+    "production": "Veo + edit",
+    "motion": "Cut from brass highlight to auditorium light, sync edits to sound",
+    "frame": "frames/09_storyframe.jpg",
+    "clean": "plates/09_clean.jpg"
+  },
+  {
+    "shot": 10,
+    "title": "Places",
+    "timecode": "01:03\u201301:10",
+    "source_assets": [
+      "A06",
+      "A07",
+      "A08",
+      "A09"
+    ],
+    "production": "Veo + REAL MAP",
+    "motion": "Physically plausible rainy-street movement; live map UI overlaid in post",
+    "frame": "frames/10_storyframe.jpg",
+    "clean": "plates/10_clean.jpg"
+  },
+  {
+    "shot": 11,
+    "title": "Invitation",
+    "timecode": "01:10\u201301:17",
+    "source_assets": [
+      "A25",
+      "A26"
+    ],
+    "production": "REAL UI + tracking",
+    "motion": "Project actual invitation output on stationery. Do not fake sent messages",
+    "frame": "frames/11_storyframe.jpg",
+    "clean": "plates/11_clean.jpg"
+  },
+  {
+    "shot": 12,
+    "title": "Collaboration",
+    "timecode": "01:17\u201301:24",
+    "source_assets": [
+      "A23",
+      "A24"
+    ],
+    "production": "REAL UI + 2D",
+    "motion": "Context change flows into revisions while showing unchanged outputs remain unchanged",
+    "frame": "frames/12_storyframe.jpg",
+    "clean": "plates/12_clean.jpg"
+  },
+  {
+    "shot": 13,
+    "title": "Creative brief",
+    "timecode": "01:24\u201301:32",
+    "source_assets": [
+      "A27",
+      "A28"
+    ],
+    "production": "REAL UI",
+    "motion": "Composite genuine output or clearly label illustrative mock",
+    "frame": "frames/13_storyframe.jpg",
+    "clean": "plates/13_clean.jpg"
+  },
+  {
+    "shot": 14,
+    "title": "Professional experiences",
+    "timecode": "01:32\u201301:40",
+    "source_assets": [
+      "A29",
+      "A30"
+    ],
+    "production": "Veo + verified UI",
+    "motion": "Smoothly track architectural verticals, do not imply booking integration",
+    "frame": "frames/14_storyframe.jpg",
+    "clean": "plates/14_clean.jpg"
+  },
+  {
+    "shot": 15,
+    "title": "Outcome revision",
+    "timecode": "01:40\u201301:49",
+    "source_assets": [
+      "A17",
+      "A22",
+      "A25",
+      "A27",
+      "A30"
+    ],
+    "production": "REAL PRODUCT SCREEN",
+    "motion": "A budget revision updates affected outputs. Must be actually implemented",
+    "frame": "frames/15_storyframe.jpg",
+    "clean": "plates/15_clean.jpg"
+  },
+  {
+    "shot": 16,
+    "title": "OutcomeOS revealed",
+    "timecode": "01:49\u201301:58",
+    "source_assets": [
+      "A01",
+      "A02",
+      "A03",
+      "A04",
+      "A05",
+      "A06",
+      "A07",
+      "A08",
+      "A09",
+      "A10",
+      "A11",
+      "A12",
+      "A13",
+      "A14",
+      "A15",
+      "A16",
+      "A17",
+      "A18",
+      "A19",
+      "A20",
+      "A21",
+      "A22",
+      "A23",
+      "A24",
+      "A25",
+      "A26",
+      "A27",
+      "A28",
+      "A29",
+      "A30",
+      "A31",
+      "A32",
+      "A33",
+      "A34"
+    ],
+    "production": "2D MOTION",
+    "motion": "Photo wall becomes one typographic identity, no decorative neural nets",
+    "frame": "frames/16_storyframe.jpg",
+    "clean": "plates/16_clean.jpg"
+  },
+  {
+    "shot": 17,
+    "title": "Brand closure",
+    "timecode": "01:58\u201302:04",
+    "source_assets": [],
+    "production": "2D MOTION",
+    "motion": "Hold, sonic resolve, end",
+    "frame": "frames/17_storyframe.jpg",
+    "clean": "plates/17_clean.jpg"
+  }
+]
