@@ -1,5 +1,5 @@
 name: Gemini structured brief check
-# Retain bounded, redacted model output to diagnose contract failures.
+# Prefer current listed Flash after the older model returned service unavailable.
 on:
   workflow_dispatch:
   push:
