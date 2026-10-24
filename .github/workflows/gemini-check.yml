@@ -1,5 +1,5 @@
 name: Gemini structured brief check
-# Use listed Flash Lite to avoid high-demand Flash failures.
+# Normalize unknown-fact label casing while enforcing the full evidence contract.
 on:
   workflow_dispatch:
   push:

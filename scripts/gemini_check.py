@@ -92,9 +92,11 @@ def validate(response):
     if args["needs_clarification"] is not True:
         raise ValueError("unknowns_not_respected")
     unknowns = args["unknown_facts"]
-    if not isinstance(unknowns, list) or len(unknowns) != 3 or set(unknowns) != {"prices", "durations", "availability"}:
+    if (not isinstance(unknowns, list) or len(unknowns) != 3
+            or not all(isinstance(item, str) for item in unknowns)
+            or {item.strip().casefold() for item in unknowns} != {"prices", "durations", "availability"}):
         raise ValueError("unknown_facts_changed")
-    return args
+    return {**args, "unknown_facts": [item.strip().casefold() for item in unknowns]}
 
 
 def main():

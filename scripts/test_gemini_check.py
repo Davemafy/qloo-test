@@ -25,6 +25,15 @@ class Contracts(unittest.TestCase):
     def test_valid(self):
         self.assertEqual(validate(response())["budget"], 60)
 
+    def test_unknown_labels_normalize_case_without_losing_unknowns(self):
+        data = response()
+        data["candidates"][0]["content"]["parts"][0]["functionCall"]["args"]["unknown_facts"] = ["Prices", " Durations ", "Availability"]
+        self.assertEqual(validate(data)["unknown_facts"], ["prices", "durations", "availability"])
+        for unknowns in (["Prices", "Prices", "Availability"], ["Prices", 1, "Availability"]):
+            data["candidates"][0]["content"]["parts"][0]["functionCall"]["args"]["unknown_facts"] = unknowns
+            with self.assertRaises(ValueError):
+                validate(data)
+
     def test_rejects_invalid_contracts(self):
         cases = [({"budget": 600}), ({"duration_minutes": 200}), ({"needs_clarification": False}),
                  ({"participant_ids": ["amara"] * 6}), ({"unknown_facts": []}), ({"invented": True})]
