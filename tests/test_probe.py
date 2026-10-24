@@ -3,7 +3,7 @@ import sys
 import unittest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "scripts"))
-from probe import summarize_response
+from probe import serialize_bounded_result, summarize_response
 
 
 class InsightsSummaryTests(unittest.TestCase):
@@ -41,11 +41,27 @@ class InsightsSummaryTests(unittest.TestCase):
         self.assertNotIn("do-not-leak", rendered)
         self.assertIn("[redacted]", rendered)
 
-    def test_detects_query_metadata_as_explainability(self):
+    def test_query_metadata_alone_is_not_explainability(self):
         summary = summarize_response({"query": {"signals": ["artist"]}})
         self.assertTrue(summary["query_present"])
-        self.assertTrue(summary["explainability_present"])
+        self.assertFalse(summary["explainability_present"])
         self.assertIsNone(summary["query_explainability"])
+
+    def test_bounded_serializer_enforces_limit(self):
+        result = {
+            "test": "large-response",
+            "query": {"signal": "artist"},
+            "response_summary": {
+                "entities": [{"name": "Venue " + str(i), "properties": {"large": "x" * 5000}}
+                             for i in range(10)],
+                "query_explainability": {"details": "y" * 5000},
+                "top_level_keys": ["results"],
+                "results_keys": ["entities"],
+            },
+        }
+        serialized = serialize_bounded_result(result, limit=1200)
+        self.assertLessEqual(len(serialized), 1200)
+        self.assertEqual(__import__("json").loads(serialized)["test"], "large-response")
 
     def test_supports_list_results_shape(self):
         summary = summarize_response({"results": [{"title": "Book A"}, {"name": "Book B"}]})
