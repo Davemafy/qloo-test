@@ -1,0 +1,32 @@
+name: Six-profile cultural comparison
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [.github/workflows/gathering-probe.yml]
+permissions:
+  contents: read
+jobs:
+  providers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Offline contracts
+        run: python -m unittest discover -s scripts -p 'test_*probe.py' -v
+      - name: Bounded fresh Qloo pool and independent Gemini arms
+        env:
+          QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/gathering_probe.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: six-profile-provider-evidence
+          path: artifacts/gathering-probe.json
+          retention-days: 7
