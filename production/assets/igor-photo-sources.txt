@@ -1,0 +1,36 @@
+# Igor OutcomeOS image acquisition candidates
+# ID|source|photo page (keep for audit)
+A01|Unsplash|https://unsplash.com/photos/sunbeams-stream-through-trees-on-a-foggy-morning-LtFT3Brh2ys
+A02|Unsplash|https://unsplash.com/photos/golden-sunbeams-pierce-through-morning-fog-over-trees-xhmH7yX2Wl0
+A03|Unsplash|https://unsplash.com/photos/sunlight-streams-through-sheer-curtains-on-a-window-ninCiZ_k6jI
+A04|Unsplash|https://unsplash.com/photos/sunlight-streams-through-sheer-curtains-by-a-window-VbjNKgtPl1k
+A05|Unsplash|https://unsplash.com/photos/sunlight-streams-through-a-window-with-blinds-and-draped-fabric-1xWuLkQAS8k
+A06|Unsplash|https://unsplash.com/photos/a-city-street-at-night-with-neon-lights-GZIk-Sq9PGg
+A07|Unsplash|https://unsplash.com/photos/people-walk-down-a-wet-neon-lit-city-street-at-night-6GRL8viFTwo
+A08|Unsplash|https://unsplash.com/photos/wet-street-at-night-in-tokyo-yVUQlyRlJSw
+A09|Unsplash|https://unsplash.com/photos/a-view-of-a-city-at-sunset-from-the-top-of-a-building-rWE-bwGd0Ac
+A10|Unsplash|https://unsplash.com/photos/man-playing-trumpet-on-stage-ClzMG_8pNbQ
+A11|Unsplash|https://unsplash.com/photos/a-vinyl-record-spinning-on-a-turntable-in-low-light-DIGeBP4UEVk
+A12|Unsplash|https://unsplash.com/photos/performer-on-stage-with-audience-watching-mLPPfgtXjJ0
+A13|Unsplash|https://unsplash.com/photos/projector-light-beams-illuminate-an-empty-cinema-auditorium-L70rE9UChmI
+A14|Pexels|https://www.pexels.com/photo/empty-seats-of-the-cinema-7991436/
+A15|Unsplash|https://unsplash.com/photos/a-bowl-of-ramen-with-chopsticks-and-an-egg-KRYuPwvyEys
+A16|Pexels|https://www.pexels.com/photo/elegant-plated-dish-at-fine-dining-restaurant-33033789/
+A17|Unsplash|https://unsplash.com/photos/a-gift-wrapped-in-brown-paper-with-a-gold-ribbon-oE99v6kcxV4
+A18|Unsplash|https://unsplash.com/photos/a-gift-wrapped-in-brown-paper-with-a-white-tag-U8SdW3GEJQ4
+A19|Unsplash|https://unsplash.com/photos/books-displayed-on-a-shelf-with-sunlight-and-shadows-zSbYax5t2Nw
+A20|Unsplash|https://unsplash.com/photos/a-stack-of-books-sitting-on-top-of-a-wooden-table-U4BEBBFMUoA
+A21|Pexels|https://www.pexels.com/photo/lit-candles-on-a-table-in-a-restaurant-15945653/
+A22|Pexels|https://www.pexels.com/photo/elegant-candlelit-dinner-setting-in-classic-venue-38848753/
+A23|Pexels|https://www.pexels.com/photo/a-group-of-friends-dinning-at-a-restaurant-8921578/
+A24|Pexels|https://www.pexels.com/photo/a-group-of-friends-having-conversation-while-sitting-near-the-dining-table-6955643/
+A25|Pexels|https://www.pexels.com/photo/pen-paper-sheet-and-envelope-5420902/
+A26|Pexels|https://www.pexels.com/photo/two-white-envelopes-and-a-white-rose-on-a-white-surface-8015516/
+A27|Pexels|https://www.pexels.com/photo/creative-interior-design-studio-with-mood-board-37178237/
+A28|Pexels|https://www.pexels.com/photo/printed-designs-and-drawings-over-the-work-table-6614747/
+A29|Pexels|https://www.pexels.com/photo/elegant-luxury-hotel-lobby-with-warm-ambiance-31080809/
+A30|Pexels|https://www.pexels.com/photo/interior-of-a-modern-room-in-a-luxury-hotel-26729545/
+A31|Pexels|https://www.pexels.com/photo/glass-window-with-reflection-of-light-2817501/
+A32|Pexels|https://www.pexels.com/photo/curved-modern-architecture-at-sunset-reflection-35437598/
+A33|Unsplash|https://unsplash.com/photos/sunlight-streams-through-a-sheer-curtain-in-a-room-eM1xMVLVjKA
+A34|Pexels|https://www.pexels.com/photo/crumpled-gold-fabric-7676881/
