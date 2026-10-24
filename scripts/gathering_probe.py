@@ -42,7 +42,7 @@ def rows(body):
 
 def resolve(body, text, domain):
     matches = [r for r in rows(body) if r["name"].casefold() == text.casefold()
-               and (r.get("subtype") or r.get("type")) == "urn:entity:" + domain]
+               and "urn:entity:" + domain in [r.get("subtype"), r.get("type"), *r.get("types", [])]]
     return {"status": "resolved" if len(matches) == 1 else "ambiguous" if len(matches) > 1 else "unresolved",
             "providerId": matches[0]["entity_id"] if len(matches) == 1 else None,
             "matches": [{"id": r["entity_id"], "name": r["name"]} for r in matches]}
@@ -183,7 +183,7 @@ def main():
                     query_id = hashlib.sha256(json.dumps(params, sort_keys=True).encode()).hexdigest()
                     lists[pid + ":" + target] = [r["entity_id"] for r in rows(body)]
                     for rank, row in enumerate(rows(body), 1):
-                        if (row.get("subtype") or row.get("type")) != "urn:entity:" + target:
+                        if "urn:entity:" + target not in [row.get("subtype"), row.get("type"), *row.get("types", [])]:
                             raise ValueError("wrong_candidate_domain")
                         cid = row["entity_id"]
                         candidate = merged.setdefault(cid, {"id": cid, "name": row["name"][:120], "type": target,

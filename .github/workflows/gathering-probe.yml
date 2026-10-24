@@ -1,4 +1,5 @@
 name: Six-profile cultural comparison
+# Accept the types array observed in actual Qloo search responses.
 on:
   workflow_dispatch:
   push:

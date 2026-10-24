@@ -17,6 +17,11 @@ class Contracts(unittest.TestCase):
             with self.assertRaises((ValueError, KeyError)):
                 rows(body)
 
+    def test_live_search_types_array(self):
+        row = {"entity_id": ID, "name": "Radiohead", "types": ["urn:entity:artist"]}
+        self.assertEqual(resolve({"results": [row]}, "Radiohead", "artist")["status"], "resolved")
+        self.assertEqual(resolve({"results": [row]}, "Radiohead", "movie")["status"], "unresolved")
+
     def test_selection_rejects_fabrication_duplicates_and_extra_fields(self):
         self.assertEqual(check_selection({"ids": [ID]}, [{"id": ID}]), [ID])
         for args in ({"ids": ["fake"]}, {"ids": [ID, ID]}, {"ids": [], "claim": "feasible"}):
