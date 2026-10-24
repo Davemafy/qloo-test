@@ -1,5 +1,5 @@
 name: Gemini structured brief check
-# Discover a supported stable Flash model before the single generation request.
+# Discover a supported current Flash model; retain sanitized provider errors.
 on:
   workflow_dispatch:
   push:

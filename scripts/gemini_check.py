@@ -22,7 +22,7 @@ def choose_model(data):
             allowed.append(name)
     if not allowed:
         raise ValueError("no_supported_stable_flash_model")
-    for preferred in ("models/gemini-2.5-flash-lite", "models/gemini-3.5-flash", "models/gemini-2.5-flash"):
+    for preferred in ("models/gemini-3.5-flash", "models/gemini-3.8-flash", "models/gemini-2.5-flash-lite", "models/gemini-2.5-flash"):
         if preferred in allowed:
             return preferred.removeprefix("models/"), sorted(allowed)
     return sorted(allowed)[-1].removeprefix("models/"), sorted(allowed)
@@ -141,6 +141,11 @@ def main():
         code = 0
     except urllib.error.HTTPError as error:
         report["error"] = f"http_{error.code}"
+        try:
+            detail = json.loads(error.read(8192)).get("error", {})
+            report["provider_error"] = {k: str(detail[k])[:1200] for k in ("status", "message") if k in detail}
+        except (ValueError, AttributeError, TypeError):
+            report["provider_error"] = {"status": "unparseable_error_body"}
     except (TimeoutError, socket.timeout):
         report["error"] = "timeout"
     except urllib.error.URLError:
