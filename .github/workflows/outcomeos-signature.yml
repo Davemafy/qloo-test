@@ -1,0 +1,61 @@
+name: OutcomeOS Signature Sequence
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'production/assets/build_signature_sequence.py'
+      - '.github/workflows/outcomeos-signature.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  art-direct:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install required libraries
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq fonts-lato fonts-liberation
+          python -m pip install requests beautifulsoup4 pillow
+      - name: Retrieve actual source photos
+        run: python production/assets/download_photos.py
+      - name: Create three matched motion keyframes
+        run: python production/assets/build_signature_sequence.py
+      - name: Verify images and direction
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          p=Path('production/signature')
+          a=list(p.glob('*_STORYFRAME.jpg'))
+          b=list(p.glob('*_PLATE.jpg'))
+          assert len(a)==3 and len(b)==3,(a,b)
+          for image in a+b:
+              with Image.open(image) as im:
+                  assert im.size==(1920,1080)
+          print('Validated 3 storyframes and 3 clean plates at 1920x1080')
+          PY
+      - name: Publish standalone JPG links
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add production/signature
+          if ! git diff --cached --quiet; then
+            git commit -m "assets: publish Igor OutcomeOS signature keyframes"
+            git push origin HEAD:main
+          fi
+      - name: Preserve source-ready deliverables
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: OutcomeOS-Signature-3-Keyframes
+          path: production/signature
+          retention-days: 30
+          if-no-files-found: warn
