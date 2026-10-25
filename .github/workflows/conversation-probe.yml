@@ -37,3 +37,5 @@ jobs:
           name: conversation-contract-evidence
           path: artifacts/conversation-probe.json
           retention-days: 7
+
+# Requested fresh validation: 2026-10-25; application source remains in private Igor.

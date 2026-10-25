@@ -29,3 +29,5 @@ jobs:
           name: place-provider-evidence
           path: artifacts/place-probe.json
           retention-days: 7
+
+# Requested fresh validation: 2026-10-25; application source remains in private Igor.
