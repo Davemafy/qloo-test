@@ -6,6 +6,8 @@ on:
     branches: [main]
     paths:
       - .github/workflows/igor-deployment-smoke.yml
+      - scripts/igor_live_smoke.py
+      - scripts/test_igor_live_smoke.py
 
 permissions:
   contents: read
