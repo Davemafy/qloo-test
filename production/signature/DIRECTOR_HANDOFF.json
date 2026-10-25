@@ -20,18 +20,18 @@
       "time": "00:04.5\u201300:08",
       "image": "03_after_STORYFRAME.jpg",
       "plate": "03_after_PLATE.jpg",
-      "action": "Three photographic panels change one after another using precise editorial wipe masks. Hold the revised outcome labels."
+      "action": "Only first and second photographs wipe to revised alternatives. The third stays fixed, establishing selective preservation. Hold the outcome labels."
     }
   ],
   "editorial_rule": "Keyframe geometry must not move. Typography and photo swaps must be made in 2D postproduction for fidelity; Veo may animate texture only.",
-  "truth_in_advertising": "This sequence is a CONCEPT until genuine Igor execution and Qloo provenance prove the displayed revision. Do not claim live updates or bookings without testing.",
+  "truth_in_advertising": "Illustrative motion concept. A budget correction should revise eligible choices but preserve an invitation that does not contain pricing. Do not claim live updates or bookings without testing.",
   "sources": {
     "gift_original": "A17",
     "gift_revised": "A18",
     "evening_original": "A21",
     "evening_revised": "A22",
     "invite_original": "A25",
-    "invite_revised": "A26"
+    "invite_revised": "A25"
   },
   "sound": "Single initial paper foley tick, low musical pulse, three quiet staggered tactile clicks as output panels update. Avoid dramatic whooshes."
 }
