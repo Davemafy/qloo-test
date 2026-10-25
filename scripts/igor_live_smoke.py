@@ -129,7 +129,7 @@ def execute():
             payload={
                 "type": "personal-profile",
                 "name": "Test profile",
-                "artist": "Radiohead",
+                "artist": "Massive Attack",
                 "version": task["brief"]["version"],
             },
             timeout=140,
