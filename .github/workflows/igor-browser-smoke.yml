@@ -1,0 +1,38 @@
+name: Igor desktop and mobile smoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/igor-browser-smoke.yml
+      - scripts/igor_browser_smoke.py
+
+permissions:
+  contents: read
+
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install browser tooling
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install chromium --with-deps
+      - name: Check desktop and mobile
+        run: python scripts/igor_browser_smoke.py
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: igor-browser-screenshots
+          path: artifacts/igor-browser/
+          if-no-files-found: warn
+          retention-days: 3
