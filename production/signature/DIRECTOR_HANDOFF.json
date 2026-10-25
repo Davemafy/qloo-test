@@ -1,0 +1,37 @@
+{
+  "title": "IGOR / One intention. Three outcomes.",
+  "duration_seconds": 8,
+  "fps": 24,
+  "visual_language": "real source photography, physical rectangular framing, uncoated print stock, upright editorial typography, muted copper accent, no glowing interface",
+  "frames": [
+    {
+      "time": "00:00\u201300:02.5",
+      "image": "01_before_STORYFRAME.jpg",
+      "plate": "01_before_PLATE.jpg",
+      "action": "Hold the connected set of outcomes. A near-imperceptible photographic push."
+    },
+    {
+      "time": "00:02.5\u201300:04.5",
+      "image": "02_change_STORYFRAME.jpg",
+      "plate": "02_change_PLATE.jpg",
+      "action": "A new constraint enters on a physically flat dark matte. Hold for reading."
+    },
+    {
+      "time": "00:04.5\u201300:08",
+      "image": "03_after_STORYFRAME.jpg",
+      "plate": "03_after_PLATE.jpg",
+      "action": "Three photographic panels change one after another using precise editorial wipe masks. Hold the revised outcome labels."
+    }
+  ],
+  "editorial_rule": "Keyframe geometry must not move. Typography and photo swaps must be made in 2D postproduction for fidelity; Veo may animate texture only.",
+  "truth_in_advertising": "This sequence is a CONCEPT until genuine Igor execution and Qloo provenance prove the displayed revision. Do not claim live updates or bookings without testing.",
+  "sources": {
+    "gift_original": "A17",
+    "gift_revised": "A18",
+    "evening_original": "A21",
+    "evening_revised": "A22",
+    "invite_original": "A25",
+    "invite_revised": "A26"
+  },
+  "sound": "Single initial paper foley tick, low musical pulse, three quiet staggered tactile clicks as output panels update. Avoid dramatic whooshes."
+}
