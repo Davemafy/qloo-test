@@ -1,0 +1,23 @@
+name: Igor production interface smoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/igor-interface-smoke.yml
+      - scripts/igor_interface_smoke.py
+
+permissions:
+  contents: read
+
+jobs:
+  homepage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Read-only public interface validation
+        run: python3 scripts/igor_interface_smoke.py
