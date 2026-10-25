@@ -1,0 +1,43 @@
+name: Igor deployed application smoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/igor-deployment-smoke.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: igor-deployment-smoke
+  cancel-in-progress: false
+
+jobs:
+  production:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify public probe offline
+        run: |
+          python -m unittest scripts.test_igor_live_smoke -v
+          python -m py_compile scripts/igor_live_smoke.py
+      - name: Test deployed Igor once
+        env:
+          IGOR_URL: https://igor-production-243e.up.railway.app
+        run: python scripts/igor_live_smoke.py
+      - name: Upload sanitized result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: igor-deployment-smoke
+          path: artifacts/igor-live-smoke.json
+          if-no-files-found: warn
+          retention-days: 3
