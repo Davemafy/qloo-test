@@ -74,6 +74,13 @@ def compose(ids, state, frame_num, clean=False):
     for i,(x,id) in enumerate(zip(xpoints,ids)):
         photo=grade(crop_photo(id,(width,height)),id)
         im.paste(photo,(x,t))
+    # Make the invitation an actual draft artifact, not a blank stock-paper proxy.
+    # Same inscription is deliberately preserved across budget revisions.
+    d=ImageDraw.Draw(im)
+    d.text((1418,535),"For Alex",font=font(40,"serif","regular"),fill=(57,55,51))
+    d.line((1419,599,1657,599),fill=(167,133,115),width=2)
+    d.text((1419,621),"DINNER · JAZZ · FILM",font=font(16,"sans","bold"),fill=(84,82,79))
+    d.text((1419,666),"Invitation draft",font=font(19,"sans","light"),fill=(102,100,95))
     # Paper-based photographic geometry (same for all states).
     d=ImageDraw.Draw(im)
     d.line((74,95,1846,95),fill=(201,196,182),width=2)
@@ -97,8 +104,8 @@ def compose(ids, state, frame_num, clean=False):
         d.text((79,268),"The goal stays the same. The constraints don't.",
                font=font(26,"sans","regular"),fill=MUTED)
     else:
-        d.text((74,126),"One change. Three outcomes.",font=font(88,"serif","regular"),fill=INK)
-        d.text((79,268),"Each affected piece is considered again. Nothing gets lost.",
+        d.text((74,126),"Change what matters.",font=font(110,"serif","regular"),fill=INK)
+        d.text((79,268),"Two outcomes update. One stays exactly right.",
                font=font(26,"sans","regular"),fill=MUTED)
 
     labels_before=[
@@ -109,7 +116,7 @@ def compose(ids, state, frame_num, clean=False):
     labels_after=[
         ("01  /  GIFT","Reconsidered."),
         ("02  /  EVENING","Replanned."),
-        ("03  /  INVITATION","Rewritten.")
+        ("03  /  INVITATION","Preserved. No change needed.")
     ]
     labs=labels_after if state=="after" else labels_before
     for x,(label,sub) in zip(xpoints,labs):
@@ -130,8 +137,8 @@ def compose(ids, state, frame_num, clean=False):
         d=ImageDraw.Draw(im)
 
     if state=="after":
-        spaced(d,"REVISED   /   03 OF 03",(74,1035),font(19,"sans","bold"),COPPER,spacing=2)
-        d.text((1358,1030),"One conversation. Connected results.",
+        spaced(d,"02 REVISED  /  01 PRESERVED",(74,1035),font(19,"sans","bold"),COPPER,spacing=2)
+        d.text((1358,1030),"One conversation. Intelligent continuity.",
                font=font(20,"sans","regular"),fill=MUTED)
     else:
         spaced(d,"THE ORIGINAL BRIEF",(74,1035),font(18,"sans","bold"),MUTED,spacing=2)
@@ -141,7 +148,7 @@ def compose(ids, state, frame_num, clean=False):
 
 def main():
     before=["A17","A21","A25"]
-    after=["A18","A22","A26"]
+    after=["A18","A22","A25"]
     states=[
       ("before", before,1),
       ("change",before,2),
@@ -168,10 +175,10 @@ def main():
       "visual_language":"real source photography, physical rectangular framing, uncoated print stock, upright editorial typography, muted copper accent, no glowing interface",
       "frames":[{"time":"00:00–00:02.5","image":"01_before_STORYFRAME.jpg","plate":"01_before_PLATE.jpg","action":"Hold the connected set of outcomes. A near-imperceptible photographic push."},
                 {"time":"00:02.5–00:04.5","image":"02_change_STORYFRAME.jpg","plate":"02_change_PLATE.jpg","action":"A new constraint enters on a physically flat dark matte. Hold for reading."},
-                {"time":"00:04.5–00:08","image":"03_after_STORYFRAME.jpg","plate":"03_after_PLATE.jpg","action":"Three photographic panels change one after another using precise editorial wipe masks. Hold the revised outcome labels."}],
+                {"time":"00:04.5–00:08","image":"03_after_STORYFRAME.jpg","plate":"03_after_PLATE.jpg","action":"Only first and second photographs wipe to revised alternatives. The third stays fixed, establishing selective preservation. Hold the outcome labels."}],
       "editorial_rule":"Keyframe geometry must not move. Typography and photo swaps must be made in 2D postproduction for fidelity; Veo may animate texture only.",
-      "truth_in_advertising":"This sequence is a CONCEPT until genuine Igor execution and Qloo provenance prove the displayed revision. Do not claim live updates or bookings without testing.",
-      "sources":{"gift_original":"A17","gift_revised":"A18","evening_original":"A21","evening_revised":"A22","invite_original":"A25","invite_revised":"A26"},
+      "truth_in_advertising":"Illustrative motion concept. A budget correction should revise eligible choices but preserve an invitation that does not contain pricing. Do not claim live updates or bookings without testing.",
+      "sources":{"gift_original":"A17","gift_revised":"A18","evening_original":"A21","evening_revised":"A22","invite_original":"A25","invite_revised":"A25"},
       "sound":"Single initial paper foley tick, low musical pulse, three quiet staggered tactile clicks as output panels update. Avoid dramatic whooshes."
     }
     (OUT/"DIRECTOR_HANDOFF.json").write_text(json.dumps(handoff,indent=2))
