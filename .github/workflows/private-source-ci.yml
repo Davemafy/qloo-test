@@ -1,0 +1,100 @@
+name: Private source verification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/private-source-ci.yml
+  workflow_dispatch:
+    inputs:
+      commit_sha:
+        description: "Full 40-character commit SHA of the private source revision"
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: private-source-ci-${{ github.event_name }}-${{ inputs.commit_sha || github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  runner-preflight:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Verify runner availability
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$RUNNER_OS" = "Linux"
+          echo "Public-runner preflight passed. Private source was not accessed."
+
+  verify-private-source:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      QLOO_API_KEY: ""
+      GEMINI_API_KEY: ""
+      OPENAI_API_KEY: ""
+    steps:
+      - name: Validate isolated checkout configuration
+        shell: bash
+        env:
+          REPOSITORY_PRESENT: ${{ secrets.PRIVATE_CI_REPOSITORY != '' }}
+          TOKEN_PRESENT: ${{ secrets.PRIVATE_CI_READ_TOKEN != '' }}
+          SELECTED_COMMIT: ${{ inputs.commit_sha }}
+        run: |
+          set -euo pipefail
+          if [ "$REPOSITORY_PRESENT" != "true" ] || [ "$TOKEN_PRESENT" != "true" ]; then
+            echo "::error::Private verification credentials are not configured."
+            exit 1
+          fi
+          if ! [[ "$SELECTED_COMMIT" =~ ^[a-fA-F0-9]{40}$ ]]; then
+            echo "::error::Supply an exact 40-character commit SHA."
+            exit 1
+          fi
+
+      - name: Fetch private revision for this run only
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ secrets.PRIVATE_CI_REPOSITORY }}
+          ref: ${{ inputs.commit_sha }}
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          fetch-depth: 1
+          path: private-source
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Install and run isolated verification
+        shell: bash
+        working-directory: private-source
+        run: |
+          set -euo pipefail
+          # This is a public repository: application output must not enter public logs.
+          # Logs stay only on the ephemeral runner and are removed at step exit.
+          log="$RUNNER_TEMP/private-source-ci.log"
+          trap 'rm -f "$log"' EXIT
+          run_quiet() {
+            local name="$1"
+            shift
+            if "$@" >"$log" 2>&1; then
+              printf '%s: passed\n' "$name"
+              : > "$log"
+            else
+              echo "::error::$name failed. Private diagnostic output was withheld."
+              exit 1
+            fi
+          }
+          run_quiet "Dependency installation" npm ci
+          run_quiet "Browser installation" npx playwright install --with-deps chromium
+          run_quiet "Source verification" npm run verify:all
