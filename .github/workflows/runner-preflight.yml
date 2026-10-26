@@ -1,0 +1,30 @@
+name: Hosted runner preflight
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/runner-preflight.yml
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify runner and Node.js
+        shell: bash
+        run: |
+          node --version
+          node -e "const assert = require('node:assert/strict'); assert.ok(process.versions.node.startsWith('24.')); console.log('Runner preflight passed');"
