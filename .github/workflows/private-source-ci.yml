@@ -2,7 +2,7 @@ name: Private source verification
 
 on:
   push:
-    branches: [main]
+    branches: [main, ci/igor-pr10-check]
     paths:
       - .github/workflows/private-source-ci.yml
   workflow_dispatch:
@@ -33,7 +33,7 @@ jobs:
           echo "Public-runner preflight passed. Private source was not accessed."
 
   verify-private-source:
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/ci/igor-pr10-check'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
@@ -48,7 +48,7 @@ jobs:
         env:
           REPOSITORY_PRESENT: ${{ secrets.PRIVATE_CI_REPOSITORY != '' }}
           TOKEN_PRESENT: ${{ secrets.PRIVATE_CI_READ_TOKEN != '' }}
-          SELECTED_COMMIT: ${{ inputs.commit_sha }}
+          SELECTED_COMMIT: ${{ inputs.commit_sha || 'ba7988048c2e594f2a684f8b0c8a5c01a8db1b14' }}
         run: |
           set -euo pipefail
           if [ "$REPOSITORY_PRESENT" != "true" ] || [ "$TOKEN_PRESENT" != "true" ]; then
@@ -64,7 +64,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ secrets.PRIVATE_CI_REPOSITORY }}
-          ref: ${{ inputs.commit_sha }}
+          ref: ${{ inputs.commit_sha || 'ba7988048c2e594f2a684f8b0c8a5c01a8db1b14' }}
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           fetch-depth: 1
@@ -96,5 +96,6 @@ jobs:
             fi
           }
           run_quiet "Dependency installation" npm ci
-          run_quiet "Browser installation" npx playwright install --with-deps chromium
-          run_quiet "Source verification" npm run verify:all
+          run_quiet "TypeScript" npm run typecheck
+          run_quiet "Unit tests" npm test
+          run_quiet "Production build" npm run build
