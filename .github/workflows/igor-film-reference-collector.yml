@@ -1,0 +1,104 @@
+name: Igor Product Film Reference Collector
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/igor-film-reference-collector.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install downloader and framesheet tools
+        run: python -m pip install --disable-pip-version-check --upgrade yt-dlp pillow
+      - name: Download verified references, extract previews and write provenance
+        shell: bash
+        run: |
+          mkdir -p dist/videos dist/contact_sheets dist/frames dist/meta
+          python - <<'PY'
+          import json, os, subprocess, pathlib, csv, math
+          from PIL import Image, ImageOps, ImageDraw
+          root=pathlib.Path('dist')
+          sources=[
+            ('notion3_agents','Introducing Notion 3.0: Agents','Notion','https://www.youtube.com/watch?v=R1cF4T4lgI4','Connected work, agent showing outputs'),
+            ('cursor2_launch','Introducing Cursor 2.0','Cursor','https://www.youtube.com/watch?v=An8IM-kPyms','Compact authentic product demonstration'),
+            ('tastebridge_qloo','TasteBridge Qloo Hackathon Demo','TasteBridge author','https://www.youtube.com/watch?v=83_Q0d41m5k','Current Qloo competitor demo proof'),
+          ]
+          results=[]
+          for slug,title,owner,url,reason in sources:
+            record={'id':slug,'title':title,'owner':owner,'url':url,'study_reason':reason,'status':'not_attempted','media_file':None,'duration_seconds':None,'error':''}
+            try:
+              output=str(root/'videos'/f'{slug}.%(ext)s')
+              cmd=['yt-dlp','--no-playlist','--no-warnings','--retries','2','--fragment-retries','2','--socket-timeout','12','--max-filesize','250M','-f','bv*[height<=720]+ba/b[height<=720]/best','--merge-output-format','mp4','--print-to-file','%(title)s | %(duration)s | %(id)s',str(root/'meta'/f'{slug}.txt'),'-o',output,url]
+              run=subprocess.run(cmd,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=130)
+              candidates=list((root/'videos').glob(f'{slug}.*'))
+              mp4=next((p for p in candidates if p.suffix=='.mp4'),None)
+              if mp4 is None and candidates:
+                inp=candidates[0];mp4=root/'videos'/f'{slug}.mp4'
+                conv=subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-y','-i',str(inp),'-c:v','libx264','-crf','26','-preset','veryfast','-c:a','aac',str(mp4)],capture_output=True,text=True,timeout=90)
+                if conv.returncode!=0:mp4=None
+                else:inp.unlink()
+              if mp4 and mp4.exists() and mp4.stat().st_size>10000:
+                probe=subprocess.run(['ffprobe','-v','error','-show_entries','format=duration','-of','default=noprint_wrappers=1:nokey=1',str(mp4)],capture_output=True,text=True)
+                try:record['duration_seconds']=round(float(probe.stdout.strip()),2)
+                except:pass
+                record['status']='downloaded'
+                record['media_file']=str(mp4)
+                record['file_bytes']=mp4.stat().st_size
+                frames_dir=root/'frames'/slug
+                frames_dir.mkdir(parents=True,exist_ok=True)
+                extract=subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-y','-i',str(mp4),'-vf','fps=1/6,scale=480:-2','-q:v','4',str(frames_dir/'shot_%03d.jpg')],capture_output=True,text=True,timeout=90)
+                frames=sorted(frames_dir.glob('*.jpg'))
+                if frames:
+                  cols=4;tile_w=480;tile_h=300
+                  sheet=Image.new('RGB',(tile_w*cols,tile_h*math.ceil(len(frames)/cols)),'#101010')
+                  draw=ImageDraw.Draw(sheet)
+                  for n,p in enumerate(frames):
+                    im=Image.open(p).convert('RGB')
+                    sheet.paste(im,((n%cols)*tile_w,(n//cols)*tile_h))
+                    ts=n*6;draw.rectangle([(n%cols*tile_w,n//cols*tile_h+270),((n%cols+1)*tile_w,(n//cols+1)*tile_h)],fill='#101010')
+                    draw.text((n%cols*tile_w+10,n//cols*tile_h+274),f'{ts//60:02d}:{ts%60:02d}',fill='#ffffff')
+                  sheet.save(root/'contact_sheets'/f'{slug}_contact.jpg',quality=86)
+                  record['sampled_frames']=len(frames)
+                record['ffmpeg_exit_code']=extract.returncode
+              else:
+                record['status']='failed'
+                record['error']=run.stdout[-1600:]
+            except Exception as e:
+              record['status']='failed'
+              record['error']=str(e)
+            results.append(record)
+            print(slug,record['status'],record.get('file_bytes'),record['error'][-200:])
+          # References without a verified directly available launch/demo video.
+          extra=[
+            {'title':'Figma design agent official written launch','url':'https://www.figma.com/blog/the-figma-agent-is-here/','status':'source_only'},
+            {'title':'GeoTaste 2025 grand-prize submission','url':'https://devpost.com/software/geotaste-your-agentic-qloo-taste-business-consultant','status':'source_only'}
+          ]
+          (root/'REPORT.json').write_text(json.dumps({'videos':results,'additional_references':extra},indent=2),encoding='utf8')
+          with (root/'SOURCES.csv').open('w',newline='',encoding='utf8') as f:
+            w=csv.DictWriter(f,fieldnames=['id','title','owner','url','study_reason','status','media_file','duration_seconds','error'],extrasaction='ignore');w.writeheader();w.writerows(results)
+          (root/'README.md').write_text('# Igor launch film reference study\n\nThese are third-party references collected for private criticism and shot analysis, not licensed footage for reuse in an Igor film. Download statuses and provenance are in REPORT.json / SOURCES.csv. Any failed video remains linked by URL.\n',encoding='utf8')
+          PY
+      - name: Summarize downloaded assets
+        if: always()
+        run: |
+          du -h dist/videos/* 2>/dev/null || true
+          cat dist/REPORT.json 2>/dev/null || true
+      - name: Upload reference library for study
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: IGOR-Launch-Film-References-Study
+          path: dist/
+          if-no-files-found: warn
+          retention-days: 1
