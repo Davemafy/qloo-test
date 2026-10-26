@@ -26,6 +26,8 @@ jobs:
           python-version: '3.11'
       - name: Install downloader and framesheet tools
         run: python -m pip install --disable-pip-version-check --upgrade yt-dlp pillow
+      - name: Install FFmpeg and ffprobe for reference validation
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
       - name: Download verified references, extract previews and write provenance
         shell: bash
         run: |
