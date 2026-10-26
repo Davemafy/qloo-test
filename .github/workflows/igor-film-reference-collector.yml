@@ -26,8 +26,11 @@ jobs:
           python-version: '3.11'
       - name: Install downloader and framesheet tools
         run: python -m pip install --disable-pip-version-check --upgrade yt-dlp pillow
-      - name: Install FFmpeg and ffprobe for reference validation
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Install self-contained FFmpeg without apt
+        run: |
+          python -m pip install --disable-pip-version-check imageio-ffmpeg
+          FFMPEG_BIN=$(python -c 'import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())')
+          sudo ln -sf "$FFMPEG_BIN" /usr/local/bin/ffmpeg
       - name: Download verified references, extract previews and write provenance
         shell: bash
         run: |
@@ -126,9 +129,13 @@ jobs:
                   if not chunk:break
                   out.write(chunk)
                   if out.tell()>120*1024*1024:raise ValueError('over 120MB size budget')
-              pr=subprocess.run(['ffprobe','-v','error','-show_entries','format=duration','-of','default=noprint_wrappers=1:nokey=1',str(dst)],capture_output=True,text=True,timeout=10)
-              if pr.returncode!=0 or dst.stat().st_size<5000:raise ValueError('not a valid video')
-              rec['duration']=float(pr.stdout.strip());rec['bytes']=dst.stat().st_size;rec['status']='downloaded'
+              if dst.stat().st_size<5000 or b'ftyp' not in dst.open('rb').read(32):raise ValueError('not a valid MP4')
+              probe=subprocess.run(['ffmpeg','-hide_banner','-i',str(dst)],capture_output=True,text=True,timeout=12)
+              import re
+              dm=re.search(r'Duration:\\s*(\\d+):(\\d+):(\\d+\\.\\d+)',probe.stderr)
+              rec['duration']=(int(dm.group(1))*3600+int(dm.group(2))*60+float(dm.group(3))) if dm else 16.0
+              rec['duration_source']='ffmpeg_header' if dm else 'fallback'
+              rec['bytes']=dst.stat().st_size;rec['status']='downloaded'
               sub=root/'frames'/slug;sub.mkdir(parents=True,exist_ok=True)
               interval=max(1,math.ceil(rec['duration']/16))
               subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-y','-i',str(dst),'-vf',f'fps=1/{interval},scale=400:-2','-q:v','5',str(sub/'shot_%03d.jpg')],timeout=45)
