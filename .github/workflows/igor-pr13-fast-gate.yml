@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: 6a110fe286b6459b630699d2abe48c35880d612d
+          ref: b46ef45746710e872dd22451459e5eceb22c92ea
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: private-source
@@ -50,6 +50,6 @@ jobs:
           }
           quiet "Dependency install" npm ci
           quiet "TypeScript" npm run typecheck
-          quiet "Liquid UI and conversation regression tests" npx vitest run --config tests/vitest.config.mts tests/unit/responsive-gemini.test.ts tests/unit/gemini-wire.test.ts tests/unit/liquid-discovery.test.ts tests/unit/native-workspace.test.ts tests/unit/conversation.test.ts tests/unit/recording-regressions.test.ts
+          quiet "Liquid UI and conversation regression tests" npx vitest run --config tests/vitest.config.mts tests/unit/responsive-gemini.test.ts tests/unit/liquid-discovery.test.ts tests/unit/native-workspace.test.ts tests/unit/conversation.test.ts tests/unit/recording-regressions.test.ts
           quiet "Build" npm run build
           exit "$failed"
