@@ -43,12 +43,17 @@ jobs:
           npx tsc --noEmit > "$RUNNER_TEMP/compiler.log" 2>&1
           code=$?
           echo "TSC_EXIT_CODE: $code"
+          echo "TSC_LOG_BYTES: $(wc -c < "$RUNNER_TEMP/compiler.log")"
+          echo "TSC_LOG_LINES: $(wc -l < "$RUNNER_TEMP/compiler.log")"
+          grep -oEi 'TS[0-9]{4}' "$RUNNER_TEMP/compiler.log" | sort | uniq -c || true
           if grep -Eqi "heap out of memory|allocation failed|out of memory" "$RUNNER_TEMP/compiler.log"; then
             echo "TSC_CLASS: memory-exhaustion"
           elif grep -Eq 'error TS[0-9]+' "$RUNNER_TEMP/compiler.log"; then
             echo "TSC_CLASS: source-type-diagnostics"
           elif grep -Eqi 'killed|signal|abort' "$RUNNER_TEMP/compiler.log"; then
             echo "TSC_CLASS: terminated-process"
+          elif grep -Eqi 'error|invalid|failed|cannot|unsupported' "$RUNNER_TEMP/compiler.log"; then
+            echo "TSC_CLASS: generic-diagnostic"
           else
             echo "TSC_CLASS: other-compiler-failure"
           fi
