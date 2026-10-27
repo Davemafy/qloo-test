@@ -28,6 +28,13 @@ jobs:
           node-version: "24"
           cache: npm
           cache-dependency-path: private-source/package-lock.json
+      - name: TypeScript error codes only (never emit private source)
+        working-directory: private-source
+        shell: bash
+        run: |
+          npm run typecheck > "$RUNNER_TEMP/private-tsc.log" 2>&1 || true
+          grep -oE 'error TS[0-9]+' "$RUNNER_TEMP/private-tsc.log" | sort | uniq -c || true
+          rm -f "$RUNNER_TEMP/private-tsc.log"
       - name: Verify targeted behavior and production compile
         shell: bash
         working-directory: private-source
