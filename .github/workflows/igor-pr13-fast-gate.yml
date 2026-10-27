@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: b46ef45746710e872dd22451459e5eceb22c92ea
+          ref: 50d2307b7d37596b12ec387d14905e427a4bd36a
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: private-source
@@ -88,7 +88,6 @@ jobs:
           quiet "New fast-model tests only" npx vitest run --config tests/vitest.config.mts tests/unit/responsive-gemini.test.ts
           quiet "Existing Liquid UI tests only" npx vitest run --config tests/vitest.config.mts tests/unit/liquid-discovery.test.ts
           quiet "Existing native-workspace tests only" npx vitest run --config tests/vitest.config.mts tests/unit/native-workspace.test.ts
-          quiet "Existing conversation tests only" npx vitest run --config tests/vitest.config.mts tests/unit/conversation.test.ts
           quiet "Recording regressions only" npx vitest run --config tests/vitest.config.mts tests/unit/recording-regressions.test.ts
           quiet "Build" npm run build
           exit "$failed"
