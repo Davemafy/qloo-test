@@ -1,4 +1,4 @@
-name: Private source verification
+name: Igor PR verification (private source)
 
 on:
   push:
@@ -8,93 +8,110 @@ on:
   workflow_dispatch:
     inputs:
       commit_sha:
-        description: "Full 40-character commit SHA of the private source revision"
-        type: string
+        description: "Exact 40-character commit SHA of the reviewed Igor revision"
         required: true
+        type: string
 
 permissions:
   contents: read
 
 concurrency:
-  group: private-source-ci-${{ github.event_name }}-${{ inputs.commit_sha || github.sha }}
+  group: igor-private-ci-${{ github.event_name }}-${{ inputs.commit_sha || github.sha }}
   cancel-in-progress: false
 
 jobs:
-  runner-preflight:
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    timeout-minutes: 3
-    steps:
-      - name: Verify runner availability
-        shell: bash
-        run: |
-          set -euo pipefail
-          test "$RUNNER_OS" = "Linux"
-          echo "Public-runner preflight passed. Private source was not accessed."
-
-  verify-private-source:
-    if: github.event_name == 'workflow_dispatch'
+  verify:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
       CI: "true"
       NEXT_TELEMETRY_DISABLED: "1"
+      # The pinned push revision is PR #13 at workflow creation, not main or latest.
+      SELECTED_COMMIT: ${{ github.event_name == 'workflow_dispatch' && inputs.commit_sha || '2359f3fe6b42299f63db089d269d5bd47a34decf' }}
       QLOO_API_KEY: ""
       GEMINI_API_KEY: ""
       OPENAI_API_KEY: ""
     steps:
-      - name: Validate isolated checkout configuration
+      - name: Validate exact private revision and authorization
         shell: bash
         env:
-          REPOSITORY_PRESENT: ${{ secrets.PRIVATE_CI_REPOSITORY != '' }}
-          TOKEN_PRESENT: ${{ secrets.PRIVATE_CI_READ_TOKEN != '' }}
-          SELECTED_COMMIT: ${{ inputs.commit_sha }}
+          READ_TOKEN_CONFIGURED: ${{ secrets.PRIVATE_CI_READ_TOKEN != '' }}
         run: |
           set -euo pipefail
-          if [ "$REPOSITORY_PRESENT" != "true" ] || [ "$TOKEN_PRESENT" != "true" ]; then
-            echo "::error::Private verification credentials are not configured."
+          if [ "$READ_TOKEN_CONFIGURED" != "true" ]; then
+            echo "::error::Add qloo-test Actions secret PRIVATE_CI_READ_TOKEN with read-only access to Davemafy/igor."
             exit 1
           fi
           if ! [[ "$SELECTED_COMMIT" =~ ^[a-fA-F0-9]{40}$ ]]; then
-            echo "::error::Supply an exact 40-character commit SHA."
+            echo "::error::Use an exact 40-character commit SHA."
             exit 1
           fi
+          echo "Private source revision pinned; no source will be logged or uploaded."
 
-      - name: Fetch private revision for this run only
+      - name: Check out the exact private Igor commit, ephemerally
         uses: actions/checkout@v4
         with:
-          repository: ${{ secrets.PRIVATE_CI_REPOSITORY }}
-          ref: ${{ inputs.commit_sha }}
+          repository: Davemafy/igor
+          ref: ${{ env.SELECTED_COMMIT }}
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           fetch-depth: 1
-          path: private-source
+          path: private-igor
 
-      - name: Set up Node.js 24
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "24"
+          cache: npm
+          cache-dependency-path: private-igor/package-lock.json
 
-      - name: Install and run isolated verification
+      - name: Install dependencies and run isolated quality checks
+        working-directory: private-igor
         shell: bash
-        working-directory: private-source
         run: |
           set -euo pipefail
-          # This is a public repository: application output must not enter public logs.
-          # Logs stay only on the ephemeral runner and are removed at step exit.
-          log="$RUNNER_TEMP/private-source-ci.log"
+          log="$RUNNER_TEMP/private-ci-output.txt"
           trap 'rm -f "$log"' EXIT
-          run_quiet() {
-            local name="$1"
-            shift
+          quiet() {
+            local label="$1"; shift
             if "$@" >"$log" 2>&1; then
-              printf '%s: passed\n' "$name"
-              : > "$log"
+              echo "$label: PASSED"
+              : >"$log"
             else
-              echo "::error::$name failed. Private diagnostic output was withheld."
+              echo "::error::$label: FAILED; private compiler/test output has not been published."
               exit 1
             fi
           }
-          run_quiet "Dependency installation" npm ci
-          run_quiet "Browser installation" npx playwright install --with-deps chromium
-          run_quiet "Source verification" npm run verify:all
+          quiet "Install" npm ci
+          quiet "Typecheck" npm run typecheck
+          quiet "Lint" npm run lint
+          quiet "Unit tests" npm test
+          quiet "Blind agent evaluation" npm run test:eval
+          quiet "Production build" npm run build
+
+      - name: Install Chromium without exposing private logs
+        working-directory: private-igor
+        shell: bash
+        run: |
+          set -euo pipefail
+          log="$RUNNER_TEMP/private-browser-install.txt"
+          trap 'rm -f "$log"' EXIT
+          if npx playwright install --with-deps chromium >"$log" 2>&1; then
+            echo "Browser installation: PASSED"
+          else
+            echo "::error::Browser installation: FAILED"
+            exit 1
+          fi
+
+      - name: Run authenticated browser regression suite
+        working-directory: private-igor
+        shell: bash
+        run: |
+          set -euo pipefail
+          log="$RUNNER_TEMP/private-browser-tests.txt"
+          trap 'rm -f "$log"' EXIT
+          if npm run test:browser >"$log" 2>&1; then
+            echo "Browser suite: PASSED"
+          else
+            echo "::error::Browser suite: FAILED (private traces withheld)"
+            exit 1
+          fi
