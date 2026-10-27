@@ -64,54 +64,52 @@ jobs:
           cache: npm
           cache-dependency-path: private-igor/package-lock.json
 
-      - name: Install dependencies and run isolated quality checks
+      - name: Run each check independently, with private logs withheld
         working-directory: private-igor
         shell: bash
         run: |
-          set -euo pipefail
+          set -uo pipefail
           log="$RUNNER_TEMP/private-ci-output.txt"
           trap 'rm -f "$log"' EXIT
+          failures=0
+          installed=0
+          built=0
+          browser_ready=0
+          echo "### Isolated Igor PR checks" >> "$GITHUB_STEP_SUMMARY"
           quiet() {
             local label="$1"; shift
             if "$@" >"$log" 2>&1; then
               echo "$label: PASSED"
-              : >"$log"
+              echo "- $label: PASSED" >> "$GITHUB_STEP_SUMMARY"
+              : > "$log"
+              return 0
             else
-              echo "::error::$label: FAILED; private compiler/test output has not been published."
-              exit 1
+              echo "::error::$label: FAILED (private diagnostic output withheld)"
+              echo "- $label: FAILED" >> "$GITHUB_STEP_SUMMARY"
+              : > "$log"
+              failures=$((failures + 1))
+              return 1
             fi
           }
-          quiet "Install" npm ci
-          quiet "Typecheck" npm run typecheck
-          quiet "Lint" npm run lint
-          quiet "Unit tests" npm test
-          quiet "Blind agent evaluation" npm run test:eval
-          quiet "Production build" npm run build
-
-      - name: Install Chromium without exposing private logs
-        working-directory: private-igor
-        shell: bash
-        run: |
-          set -euo pipefail
-          log="$RUNNER_TEMP/private-browser-install.txt"
-          trap 'rm -f "$log"' EXIT
-          if npx playwright install --with-deps chromium >"$log" 2>&1; then
-            echo "Browser installation: PASSED"
-          else
-            echo "::error::Browser installation: FAILED"
+          if quiet "Install" npm ci; then installed=1; fi
+          if [ "$installed" -eq 1 ]; then
+            quiet "Typecheck" npm run typecheck || :
+            quiet "Lint" npm run lint || :
+            quiet "Unit tests" npm test || :
+            quiet "Blind agent evaluation" npm run test:eval || :
+            if quiet "Production build" npm run build; then built=1; fi
+            if [ "$built" -eq 1 ]; then
+              if quiet "Chromium installation" npx playwright install --with-deps chromium; then browser_ready=1; fi
+              if [ "$browser_ready" -eq 1 ]; then
+                quiet "Browser regression suite" npm run test:browser || :
+              fi
+            else
+              echo "Browser regression suite: SKIPPED (build did not pass)"
+              echo "- Browser regression suite: SKIPPED" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          fi
+          if [ "$failures" -gt 0 ]; then
+            echo "::error::$failures quality gate(s) failed. No private logs or source artifacts were published."
             exit 1
           fi
-
-      - name: Run authenticated browser regression suite
-        working-directory: private-igor
-        shell: bash
-        run: |
-          set -euo pipefail
-          log="$RUNNER_TEMP/private-browser-tests.txt"
-          trap 'rm -f "$log"' EXIT
-          if npm run test:browser >"$log" 2>&1; then
-            echo "Browser suite: PASSED"
-          else
-            echo "::error::Browser suite: FAILED (private traces withheld)"
-            exit 1
-          fi
+          echo "All isolated quality gates passed."
