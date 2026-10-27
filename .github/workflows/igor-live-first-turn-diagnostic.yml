@@ -43,7 +43,12 @@ jobs:
           except Exception as e:
             print("CREATE_NETWORK_ERROR:",type(e).__name__)
             raise SystemExit(2)
-          text={\n            "planning":"Help me plan something with friends. Ask about our location, interests and constraints.",\n            "greeting":"Hey there, Igor.",\n            "refinement":"Could you help me make something thoughtful for a friend?"\n          }[os.environ["PROBE_CASE"]]\n          print("PROBE_CASE:",os.environ["PROBE_CASE"])
+          text={
+            "planning":"Help me plan something with friends. Ask about our location, interests and constraints.",
+            "greeting":"Hey there, Igor.",
+            "refinement":"Could you help me make something thoughtful for a friend?"
+          }[os.environ["PROBE_CASE"]]
+          print("PROBE_CASE:",os.environ["PROBE_CASE"])
           try:
             with request("/api/tasks/"+task["id"]+"/turn",{"type":"message","text":text,"version":task["brief"]["version"]}) as resp:
               print("TURN_HTTP:",resp.status)
