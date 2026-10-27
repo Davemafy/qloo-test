@@ -56,7 +56,13 @@ jobs:
             : > "$log"
           }
           quiet "Dependency install" npm ci
+          quiet "Next route/type generation" npx next typegen
+          quiet "TypeScript compiler only" npx tsc --noEmit
           quiet "TypeScript" npm run typecheck
-          quiet "Liquid UI and conversation regression tests" npx vitest run --config tests/vitest.config.mts tests/unit/responsive-gemini.test.ts tests/unit/liquid-discovery.test.ts tests/unit/native-workspace.test.ts tests/unit/conversation.test.ts tests/unit/recording-regressions.test.ts
+          quiet "New fast-model tests only" npx vitest run --config tests/vitest.config.mts tests/unit/responsive-gemini.test.ts
+          quiet "Existing Liquid UI tests only" npx vitest run --config tests/vitest.config.mts tests/unit/liquid-discovery.test.ts
+          quiet "Existing native-workspace tests only" npx vitest run --config tests/vitest.config.mts tests/unit/native-workspace.test.ts
+          quiet "Existing conversation tests only" npx vitest run --config tests/vitest.config.mts tests/unit/conversation.test.ts
+          quiet "Recording regressions only" npx vitest run --config tests/vitest.config.mts tests/unit/recording-regressions.test.ts
           quiet "Build" npm run build
           exit "$failed"
