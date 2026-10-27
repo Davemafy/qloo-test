@@ -9,6 +9,10 @@ jobs:
   synthetic-first-turn:
     runs-on: ubuntu-latest
     timeout-minutes: 4
+    strategy:
+      fail-fast: false
+      matrix:
+        probe: [planning, greeting, refinement]
     steps:
       - uses: actions/setup-python@v5
         with:
@@ -17,6 +21,7 @@ jobs:
         shell: bash
         env:
           IGOR_BASE: https://igor-production-243e.up.railway.app
+          PROBE_CASE: ${{ matrix.probe }}
         run: |
           python - <<'PY'
           import urllib.request,urllib.error,http.cookiejar,json,os,time,re
@@ -38,7 +43,7 @@ jobs:
           except Exception as e:
             print("CREATE_NETWORK_ERROR:",type(e).__name__)
             raise SystemExit(2)
-          text="Help me plan something with friends. Ask about our location, interests and constraints."
+          text={\n            "planning":"Help me plan something with friends. Ask about our location, interests and constraints.",\n            "greeting":"Hey there, Igor.",\n            "refinement":"Could you help me make something thoughtful for a friend?"\n          }[os.environ["PROBE_CASE"]]\n          print("PROBE_CASE:",os.environ["PROBE_CASE"])
           try:
             with request("/api/tasks/"+task["id"]+"/turn",{"type":"message","text":text,"version":task["brief"]["version"]}) as resp:
               print("TURN_HTTP:",resp.status)
