@@ -1,0 +1,55 @@
+name: Igor PR13 fast merge gate — private checkout
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/igor-pr13-fast-gate.yml"]
+permissions:
+  contents: read
+jobs:
+  release-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      OPENAI_API_KEY: ""
+      QLOO_API_KEY: ""
+      GEMINI_API_KEY: ""
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: 39e4136b951b717cddac28291788b993ffd0da74
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          path: private-source
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: private-source/package-lock.json
+      - name: Verify targeted behavior and production compile
+        shell: bash
+        working-directory: private-source
+        run: |
+          set -uo pipefail
+          log="$RUNNER_TEMP/private-gate.log"
+          trap 'rm -f "$log"' EXIT
+          failed=0
+          quiet() {
+            name="$1"; shift
+            if "$@" >"$log" 2>&1; then
+              echo "$name: PASS"
+              echo "- $name: PASS" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "::error::$name: FAIL (private diagnostics withheld)"
+              echo "- $name: FAIL" >> "$GITHUB_STEP_SUMMARY"
+              failed=$((failed+1))
+            fi
+            : > "$log"
+          }
+          quiet "Dependency install" npm ci
+          quiet "TypeScript" npm run typecheck
+          quiet "Liquid UI and conversation regression tests" npx vitest run --config tests/vitest.config.mts tests/unit/liquid-discovery.test.ts tests/unit/native-workspace.test.ts tests/unit/conversation.test.ts tests/unit/recording-regressions.test.ts
+          quiet "Build" npm run build
+          exit "$failed"
