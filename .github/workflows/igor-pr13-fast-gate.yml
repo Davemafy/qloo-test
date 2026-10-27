@@ -28,6 +28,10 @@ jobs:
           node-version: "24"
           cache: npm
           cache-dependency-path: private-source/package-lock.json
+      - name: Install dependencies before compiler diagnostics
+        shell: bash
+        working-directory: private-source
+        run: npm ci --silent > /dev/null 2>&1
       - name: TypeScript error codes only (never emit private source)
         working-directory: private-source
         shell: bash
@@ -78,7 +82,6 @@ jobs:
             fi
             : > "$log"
           }
-          quiet "Dependency install" npm ci
           quiet "Next route/type generation" npx next typegen
           quiet "TypeScript compiler only" npx tsc --noEmit
           quiet "TypeScript" npm run typecheck
