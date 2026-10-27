@@ -1,0 +1,75 @@
+name: Igor live first-turn diagnostic (synthetic anonymous session)
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-live-first-turn-diagnostic.yml]
+permissions:
+  contents: read
+jobs:
+  synthetic-first-turn:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Probe production without credentials or private source
+        shell: bash
+        env:
+          IGOR_BASE: https://igor-production-243e.up.railway.app
+        run: |
+          python - <<'PY'
+          import urllib.request,urllib.error,http.cookiejar,json,os,time,re
+          root=os.environ["IGOR_BASE"]
+          jar=http.cookiejar.CookieJar()
+          opener=urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
+          def request(url,body):
+            data=json.dumps(body).encode() if body is not None else b""
+            req=urllib.request.Request(root+url,data=data,headers={"Content-Type":"application/json","Origin":root},method="POST")
+            return opener.open(req,timeout=105)
+          start=time.monotonic()
+          try:
+            with request("/api/tasks",{}) as resp:
+              task=json.load(resp)
+              print("CREATE_STATUS:",resp.status,"MODE:",task.get("mode"),"INITIAL_STATUS:",task.get("status"))
+          except urllib.error.HTTPError as e:
+            print("CREATE_HTTP:",e.code)
+            raise SystemExit(2)
+          except Exception as e:
+            print("CREATE_NETWORK_ERROR:",type(e).__name__)
+            raise SystemExit(2)
+          text="Help me plan something with friends. Ask about our location, interests and constraints."
+          try:
+            with request("/api/tasks/"+task["id"]+"/turn",{"type":"message","text":text,"version":task["brief"]["version"]}) as resp:
+              print("TURN_HTTP:",resp.status)
+              last=None
+              for line in resp:
+                if not line.startswith(b"data: "):continue
+                try:ev=json.loads(line[6:])
+                except Exception:continue
+                eventtype=ev.get("type")
+                if eventtype=="done":
+                  t=ev.get("task",{})
+                  print("TURN_STATUS:",t.get("status"),"MODEL_MODE:",t.get("modelMode"),"ELAPSED_SECONDS:",round(time.monotonic()-start,1))
+                  print("ASSISTANT_MESSAGES:",sum(1 for x in t.get("messages",[]) if x.get("role")=="assistant"))
+                  traces=t.get("trace",[])
+                  for entry in traces[-8:]:
+                    action=entry.get("action","")
+                    if action=="model.interpret.error":
+                      msg=entry.get("outcome","") or entry.get("message","")
+                      allow=re.search(r"Diagnostic: ([^.]+)",msg)
+                      print("INTERPRET_FAILURE_CATEGORY:",allow.group(1)[:160] if allow else "diagnostic-not-present")
+                    print("TRACE_ACTION:",action[:70])
+                  print("RESULT:", "FAILED" if t.get("status")=="error" else "NON_ERROR")
+                  last="done"
+                  break
+                if eventtype=="error":
+                  print("STREAM_ERROR_CODE:",ev.get("code"))
+                  last="error"
+                  break
+              if not last:print("STREAM_ENDED_WITHOUT_TERMINAL_EVENT")
+          except urllib.error.HTTPError as e:
+            print("TURN_HTTP_FAILURE:",e.code)
+          except Exception as e:
+            print("TURN_TRANSPORT_FAILURE:",type(e).__name__)
+          PY
