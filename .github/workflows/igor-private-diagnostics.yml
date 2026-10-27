@@ -1,0 +1,80 @@
+name: Igor private diagnostics — rule and test identifiers only
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/igor-private-diagnostics.yml"
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      QLOO_API_KEY: ""
+      OPENAI_API_KEY: ""
+      GEMINI_API_KEY: ""
+    steps:
+      - name: Check out pinned private revision (no shared source)
+        uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: 2359f3fe6b42299f63db089d269d5bd47a34decf
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          path: private-igor
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: private-igor/package-lock.json
+      - name: Dependency installation (private diagnostics withheld)
+        working-directory: private-igor
+        run: npm ci --silent >/dev/null 2>&1
+      - name: Summarize lint rule identifiers only
+        shell: bash
+        working-directory: private-igor
+        run: |
+          set +e
+          npx eslint src tests scripts next.config.ts eslint.config.mjs --format json > "$RUNNER_TEMP/eslint.json" 2>"$RUNNER_TEMP/eslint-errors"
+          python - <<'PY'
+          import os,json,collections,pathlib
+          p=pathlib.Path(os.environ["RUNNER_TEMP"])/"eslint.json"
+          try: data=json.loads(p.read_text())
+          except Exception: print("LINT: JSON report unavailable"); quit()
+          findings=[]
+          for f in data:
+            for m in f.get('messages',[]):
+              if m.get("severity")==2:
+                findings.append((pathlib.Path(f['filePath']).name,m.get('line'),m.get('column'),m.get('ruleId') or 'parser/error'))
+          print("LINT ERROR COUNT:",len(findings))
+          print("RULE COUNTS:",dict(collections.Counter(x[3] for x in findings)))
+          for name,line,col,rule in findings[:35]:
+            print("LINT:",name,line,col,rule)
+          PY
+          rm -f "$RUNNER_TEMP/eslint.json" "$RUNNER_TEMP/eslint-errors"
+          exit 0
+      - name: List failing unit-test names only
+        shell: bash
+        working-directory: private-igor
+        run: |
+          set +e
+          npm test -- --reporter=json --outputFile="$RUNNER_TEMP/vitest.json" >"$RUNNER_TEMP/vitest-console" 2>&1
+          python - <<'PY'
+          import os,json,pathlib
+          p=pathlib.Path(os.environ["RUNNER_TEMP"])/"vitest.json"
+          try: data=json.loads(p.read_text())
+          except Exception: print("TEST REPORT: JSON report unavailable"); quit()
+          failed=[]
+          for suite in data.get('testResults',[]):
+            for case in suite.get('assertionResults',[]):
+              if case.get('status')=='failed':
+                failed.append((pathlib.Path(suite.get('name','')).name,case.get('fullName','unknown')[:170]))
+          print("FAILED TEST COUNT:",len(failed))
+          for name,case in failed[:30]: print("TEST FAIL:",name," :: ",case)
+          print("TEST TOTAL:",data.get('numTotalTests'),"PASSED:",data.get('numPassedTests'))
+          PY
+          rm -f "$RUNNER_TEMP/vitest.json" "$RUNNER_TEMP/vitest-console"
+          exit 0
