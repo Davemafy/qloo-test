@@ -35,6 +35,24 @@ jobs:
           npm run typecheck > "$RUNNER_TEMP/private-tsc.log" 2>&1 || true
           grep -oE 'error TS[0-9]+' "$RUNNER_TEMP/private-tsc.log" | sort | uniq -c || true
           rm -f "$RUNNER_TEMP/private-tsc.log"
+      - name: Classify private compiler failure without showing source
+        shell: bash
+        working-directory: private-source
+        run: |
+          set +e
+          npx tsc --noEmit > "$RUNNER_TEMP/compiler.log" 2>&1
+          code=$?
+          echo "TSC_EXIT_CODE: $code"
+          if grep -Eqi "heap out of memory|allocation failed|out of memory" "$RUNNER_TEMP/compiler.log"; then
+            echo "TSC_CLASS: memory-exhaustion"
+          elif grep -Eq 'error TS[0-9]+' "$RUNNER_TEMP/compiler.log"; then
+            echo "TSC_CLASS: source-type-diagnostics"
+          elif grep -Eqi 'killed|signal|abort' "$RUNNER_TEMP/compiler.log"; then
+            echo "TSC_CLASS: terminated-process"
+          else
+            echo "TSC_CLASS: other-compiler-failure"
+          fi
+          rm -f "$RUNNER_TEMP/compiler.log"
       - name: Verify targeted behavior and production compile
         shell: bash
         working-directory: private-source
