@@ -26,8 +26,8 @@ jobs:
     env:
       CI: "true"
       NEXT_TELEMETRY_DISABLED: "1"
-      # The pinned push revision is Igor PR #16, reviewed head SHA; never a mutable branch.
-      SELECTED_COMMIT: ${{ github.event_name == 'workflow_dispatch' && inputs.commit_sha || '91c21354dc124760f64dad6a8945a6bc8164d830' }}
+      # The pinned push revision is Igor PR #21, reviewed head SHA; never a mutable branch.
+      SELECTED_COMMIT: ${{ github.event_name == 'workflow_dispatch' && inputs.commit_sha || '28eefb7c77bbf92cd0b8c5cfe4670c5bed7cfe12' }}
       QLOO_API_KEY: ""
       GEMINI_API_KEY: ""
       OPENAI_API_KEY: ""
@@ -57,6 +57,24 @@ jobs:
           persist-credentials: false
           fetch-depth: 1
           path: private-igor
+
+      - name: Verify byte-identical recorded Qloo archive (private)
+        working-directory: private-igor
+        shell: bash
+        run: |
+          set -euo pipefail
+          file="tests/fixtures/qloo-cultural.json.gz"
+          if [ ! -s "$file" ]; then
+            echo "::error::Original cultural archive is missing from the pinned checkout."
+            exit 1
+          fi
+          gz_hash="$(sha256sum "$file" | cut -d' ' -f1)"
+          data_hash="$(gzip -cd "$file" | sha256sum | cut -d' ' -f1)"
+          if [ "$gz_hash" != "3aedaf3dc10952f9a3a0ffe8b46d329bcb1ce453bbc6aa11cdd636ae6148904e" ] || [ "$data_hash" != "7fc699b2f275676795a7aff42bd35455126cfeb904382ee6c89d1997e6e97bd0" ]; then
+            echo "::error::The original cultural archive failed its pinned integrity hashes."
+            exit 1
+          fi
+          echo "Original archived Qloo recording verified against both checksums; no bytes published."
 
       - uses: actions/setup-node@v4
         with:
