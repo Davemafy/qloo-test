@@ -26,8 +26,8 @@ jobs:
     env:
       CI: "true"
       NEXT_TELEMETRY_DISABLED: "1"
-      # The pinned push revision is PR #13 at workflow creation, not main or latest.
-      SELECTED_COMMIT: ${{ github.event_name == 'workflow_dispatch' && inputs.commit_sha || '2359f3fe6b42299f63db089d269d5bd47a34decf' }}
+      # The pinned push revision is Igor PR #16, reviewed head SHA; never a mutable branch.
+      SELECTED_COMMIT: ${{ github.event_name == 'workflow_dispatch' && inputs.commit_sha || '04f09eaa347b8cc1b873ebfbeba84e48d7fffc7e' }}
       QLOO_API_KEY: ""
       GEMINI_API_KEY: ""
       OPENAI_API_KEY: ""
@@ -93,6 +93,7 @@ jobs:
           }
           if quiet "Install" npm ci; then installed=1; fi
           if [ "$installed" -eq 1 ]; then
+            quiet "Formatting" npm run format:check || :
             quiet "Typecheck" npm run typecheck || :
             quiet "Lint" npm run lint || :
             quiet "Unit tests" npm test || :
