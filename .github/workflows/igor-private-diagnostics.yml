@@ -97,13 +97,21 @@ jobs:
           p=pathlib.Path(os.environ["RUNNER_TEMP"])/"vitest.json"
           try: data=json.loads(p.read_text())
           except Exception: print("TEST REPORT: JSON report unavailable"); quit()
+          import re
           failed=[]
           for suite in data.get('testResults',[]):
             for case in suite.get('assertionResults',[]):
               if case.get('status')=='failed':
-                failed.append((pathlib.Path(suite.get('name','')).name,case.get('fullName','unknown')[:170]))
+                err=(case.get("failureMessages") or [""])[0]
+                err=re.sub(r"\x1b\[[0-9;]*m","",err)
+                first=(err.splitlines() or [""])[0][:250]
+                first=re.sub(r"['\"][^'\"]+['\"]","[redacted]",first)
+                first=re.sub(r"https?://\\S+","[url]",first)
+                failed.append((pathlib.Path(suite.get('name','')).name,case.get('fullName','unknown')[:170],first))
           print("FAILED TEST COUNT:",len(failed))
-          for name,case in failed[:30]: print("TEST FAIL:",name," :: ",case)
+          for name,case,reason in failed[:30]:
+            print("TEST FAIL:",name," :: ",case)
+            print("TEST ERROR KIND:",reason[:180])
           print("TEST TOTAL:",data.get('numTotalTests'),"PASSED:",data.get('numPassedTests'))
           PY
           rm -f "$RUNNER_TEMP/vitest.json" "$RUNNER_TEMP/vitest-console"
