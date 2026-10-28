@@ -21,5 +21,6 @@ await page.mouse.wheel(0,900); await page.waitForTimeout(4000);await capture('05
 const report={url:page.url(),title:await page.title(),gpu,errors};
 console.log('CAPTURE_REPORT',JSON.stringify(report));
 await fs.writeFile('paodao-capture/report.json',JSON.stringify(report,null,2));
-await context.close();await browser.close();
 if(!gpu.available)process.exitCode=1;
+} finally { await context.close(); await browser.close(); }
+
