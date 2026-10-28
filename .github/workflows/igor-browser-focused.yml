@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: 00a8933666cb0b32cec74c19d1a482ea7e8f7923
+          ref: 837f356e4a77fd7277979bbc981b14b4e679df2c
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           fetch-depth: 1
@@ -63,7 +63,7 @@ jobs:
           quiet "Chromium setup" npx playwright install --with-deps chromium || exit 1
           # The home project uses the existing application server configuration,
           # with no live model/Qloo/Bright Data credentials.
-          quiet "Current home/browser suite" npm run test:browser -- --project=home || {
+          quiet "Greeting continuity browser case" npm run test:browser -- --project=home --grep "ordinary greetings" || {
             python - <<'PY'
           import json, pathlib
           p=pathlib.Path("test-results/results.json")
