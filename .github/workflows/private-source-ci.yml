@@ -27,7 +27,7 @@ jobs:
       CI: "true"
       NEXT_TELEMETRY_DISABLED: "1"
       # The pinned push revision is Igor PR #16, reviewed head SHA; never a mutable branch.
-      SELECTED_COMMIT: ${{ github.event_name == 'workflow_dispatch' && inputs.commit_sha || 'a6b24fd3cbacb7c40fe92e53130a555763de2302' }}
+      SELECTED_COMMIT: ${{ github.event_name == 'workflow_dispatch' && inputs.commit_sha || '5c9f23a2e49d0fcd7409243025c1c4afe2d4ea90' }}
       QLOO_API_KEY: ""
       GEMINI_API_KEY: ""
       OPENAI_API_KEY: ""
@@ -102,7 +102,36 @@ jobs:
             if [ "$built" -eq 1 ]; then
               if quiet "Chromium installation" npx playwright install --with-deps chromium; then browser_ready=1; fi
               if [ "$browser_ready" -eq 1 ]; then
-                quiet "Browser regression suite" npm run test:browser || :
+                if ! quiet "Browser regression suite" npm run test:browser; then
+                  # Print only test titles and counts from the private JSON
+                  # reporter. Do not publish screenshots, traces, source or
+                  # provider bodies in this public repository.
+                  python - <<'PY'
+          import json,pathlib
+          path=pathlib.Path("test-results/results.json")
+          if not path.exists():
+              print("BROWSER_DIAGNOSTIC: no reporter JSON (check web-server startup)")
+          else:
+              try:
+                  data=json.loads(path.read_text())
+                  failed=[]
+                  def collect(nodes):
+                      for node in nodes:
+                          for item in node.get("specs",[]):
+                              for test in item.get("tests",[]):
+                                  if test.get("status") in ("unexpected", "failed") or any(result.get("status") in ("failed","timedOut","interrupted") for result in test.get("results",[])):
+                                      failed.append((item.get("title","unknown"),test.get("projectName","unknown")))
+                          collect(node.get("suites",[]))
+                  collect(data.get("suites",[]))
+                  print("BROWSER_FAILED_COUNT:",len(failed))
+                  for title,project in failed[:30]:
+                      print("BROWSER_TEST_FAIL:",str(project)[:60],"::",str(title)[:110])
+                  if not failed:
+                      print("BROWSER_DIAGNOSTIC: browser process failed without a recorded test assertion")
+              except (ValueError, OSError):
+                  print("BROWSER_DIAGNOSTIC: result JSON unreadable")
+          PY
+                fi
               fi
             else
               echo "Browser regression suite: SKIPPED (build did not pass)"
