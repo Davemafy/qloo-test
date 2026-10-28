@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: 56d65ef98f8ceb12ee8b4d23df107c46b5191cc2
+          ref: 00a8933666cb0b32cec74c19d1a482ea7e8f7923
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           fetch-depth: 1
@@ -63,7 +63,7 @@ jobs:
           quiet "Chromium setup" npx playwright install --with-deps chromium || exit 1
           # The home project uses the existing application server configuration,
           # with no live model/Qloo/Bright Data credentials.
-          quiet "Home smoke" npm run test:browser -- --project=home --grep "the current first screen offers usable" || {
+          quiet "Current home/browser suite" npm run test:browser -- --project=home || {
             python - <<'PY'
           import json, pathlib
           p=pathlib.Path("test-results/results.json")
@@ -75,7 +75,7 @@ jobs:
                   for suite in data.get("suites", []):
                       for spec in suite.get("specs", []):
                           for item in spec.get("tests", []):
-                              print("BROWSER_STATUS:",item.get("projectName","unknown"), item.get("status","unknown"))
+                              print("BROWSER_STATUS:",item.get("projectName","unknown"), item.get("status","unknown"), str(spec.get("title",""))[:95])
                               for result in item.get("results", []):
                                   print("BROWSER_ATTEMPT:",result.get("status","unknown"))
                                   import re
