@@ -27,7 +27,7 @@ jobs:
       CI: "true"
       NEXT_TELEMETRY_DISABLED: "1"
       # The pinned push revision is Igor PR #21, reviewed head SHA; never a mutable branch.
-      SELECTED_COMMIT: ${{ github.event_name == 'workflow_dispatch' && inputs.commit_sha || '18beb0619736dfc8b43737d193ca6b81cb6b7f4d' }}
+      SELECTED_COMMIT: ${{ github.event_name == 'workflow_dispatch' && inputs.commit_sha || '966c78825ee6302be807335c95fae140734d0f62' }}
       QLOO_API_KEY: ""
       GEMINI_API_KEY: ""
       OPENAI_API_KEY: ""
@@ -36,6 +36,10 @@ jobs:
         shell: bash
         env:
           READ_TOKEN_CONFIGURED: ${{ secrets.PRIVATE_CI_READ_TOKEN != '' }}
+          QLOO_CONFIGURED: ${{ secrets.QLOO_API_KEY != '' }}
+          GROK_CONFIGURED: ${{ secrets.XAI_API_KEY != '' || secrets.GROK_API_KEY != '' }}
+          CLAUDE_CONFIGURED: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+          GEMINI_CONFIGURED: ${{ secrets.GEMINI_API_KEY != '' }}
         run: |
           set -euo pipefail
           if [ "$READ_TOKEN_CONFIGURED" != "true" ]; then
@@ -47,6 +51,7 @@ jobs:
             exit 1
           fi
           echo "Private source revision pinned; no source will be logged or uploaded."
+          echo "Provider binding presence: Qloo=$QLOO_CONFIGURED Grok=$GROK_CONFIGURED Claude=$CLAUDE_CONFIGURED Gemini=$GEMINI_CONFIGURED"
 
       - name: Check out the exact private Igor commit, ephemerally
         uses: actions/checkout@v4
@@ -139,6 +144,12 @@ jobs:
                               for test in item.get("tests",[]):
                                   if test.get("status") in ("unexpected", "failed") or any(result.get("status") in ("failed","timedOut","interrupted") for result in test.get("results",[])):
                                       failed.append((item.get("title","unknown"),test.get("projectName","unknown")))
+                                      for result in test.get("results",[]):
+                                          for error in result.get("errors",[]):
+                                              loc=error.get("location",{})
+                                              name=str(loc.get("file","")).split("/")[-1]
+                                              if name.endswith((".ts",".tsx",".mjs")):
+                                                  print("ASSERTION_LOCATION:",name,loc.get("line"),loc.get("column"))
                           collect(node.get("suites",[]))
                   collect(data.get("suites",[]))
                   print("BROWSER_FAILED_COUNT:",len(failed))
