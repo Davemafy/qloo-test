@@ -63,7 +63,7 @@ jobs:
           quiet "Chromium setup" npx playwright install --with-deps chromium || exit 1
           # The home project uses the existing application server configuration,
           # with no live model/Qloo/Bright Data credentials.
-          quiet "Greeting continuity browser case" npm run test:browser -- --project=home --grep "ordinary greetings" || {
+          quiet "Current home/browser suite" npm run test:browser -- --project=home || {
             python - <<'PY'
           import json, pathlib
           p=pathlib.Path("test-results/results.json")
