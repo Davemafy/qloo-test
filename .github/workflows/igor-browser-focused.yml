@@ -78,6 +78,15 @@ jobs:
                               print("BROWSER_STATUS:",item.get("projectName","unknown"), item.get("status","unknown"))
                               for result in item.get("results", []):
                                   print("BROWSER_ATTEMPT:",result.get("status","unknown"))
+                                  import re
+                                  err=result.get("error") or {}
+                                  details=(err.get("stack") or "")
+                                  sites=re.findall(r'([a-zA-Z0-9_-]+\\.e2e\\.ts):(\\d+):(\\d+)',details)
+                                  if sites:
+                                      print("BROWSER_ASSERTION_SITE:",sites[0][0],sites[0][1])
+                                  category=(err.get("message") or "").splitlines()
+                                  if category:
+                                      print("BROWSER_ERROR_KIND:",re.sub(r"['\\\"][^'\\\"]+['\\\"]","[redacted]",category[0])[:130])
               except (OSError,ValueError):
                   print("BROWSER: result report could not be parsed")
           PY
