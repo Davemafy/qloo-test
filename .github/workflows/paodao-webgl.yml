@@ -1,0 +1,25 @@
+name: Paodao WebGL experience capture
+on:
+  push:
+    paths: ['.github/workflows/paodao-webgl.yml', 'paodao-webgl.mjs']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm install --no-save playwright@1.51.1
+      - run: npx playwright install --with-deps chromium
+      - run: node paodao-webgl.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: paodao-webgl-experience
+          path: paodao-capture/
+          retention-days: 7
