@@ -1,0 +1,85 @@
+name: Igor focused browser smoke (private source)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/igor-browser-focused.yml
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      QLOO_API_KEY: ""
+      GEMINI_API_KEY: ""
+      OPENAI_API_KEY: ""
+      LLM_API_KEY: ""
+      XAI_API_KEY: ""
+      BRIGHTDATA_API_KEY: ""
+      QLOO_MAX_CALLS: "0"
+    steps:
+      - name: Check out exact reviewed private Igor revision
+        uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: 2089e45116cfad48d51d9fbbcd73246fb907682e
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          fetch-depth: 1
+          path: private-igor
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: private-igor/package-lock.json
+
+      - name: Build and run isolated home-startup smoke
+        shell: bash
+        working-directory: private-igor
+        run: |
+          set -uo pipefail
+          log="$RUNNER_TEMP/igor-browser-private.log"
+          trap 'rm -f "$log"' EXIT
+          quiet() {
+            label="$1"; shift
+            if "$@" > "$log" 2>&1; then
+              echo "$label: PASS"
+              : > "$log"
+              return 0
+            fi
+            echo "::error::$label: FAIL (private diagnostics withheld)"
+            : > "$log"
+            return 1
+          }
+          quiet "Dependencies" npm ci || exit 1
+          quiet "Production build" npm run build || exit 1
+          quiet "Chromium setup" npx playwright install --with-deps chromium || exit 1
+          # The home project uses the existing application server configuration,
+          # with no live model/Qloo/Bright Data credentials.
+          quiet "Home smoke" npm run test:browser -- --project=home --grep "the first screen offers an immediate action" || {
+            python - <<'PY'
+          import json, pathlib
+          p=pathlib.Path("test-results/results.json")
+          if not p.is_file():
+              print("BROWSER: no reporter output; server launch or runner setup failed")
+          else:
+              try:
+                  data=json.loads(p.read_text())
+                  for suite in data.get("suites", []):
+                      for spec in suite.get("specs", []):
+                          for item in spec.get("tests", []):
+                              print("BROWSER_STATUS:",item.get("projectName","unknown"), item.get("status","unknown"))
+                              for result in item.get("results", []):
+                                  print("BROWSER_ATTEMPT:",result.get("status","unknown"))
+              except (OSError,ValueError):
+                  print("BROWSER: result report could not be parsed")
+          PY
+            exit 1
+          }
