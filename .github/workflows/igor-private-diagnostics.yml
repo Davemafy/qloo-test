@@ -107,11 +107,14 @@ jobs:
                 first=(err.splitlines() or [""])[0][:250]
                 first=re.sub(r"['\"][^'\"]+['\"]","[redacted]",first)
                 first=re.sub(r"https?://\\S+","[url]",first)
-                failed.append((pathlib.Path(suite.get('name','')).name,case.get('fullName','unknown')[:170],first))
+                sites=re.findall(r'([A-Za-z0-9_.-]+\\.test\\.ts):(\\d+):(\\d+)',err)
+                site=(sites[-1][0]+":"+sites[-1][1]) if sites else "no-location"
+                failed.append((pathlib.Path(suite.get('name','')).name,case.get('fullName','unknown')[:170],first,site))
           print("FAILED TEST COUNT:",len(failed))
-          for name,case,reason in failed[:30]:
+          for name,case,reason,site in failed[:30]:
             print("TEST FAIL:",name," :: ",case)
             print("TEST ERROR KIND:",reason[:180])
+            print("TEST ASSERTION SITE:",site)
           print("TEST TOTAL:",data.get('numTotalTests'),"PASSED:",data.get('numPassedTests'))
           PY
           rm -f "$RUNNER_TEMP/vitest.json" "$RUNNER_TEMP/vitest-console"
