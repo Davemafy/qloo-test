@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: dd2bbc222f7caa10b8103c48c3752506b32b41fb
+          ref: 04f09eaa347b8cc1b873ebfbeba84e48d7fffc7e
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: private-igor
@@ -33,6 +33,36 @@ jobs:
       - name: Dependency installation (private diagnostics withheld)
         working-directory: private-igor
         run: npm ci --silent >/dev/null 2>&1
+      - name: Report formatting and typecheck issue locations without source
+        shell: bash
+        working-directory: private-igor
+        run: |
+          set +e
+          npx prettier --list-different . > "$RUNNER_TEMP/private-format.log" 2>&1
+          format_exit=$?
+          FORMAT_EXIT="$format_exit" python - <<'PY'
+          import os,pathlib
+          p=pathlib.Path(os.environ["RUNNER_TEMP"])/"private-format.log"
+          lines=p.read_text(errors="replace").splitlines()
+          names=[pathlib.Path(x).name for x in lines if x.strip() and not x.startswith("[")]
+          print("FORMAT_EXIT:",os.environ["FORMAT_EXIT"],"FORMAT_FILES:",len(names))
+          for name in names[:40]: print("FORMAT:",name)
+          PY
+          npm run typecheck > "$RUNNER_TEMP/private-type.log" 2>&1
+          type_exit=$?
+          TYPE_EXIT="$type_exit" python - <<'PY'
+          import os,re,pathlib,collections
+          text=(pathlib.Path(os.environ["RUNNER_TEMP"])/"private-type.log").read_text(errors="replace")
+          matches=[]
+          for line in text.splitlines():
+            m=re.match(r'(.+?)\((\d+),(\d+)\): error TS(\d+):',line)
+            if m: matches.append((pathlib.Path(m.group(1)).name,m.group(2),m.group(4)))
+          print("TYPECHECK_EXIT:",os.environ["TYPE_EXIT"],"TYPE_ERRORS:",len(matches))
+          print("TYPE_ERROR_CODES:",dict(collections.Counter(m[2] for m in matches)))
+          for file,line,code in matches[:35]: print("TYPE_ERROR:",file,line,"TS"+code)
+          PY
+          rm -f "$RUNNER_TEMP/private-format.log" "$RUNNER_TEMP/private-type.log"
+          exit 0
       - name: Summarize lint rule identifiers only
         shell: bash
         working-directory: private-igor
