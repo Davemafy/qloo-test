@@ -27,7 +27,7 @@ jobs:
       CI: "true"
       NEXT_TELEMETRY_DISABLED: "1"
       # The pinned push revision is Igor PR #21, reviewed head SHA; never a mutable branch.
-      SELECTED_COMMIT: ${{ github.event_name == 'workflow_dispatch' && inputs.commit_sha || '5c035b3b0af63882b44f78d2d180016b04043eec' }}
+      SELECTED_COMMIT: ${{ github.event_name == 'workflow_dispatch' && inputs.commit_sha || '4cc5fa3a126cbb6d4bee7c3dbf91631119ad9e70' }}
       QLOO_API_KEY: ""
       GEMINI_API_KEY: ""
       OPENAI_API_KEY: ""
@@ -166,6 +166,9 @@ jobs:
               echo "Browser regression suite: SKIPPED (build did not pass)"
               echo "- Browser regression suite: SKIPPED" >> "$GITHUB_STEP_SUMMARY"
             fi
+          fi
+          if [ -f test-results/results.json ]; then
+            node -e 'console.log("BROWSER_STATS",JSON.stringify(require("./test-results/results.json").stats))'
           fi
           if [ "$failures" -gt 0 ]; then
             echo "::error::$failures quality gate(s) failed. No private logs or source artifacts were published."
