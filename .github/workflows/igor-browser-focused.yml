@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: bcd422d94b495dd5ea1d74d64c89375d76c63b61
+          ref: a01471226620f189a4e1d472e9a39dbd24d7004a
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           fetch-depth: 1
@@ -63,7 +63,7 @@ jobs:
           quiet "Chromium setup" npx playwright install --with-deps chromium || exit 1
           # The home project uses the existing application server configuration,
           # with no live model/Qloo/Bright Data credentials.
-          quiet "Home smoke" npm run test:browser -- --project=home --grep "the first screen offers an immediate action" || {
+          quiet "Home smoke" npm run test:browser -- --project=home --grep "the current first screen offers usable" || {
             python - <<'PY'
           import json, pathlib
           p=pathlib.Path("test-results/results.json")
