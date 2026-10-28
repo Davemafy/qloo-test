@@ -1,0 +1,63 @@
+name: Igor lint localization (private source)
+
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/igor-lint-localization.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      CI: "true"
+      QLOO_API_KEY: ""
+      GEMINI_API_KEY: ""
+      OPENAI_API_KEY: ""
+      XAI_API_KEY: ""
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: 2089e45116cfad48d51d9fbbcd73246fb907682e
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          path: private-igor
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: private-igor/package-lock.json
+      - name: Extract file-level error counts only
+        working-directory: private-igor
+        shell: bash
+        run: |
+          set +e
+          npm ci --silent > "$RUNNER_TEMP/install.txt" 2>&1
+          if [ "$?" -ne 0 ]; then
+            echo "DEPENDENCIES: FAIL"
+            rm -f "$RUNNER_TEMP/install.txt"
+            exit 1
+          fi
+          npx eslint src tests scripts next.config.ts eslint.config.mjs -f json > "$RUNNER_TEMP/lint.json" 2>"$RUNNER_TEMP/lint-stderr"
+          python - <<'PY'
+          import json,collections,pathlib,os
+          p=pathlib.Path(os.environ["RUNNER_TEMP"])/"lint.json"
+          try: files=json.loads(p.read_text())
+          except Exception: print("LINT JSON: unavailable"); quit()
+          ranked=[]
+          for f in files:
+              errors=[m for m in f.get("messages",[]) if m.get("severity")==2]
+              if errors:
+                  types=collections.Counter((x.get("ruleId") or "parse") for x in errors)
+                  ranked.append((len(errors),pathlib.Path(f["filePath"]).name,types))
+          ranked.sort(reverse=True)
+          print("FILES_WITH_ERRORS:",len(ranked))
+          for count,name,rules in ranked[:45]:
+              print("LINT_FILE:",name,"errors:",count,"rules:",",".join(k+"="+str(v) for k,v in rules.most_common(4)))
+          PY
+          rm -f "$RUNNER_TEMP/install.txt" "$RUNNER_TEMP/lint.json" "$RUNNER_TEMP/lint-stderr"
+          exit 0
