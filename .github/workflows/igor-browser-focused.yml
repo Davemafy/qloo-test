@@ -63,7 +63,7 @@ jobs:
           quiet "Chromium setup" npx playwright install --with-deps chromium || exit 1
           # The home project uses the existing application server configuration,
           # with no live model/Qloo/Bright Data credentials.
-          quiet "Current workspace/browser suite" npm run test:browser -- --project=workspace || {
+          quiet "Current home/workspace browser suite" npm run test:browser -- --project=home --project=workspace || {
             python - <<'PY'
           import json, pathlib
           p=pathlib.Path("test-results/results.json")
