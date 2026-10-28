@@ -27,7 +27,7 @@ jobs:
       CI: "true"
       NEXT_TELEMETRY_DISABLED: "1"
       # The pinned push revision is Igor PR #21, reviewed head SHA; never a mutable branch.
-      SELECTED_COMMIT: ${{ github.event_name == 'workflow_dispatch' && inputs.commit_sha || '966c78825ee6302be807335c95fae140734d0f62' }}
+      SELECTED_COMMIT: ${{ github.event_name == 'workflow_dispatch' && inputs.commit_sha || 'c65562344030bb0bc8e8a96d3ba81db173a814ed' }}
       QLOO_API_KEY: ""
       GEMINI_API_KEY: ""
       OPENAI_API_KEY: ""
@@ -172,3 +172,46 @@ jobs:
             exit 1
           fi
           echo "All isolated quality gates passed."
+
+      - name: Live synthetic flagship with authorized Qloo and Gemini
+        if: always()
+        timeout-minutes: 15
+        working-directory: private-igor
+        env:
+          QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          IGOR_MODEL_PROVIDER: gemini
+          IGOR_AGENT_MAX_STEPS: "12"
+          IGOR_AGENT_MAX_REQUESTS: "12"
+          QLOO_MAX_CALLS: "30"
+          IGOR_DB_PATH: .igor/live-verification/tasks.sqlite
+          IGOR_AUTH_PATH: .igor/live-verification/auth.sqlite
+          IGOR_OUTCOMES_PATH: .igor/live-verification/outcomes.sqlite
+          IGOR_CACHE_PATH: .igor/live-verification/cache.sqlite
+        shell: bash
+        run: |
+          set -uo pipefail
+          if [ -z "$QLOO_API_KEY" ] || [ -z "$GEMINI_API_KEY" ]; then
+            echo "::error::LIVE flagship BLOCKED: authorized Qloo/Gemini binding unavailable."
+            exit 1
+          fi
+          if [ ! -f .next/BUILD_ID ]; then
+            echo "::error::LIVE flagship BLOCKED: production build unavailable."
+            exit 1
+          fi
+          log="$RUNNER_TEMP/private-live-server.txt"
+          npm start -- --port 3570 >"$log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true; rm -f "$log"' EXIT
+          for attempt in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:3570/app >/dev/null; then break; fi
+            sleep 1
+          done
+          node scripts/verify-live-flagship.mjs
+      - name: Synthetic flagship visual evidence only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: igor-live-flagship-attempt
+          path: private-igor/test-results/live-flagship/
+          retention-days: 7
