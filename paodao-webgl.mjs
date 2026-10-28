@@ -5,10 +5,12 @@ const browser=await chromium.launch({headless:true,args:['--use-gl=angle','--use
 const context=await browser.newContext({viewport:{width:960,height:600},recordVideo:{dir:'paodao-capture',size:{width:960,height:600}}});
 const page=await context.newPage(); const errors=[];
 page.on('pageerror',e=>errors.push(e.message));
-try {\nawait page.goto('https://paodao.fr/',{waitUntil:'domcontentloaded',timeout:60000});
+try {
+await page.goto('https://paodao.fr/',{waitUntil:'domcontentloaded',timeout:60000});
 await page.waitForTimeout(65000);
 const gpu=await page.evaluate(()=>{const c=document.createElement('canvas');const gl=c.getContext('webgl2')||c.getContext('webgl');return {available:!!gl,renderer:gl?.getParameter(gl.RENDERER)};});
-const cdp=await context.newCDPSession(page);\nasync function capture(name){const shot=await cdp.send('Page.captureScreenshot',{format:'jpeg',quality:80,fromSurface:false});await fs.writeFile('paodao-capture/'+name+'.jpg',Buffer.from(shot.data,'base64'));const text=await page.locator('body').innerText();console.log(name,text.slice(0,12000));await fs.writeFile('paodao-capture/'+name+'.txt',text);}
+const cdp=await context.newCDPSession(page);
+async function capture(name){const shot=await cdp.send('Page.captureScreenshot',{format:'jpeg',quality:80,fromSurface:false});await fs.writeFile('paodao-capture/'+name+'.jpg',Buffer.from(shot.data,'base64'));const text=await page.locator('body').innerText();console.log(name,text.slice(0,12000));await fs.writeFile('paodao-capture/'+name+'.txt',text);}
 await capture('01-loaded');
 const enter=page.getByRole('button',{name:/^(enter|start|explore|entrer|discover|let.s go|voyager)/i});
 if(await enter.count()){await enter.first().click();await page.waitForTimeout(5000);} else {const voyager=page.getByText(/^Voyager/).first();if(await voyager.count()) {await voyager.click({timeout:10000});await page.waitForTimeout(5000);}}
