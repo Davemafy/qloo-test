@@ -27,7 +27,7 @@ jobs:
       CI: "true"
       NEXT_TELEMETRY_DISABLED: "1"
       # The pinned push revision is Igor PR #16, reviewed head SHA; never a mutable branch.
-      SELECTED_COMMIT: ${{ github.event_name == 'workflow_dispatch' && inputs.commit_sha || 'a949c103c6a1c9eba1f45954fc30a2d88ae02657' }}
+      SELECTED_COMMIT: ${{ github.event_name == 'workflow_dispatch' && inputs.commit_sha || '91c21354dc124760f64dad6a8945a6bc8164d830' }}
       QLOO_API_KEY: ""
       GEMINI_API_KEY: ""
       OPENAI_API_KEY: ""
