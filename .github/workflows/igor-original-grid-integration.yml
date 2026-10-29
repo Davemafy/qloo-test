@@ -1,0 +1,78 @@
+name: Igor — original Codrops grid integrated browser proof
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/igor-original-grid-integration.yml
+permissions:
+  contents: read
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      CI: "true"
+      QLOO_API_KEY: ""
+      GEMINI_API_KEY: ""
+      XAI_API_KEY: ""
+      ANTHROPIC_API_KEY: ""
+      GROK_API_KEY: ""
+      OPENAI_API_KEY: ""
+      BRIGHTDATA_API_KEY: ""
+      QLOO_MAX_CALLS: "0"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: ec9e9d4b04c89531b22df367db55d20dfa539c32
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          fetch-depth: 1
+          path: private-igor
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: private-igor/package-lock.json
+      - name: Verify immutable original source provenance
+        working-directory: private-igor
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(sha256sum src/vendor/codrops-grid/LICENSE | cut -d' ' -f1)" = "$(sha256sum <(printf '%s' "$(cat src/vendor/codrops-grid/LICENSE)") | cut -d' ' -f1)" || exit 1
+          grep -q "Codrops" src/vendor/codrops-grid/LICENSE
+          grep -q "grid_gallery_container" src/components/liquid-discovery.tsx
+          grep -q "data-size-grid" src/app/integrated-discovery.css
+      - name: Install private Igor dependencies
+        working-directory: private-igor
+        run: npm ci --silent
+      - name: Formatting report (filenames only)
+        working-directory: private-igor
+        run: |
+          npx prettier --check src/components/liquid-discovery.tsx src/app/integrated-discovery.css tests/browser/integrated-discovery.e2e.ts || true
+      - name: Typecheck
+        working-directory: private-igor
+        run: npm run typecheck
+      - name: Lint
+        working-directory: private-igor
+        run: npm run lint
+      - name: Build the full Igor app
+        working-directory: private-igor
+        run: npm run build
+      - name: Install Chromium
+        working-directory: private-igor
+        run: npx playwright install --with-deps chromium >/dev/null
+      - name: Record gallery morph with full Igor application
+        working-directory: private-igor
+        run: npx playwright test --config tests/integrated.playwright.config.mts
+      - name: Upload only sample visual screenshots (no private source or traces)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: IGOR-Upstream-Codrops-Live-Candidate-Grid
+          path: |
+            private-igor/test-results/integrated/**/original-gallery.png
+            private-igor/test-results/integrated/**/original-detailed.png
+          if-no-files-found: ignore
+          retention-days: 7
