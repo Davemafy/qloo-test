@@ -1,0 +1,96 @@
+name: Original Codrops and Atelier repository clones — visual proof
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/original-visual-clones.yml"
+      - "scripts/upstream-clone-proof.mjs"
+permissions:
+  contents: read
+jobs:
+  original-grid:
+    name: Unmodified GSAP Flip source and real browser behavior
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clone original grid at immutable commit
+        run: |
+          set -euo pipefail
+          mkdir -p originals/grid
+          git -C originals/grid init -q
+          git -C originals/grid remote add origin https://github.com/Ibaliqbal/grid-layout-transition.git
+          git -C originals/grid fetch -q --depth 1 origin c0f44dba1bf8f23487580333a1a6a64f8422f8ec
+          git -C originals/grid checkout -q --detach FETCH_HEAD
+          test "$(git -C originals/grid rev-parse HEAD)" = "c0f44dba1bf8f23487580333a1a6a64f8422f8ec"
+          test -f originals/grid/LICENSE
+          test -f originals/grid/css/style.css
+          test -f originals/grid/js/script.js
+          echo "Original full Git tree checked out at pinned commit; not a reconstructed CSS clone."
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.51.1
+          npx playwright install --with-deps chromium >/dev/null
+      - name: Launch original HTML/CSS/GSAP unchanged
+        run: |
+          python3 -m http.server 8086 --bind 127.0.0.1 --directory originals/grid >/tmp/grid-http.log 2>&1 &
+          echo $! > /tmp/grid-http.pid
+          for i in {1..30}; do if curl -fsS http://127.0.0.1:8086/index.html >/dev/null; then break; fi; sleep 1; done
+          node scripts/upstream-clone-proof.mjs grid
+      - name: Upload original behavior captures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ORIGINAL-Codrops-Grid-Behavior
+          path: captures/grid/
+          if-no-files-found: warn
+          retention-days: 7
+  original-atelier:
+    name: Unmodified Atelier UI source and live preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clone original Atelier at immutable commit
+        run: |
+          set -euo pipefail
+          mkdir -p originals/atelier
+          git -C originals/atelier init -q
+          git -C originals/atelier remote add origin https://github.com/whatisjery/atelier-ui.git
+          git -C originals/atelier fetch -q --depth 1 origin f7071e425863e9a7acecb0e44f3ae688ceca9f2a
+          git -C originals/atelier checkout -q --detach FETCH_HEAD
+          test "$(git -C originals/atelier rev-parse HEAD)" = "f7071e425863e9a7acecb0e44f3ae688ceca9f2a"
+          test -f originals/atelier/LICENSE.md
+          test -f originals/atelier/src/registry/base/liquid-media/liquid-media.tsx
+          echo "Original full Atelier source checked out at pinned commit."
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Install exact original Atelier dependencies and browser
+        run: |
+          npm install --no-save playwright@1.51.1
+          npx playwright install --with-deps chromium >/dev/null
+          cd originals/atelier
+          npm install --no-audit --no-fund
+      - name: Launch original Atelier Next app
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+        run: |
+          cd originals/atelier
+          npm run dev -- --hostname 127.0.0.1 --port 3100 >/tmp/original-atelier.log 2>&1 &
+          echo $! >/tmp/atelier.pid
+          cd ../..
+          for i in {1..90}; do if curl -sSf http://127.0.0.1:3100/en >/dev/null; then break; fi; sleep 2; done
+          node scripts/upstream-clone-proof.mjs atelier
+      - name: Upload original Atelier capture
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ORIGINAL-Atelier-WebGL-Behavior
+          path: captures/atelier/
+          if-no-files-found: warn
+          retention-days: 7
