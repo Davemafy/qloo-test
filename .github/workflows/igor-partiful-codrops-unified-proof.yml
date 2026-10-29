@@ -108,6 +108,7 @@ jobs:
           # Verify follow-up context, sourced media validation, and rendered drafts.
           # Recheck formatting, build and browser at current Igor SHA.
           # Final line-width normalization for source-linked media validation.
+          # Verify final inline test formatting on exact branch head.
           # Object arguments, bounded model-format repair and source-preserving recovery.
           # Exact active SHA after typed diagnostics, backup support and lint/format fixes.
           # Recheck after making existing 16s fake-clock deadline test CI-load tolerant.
