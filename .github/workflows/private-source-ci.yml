@@ -27,7 +27,7 @@ jobs:
       CI: "true"
       NEXT_TELEMETRY_DISABLED: "1"
       # The pinned push revision is Igor PR #21, reviewed head SHA; never a mutable branch.
-      SELECTED_COMMIT: ${{ github.event_name == 'workflow_dispatch' && inputs.commit_sha || 'd0327dfe153546697a3fa35d8be994280aca6e8a' }}
+      SELECTED_COMMIT: ${{ github.event_name == 'workflow_dispatch' && inputs.commit_sha || '8d899c57f6c3176254acfdd32a298b500d54d6a6' }}
       QLOO_API_KEY: ""
       GEMINI_API_KEY: ""
       OPENAI_API_KEY: ""
@@ -144,6 +144,9 @@ jobs:
                               for test in item.get("tests",[]):
                                   if test.get("status") in ("unexpected", "failed") or any(result.get("status") in ("failed","timedOut","interrupted") for result in test.get("results",[])):
                                       failed.append((item.get("title","unknown"),test.get("projectName","unknown")))
+                                      for annotation in test.get("annotations",[]):
+                                          if annotation.get("type") in ("review-phase","compare-control"):
+                                              print("BROWSER_BOUNDARY:",annotation.get("type"),str(annotation.get("description",""))[:500])
                                       for result in test.get("results",[]):
                                           for error in result.get("errors",[]):
                                               loc=error.get("location",{})
@@ -175,6 +178,20 @@ jobs:
             exit 1
           fi
           echo "All isolated quality gates passed."
+
+      - name: Read deployed revision without modifying production
+        if: always()
+        continue-on-error: true
+        shell: bash
+        run: |
+          node --input-type=module - <<'JS'
+          try {
+            const r=await fetch("https://igor-production-243e.up.railway.app/api/health",{signal:AbortSignal.timeout(20000)});
+            const data=await r.json();
+            const revision=/^[a-f0-9]{7,40}$/i.test(data.revision??"")?data.revision:"unknown";
+            console.log("PRODUCTION_REVISION",JSON.stringify({status:r.status,revision,matchesReviewedHead:revision===process.env.SELECTED_COMMIT}));
+          } catch { console.log("PRODUCTION_REVISION unavailable"); }
+          JS
 
       - name: Live synthetic flagship with authorized Qloo and Gemini
         if: always()
