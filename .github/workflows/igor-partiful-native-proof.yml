@@ -27,7 +27,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: 71d4d02202672671ad3b5bb76d62acf729e1430f
+          ref: e5fabbb47b6a1647bc1a6e9cb0151135be16e88b
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           fetch-depth: 1
