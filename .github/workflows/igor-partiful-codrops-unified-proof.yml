@@ -107,6 +107,7 @@ jobs:
           # Object arguments, bounded model-format repair and source-preserving recovery.
           # Exact active SHA after typed diagnostics, backup support and lint/format fixes.
           # Recheck after making existing 16s fake-clock deadline test CI-load tolerant.
+          # Gemini fake-timer fixture now follows native argument-object protocol.
           grep -q 'Partiful' docs/design-system.md
           grep -q 'projectInvitationScene' src/components/agent-workspace.tsx
           grep -q 'data-size-grid' src/components/liquid-discovery.tsx
