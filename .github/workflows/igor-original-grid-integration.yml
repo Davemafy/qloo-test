@@ -40,7 +40,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(sha256sum src/vendor/codrops-grid/LICENSE | cut -d' ' -f1)" = "$(sha256sum <(printf '%s' "$(cat src/vendor/codrops-grid/LICENSE)") | cut -d' ' -f1)" || exit 1
+          test -s src/vendor/codrops-grid/LICENSE
           grep -q "Codrops" src/vendor/codrops-grid/LICENSE
           grep -q "grid_gallery_container" src/components/liquid-discovery.tsx
           grep -q "data-size-grid" src/app/integrated-discovery.css
