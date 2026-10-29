@@ -1,0 +1,37 @@
+name: Igor visual fixture projection
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/visual-fixture.yml]
+permissions:
+  contents: read
+jobs:
+  project:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: 8d899c57f6c3176254acfdd32a298b500d54d6a6
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          path: private-igor
+      - name: Project real archived public cultural metadata only
+        working-directory: private-igor
+        run: |
+          mkdir -p visual-fixture
+          node --input-type=module - <<'JS'
+          import fs from 'node:fs';import zlib from 'node:zlib';import crypto from 'node:crypto';
+          const bytes=fs.readFileSync('tests/fixtures/qloo-cultural.json.gz');
+          if(crypto.createHash('sha256').update(bytes).digest('hex')!=='3aedaf3dc10952f9a3a0ffe8b46d329bcb1ce453bbc6aa11cdd636ae6148904e')throw Error('archive integrity');
+          const raw=JSON.parse(zlib.gunzipSync(bytes));
+          const rows=raw.qloo_records.filter(r=>r.status==='ok'&&r.path==='/v2/insights').slice(0,3);
+          const result={provenance:'RECORDED Qloo, original archive projection; no live calls',archiveSha256:'3aedaf3dc10952f9a3a0ffe8b46d329bcb1ce453bbc6aa11cdd636ae6148904e',records:rows.map(r=>({at:r.at,params:r.params,response:r.response}))};
+          fs.writeFileSync('visual-fixture/qloo-visual.json',JSON.stringify(result,null,2));
+          console.log('Projected',rows.length,'archived insight responses; no source or credentials uploaded.');
+          JS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: igor-recorded-visual-fixture
+          path: private-igor/visual-fixture/
+          retention-days: 7
