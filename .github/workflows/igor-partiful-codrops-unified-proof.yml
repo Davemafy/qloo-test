@@ -124,6 +124,7 @@ jobs:
       # protocol against deterministic mocks, never paid live providers.
       # The fixture uses actual SSE blank-line delimiters, as in TrueForge.
       # Mission: full deterministic coverage, source archive integrity, all browser projects.
+      # Verify revision 404c9b8 after the blocking format and legacy stream fixes.
       # Stage 1: verified retry of failed accepted turns must not reappend user messages.
       - name: All deterministic unit tests
         working-directory: private-igor
@@ -198,3 +199,68 @@ jobs:
       - name: Record exact verified SHA
         if: success()
         run: echo "PASS — Igor commit ${{ steps.revision.outputs.sha }} at $(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_STEP_SUMMARY"
+
+  live-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - name: Check authorized provider bindings without printing values
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}
+        run: |
+          test -n "$GEMINI_API_KEY" && test -n "$QLOO_API_KEY" || { echo "::error::BLOCKED: existing Gemini and Qloo bindings are both required."; exit 1; }
+      - name: Checkout exact accepted Igor revision for bounded live run
+        uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: 404c9b846768d58ea1877e23adb1e08d37c165b4
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          path: private-igor
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Install and build exact source
+        working-directory: private-igor
+        run: npm ci --silent > /dev/null 2>&1 && npm run build > "$RUNNER_TEMP/live-build.log" 2>&1
+      - name: Install Chromium for actual browser acceptance
+        working-directory: private-igor
+        run: npx playwright install --with-deps chromium > /dev/null 2>&1
+      - name: Bounded LIVE Qloo and Gemini journey, never recorded fallback
+        working-directory: private-igor
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}
+          IGOR_AGENT_MAX_STEPS: "10"
+          IGOR_AGENT_MAX_REQUESTS: "12"
+          QLOO_MAX_CALLS: "20"
+          IGOR_TEST_FIXTURES: ""
+          IGOR_QLOO_RECORDING: ""
+          XAI_API_KEY: ""
+          ANTHROPIC_API_KEY: ""
+          OPENAI_API_KEY: ""
+          IGOR_DB_PATH: .igor/live-acceptance/tasks.sqlite
+          IGOR_AUTH_PATH: .igor/live-acceptance/auth.sqlite
+          IGOR_OUTCOMES_PATH: .igor/live-acceptance/outcomes.sqlite
+          IGOR_CACHE_PATH: .igor/live-acceptance/cache.sqlite
+        run: |
+          set -euo pipefail
+          npm start -- --port 3570 > "$RUNNER_TEMP/live-server.log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:3570/api/health > /dev/null; then break; fi
+            sleep 1
+          done
+          timeout 420 node scripts/verify-live-flagship.mjs
+      - name: Upload only sanitized LIVE acceptance report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: igor-live-acceptance-404c9b8
+          path: private-igor/test-results/live-flagship/report.json
+          if-no-files-found: ignore
+          retention-days: 7
