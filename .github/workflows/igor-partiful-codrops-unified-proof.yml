@@ -120,6 +120,7 @@ jobs:
 
       # The delegate is opt-in; CI exercises its official Sessions/Turns
       # protocol against deterministic mocks, never paid live providers.
+      # The fixture uses actual SSE blank-line delimiters, as in TrueForge.
       - name: All deterministic unit tests
         working-directory: private-igor
         run: npm test
