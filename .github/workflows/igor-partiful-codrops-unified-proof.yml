@@ -246,7 +246,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: ${{ inputs.commit_sha || 'a4d2f1c5747fc5d5087079e9cdfcc3695e30e9c2' }}
+          ref: ${{ inputs.commit_sha || '2f725786f7a0c26a61a6064617e20929eae7efc3' }}
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: private-igor
