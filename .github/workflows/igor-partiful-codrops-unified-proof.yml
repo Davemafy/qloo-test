@@ -1,0 +1,89 @@
+name: Igor Partiful and Codrops unified product proof
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/igor-partiful-codrops-unified-proof.yml
+permissions:
+  contents: read
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      CI: "true"
+      QLOO_API_KEY: ""
+      GEMINI_API_KEY: ""
+      XAI_API_KEY: ""
+      ANTHROPIC_API_KEY: ""
+      GROK_API_KEY: ""
+      OPENAI_API_KEY: ""
+      LLM_API_KEY: ""
+      BRIGHTDATA_API_KEY: ""
+      QLOO_MAX_CALLS: "0"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: e80b340ca83ca0ebc9bf531caa254c12bc585061
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          fetch-depth: 1
+          path: private-igor
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: private-igor/package-lock.json
+      - name: Verify source and local license contract
+        working-directory: private-igor
+        run: |
+          test -s src/vendor/codrops-grid/LICENSE
+          grep -q "Partiful" docs/design-system.md
+          grep -q "projectInvitationScene" src/components/agent-workspace.tsx
+          grep -q "data-size-grid" src/components/liquid-discovery.tsx
+      - name: Install locked dependencies
+        working-directory: private-igor
+        run: npm ci --silent >/dev/null 2>&1
+      - name: Check formatting and report filenames
+        working-directory: private-igor
+        shell: bash
+        run: |
+          set +e
+          npx prettier --check src/core/invitation-scene.ts src/components/invitation-studio.tsx src/app/invitation-studio.css src/components/agent-workspace.tsx src/components/liquid-discovery.tsx src/app/integrated-discovery.css tests/unit/invitation-scene.test.ts tests/browser/native-invitation.e2e.ts tests/browser/integrated-discovery.e2e.ts tests/playwright.config.mts docs/design-system.md docs/design/partiful-native-invitation.md >/tmp/igor-format.log 2>&1
+          echo "FORMAT_EXIT=$?"
+          grep -E '\[warn\]|All matched|Checking formatting' /tmp/igor-format.log | head -22 || true
+          exit 0
+      - name: TypeScript
+        working-directory: private-igor
+        run: npm run typecheck
+      - name: ESLint
+        working-directory: private-igor
+        run: npm run lint
+      - name: Focused invitation unit regression suite
+        working-directory: private-igor
+        run: npm test -- tests/unit/invitation-scene.test.ts
+      - name: Production build
+        working-directory: private-igor
+        run: npm run build >/tmp/igor-unified-build.log 2>&1 || { grep -E 'error|Error|failed|Failed|Module not found' /tmp/igor-unified-build.log | head -35 || true; exit 1; }
+      - name: Chromium
+        working-directory: private-igor
+        run: npx playwright install --with-deps chromium >/dev/null 2>&1
+      - name: Codrops gallery and existing integration tests
+        working-directory: private-igor
+        run: npx playwright test --config tests/integrated.playwright.config.mts
+      - name: Partiful invitation desktop and mobile
+        working-directory: private-igor
+        run: npm run test:browser -- --project=native-invite
+      - name: Upload proof (sample data, no private source)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: igor-partiful-codrops-browser-views
+          path: |
+            private-igor/test-results/integrated/**/original-gallery.png
+            private-igor/test-results/integrated/**/original-detailed.png
+            private-igor/test-results/artifacts/**/igor-native-invitation-*.png
+          if-no-files-found: warn
+          retention-days: 7
