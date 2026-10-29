@@ -124,7 +124,7 @@ jobs:
       # protocol against deterministic mocks, never paid live providers.
       # The fixture uses actual SSE blank-line delimiters, as in TrueForge.
       # Mission: full deterministic coverage, source archive integrity, all browser projects.
-      # Verify revision 404c9b8 after the blocking format and legacy stream fixes.
+      # Verify 497e62f after format, mobile navigation and safe diagnostic fixes.
       # Stage 1: verified retry of failed accepted turns must not reappend user messages.
       - name: All deterministic unit tests
         working-directory: private-igor
@@ -216,7 +216,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: 404c9b846768d58ea1877e23adb1e08d37c165b4
+          ref: 497e62f4d155d988a2f6be7fd3aaad5e77bb7525
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: private-igor
@@ -260,7 +260,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: igor-live-acceptance-404c9b8
+          name: igor-live-acceptance-497e62f
           path: private-igor/test-results/live-flagship/report.json
           if-no-files-found: ignore
           retention-days: 7
