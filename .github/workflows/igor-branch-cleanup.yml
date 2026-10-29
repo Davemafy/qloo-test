@@ -1,0 +1,154 @@
+name: Igor legacy branches — audit or safe archive and prune
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-branch-cleanup.yml]
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: audit reports the plan; prune archives then deletes legacy branches
+        type: choice
+        options: [audit, prune]
+        required: true
+        default: audit
+      confirmation:
+        description: For prune only, type ARCHIVE-AND-DELETE-28
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  legacy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || 'audit' }}
+      CONFIRMATION: ${{ inputs.confirmation }}
+      IGOR_READ_TOKEN: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+      IGOR_WRITE_TOKEN: ${{ secrets.IGOR_MAINTENANCE_TOKEN }}
+    steps:
+      - name: Audit, or archive and prune verified legacy branch refs
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import re
+          import sys
+          import urllib.parse
+          import urllib.error
+          import urllib.request
+
+          repo = "Davemafy/igor"
+          expected_remaining = {"main", "feat/partiful-codrops-unified-20261029"}
+          mode = os.environ.get("MODE", "audit")
+          confirmation = os.environ.get("CONFIRMATION", "")
+          if mode not in {"audit", "prune"}:
+              sys.exit("Invalid mode. No branches changed.")
+          if mode == "prune" and confirmation != "ARCHIVE-AND-DELETE-28":
+              sys.exit("Explicit confirmation required: ARCHIVE-AND-DELETE-28. No branches changed.")
+          read_token = os.environ.get("IGOR_READ_TOKEN", "")
+          write_token = os.environ.get("IGOR_WRITE_TOKEN", "")
+          if not read_token:
+              sys.exit("PRIVATE_CI_READ_TOKEN missing. No branches changed.")
+          if mode == "prune" and not write_token:
+              sys.exit("IGOR_MAINTENANCE_TOKEN missing (fine-grained contents:write on Igor). No branches changed.")
+
+          base = f"https://api.github.com/repos/{repo}"
+          def api(method, path, body=None):
+              token = write_token if mode == "prune" else read_token
+              data = json.dumps(body).encode("utf-8") if body is not None else None
+              request = urllib.request.Request(
+                  base + path,
+                  method=method, data=data,
+                  headers={
+                      "Authorization": f"Bearer {token}",
+                      "Accept": "application/vnd.github+json",
+                      "X-GitHub-Api-Version": "2022-11-28",
+                      "Content-Type": "application/json",
+                      "User-Agent": "igor-branch-maintenance",
+                  },
+              )
+              try:
+                  with urllib.request.urlopen(request, timeout=30) as response:
+                      raw = response.read()
+                      return json.loads(raw.decode()) if raw else None
+              except urllib.error.HTTPError as ex:
+                  code = ex.code
+                  ex.close()
+                  raise RuntimeError(f"{method} {path} HTTP {code}") from None
+
+          def git_ref(kind, name):
+              return f"/git/ref/{kind}/" + urllib.parse.quote(name, safe="/")
+
+          branches = []
+          page = 1
+          while True:
+              batch = api("GET", f"/branches?per_page=100&page={page}")
+              branches.extend(batch)
+              if len(batch) < 100:
+                  break
+              page += 1
+          names = {b["name"] for b in branches}
+          if not expected_remaining.issubset(names):
+              sys.exit("main or the sole development branch is missing. No branches changed.")
+          old = {b["name"]: b["commit"]["sha"] for b in branches if b["name"] not in expected_remaining}
+          if any(b["protected"] for b in branches if b["name"] in old):
+              sys.exit("A legacy branch is protected. No branches changed.")
+          open_prs = api("GET", "/pulls?state=open&per_page=100")
+          blocking = [p["head"]["ref"] for p in open_prs
+                      if p["head"]["repo"]["full_name"] == repo
+                      and p["head"]["ref"] != "feat/partiful-codrops-unified-20261029"]
+          if blocking:
+              sys.exit("Legacy branches still have open PRs. No branches changed.")
+          print(f"MODE={mode} OLD_BRANCHES={len(old)} KEEP=main+single-dev")
+          if mode == "audit":
+              print(f"Audit completed. No branches modified. Ready for review: {len(old)} legacy HEADs.")
+              sys.exit(0)
+
+          # User authorized exactly the observed cleanup target, no mass-delete
+          # if the branch count changes unexpectedly between audit and prune.
+          if len(old) != 28:
+              sys.exit(f"Expected exactly 28 legacy branches; found {len(old)}. No branches changed.")
+
+          # Phase 1: create and independently verify every archival tag.
+          for name, sha in sorted(old.items()):
+              if not re.fullmatch(r"[0-9a-f]{40}", sha):
+                  sys.exit("Unexpected SHA: no branch deletion.")
+              tag = "archive/igor-20261029/" + name
+              path = git_ref("tags", tag)
+              try:
+                  previous = api("GET", path)
+              except RuntimeError as exc:
+                  if "HTTP 404" not in str(exc):
+                      raise
+                  previous = None
+              if previous is None:
+                  api("POST", "/git/refs", {"ref": "refs/tags/" + tag, "sha": sha})
+              actual = api("GET", path)
+              if actual["object"]["sha"] != sha:
+                  sys.exit("Archival tag mismatch: no branch deletion.")
+          print("ARCHIVE_VERIFIED=28")
+
+          # Phase 2: revalidate every ref before deleting any of them.
+          for name, sha in old.items():
+              current = api("GET", git_ref("heads", name))
+              if current["object"]["sha"] != sha:
+                  sys.exit("Legacy branch changed since audit. All originals retained.")
+          print("BRANCH_HEADS_VERIFIED=28")
+
+          # Phase 3: prune only previously archived refs.
+          for name, sha in sorted(old.items()):
+              latest = api("GET", git_ref("heads", name))
+              if latest["object"]["sha"] != sha:
+                  sys.exit("Branch moved during cleanup. Stopped to protect remaining refs.")
+              api("DELETE", "/git/refs/heads/" + urllib.parse.quote(name, safe="/"))
+          fresh = api("GET", "/branches?per_page=100")
+          remaining = {b["name"] for b in fresh}
+          if remaining != expected_remaining:
+              sys.exit(f"Cleanup incomplete: {len(remaining)} branches remain.")
+          print("SUCCESS_ARCHIVED_AND_DELETED=28 REMAINING_BRANCHES=2")
+          PY
