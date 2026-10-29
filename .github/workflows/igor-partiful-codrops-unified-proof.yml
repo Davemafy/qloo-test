@@ -321,7 +321,7 @@ jobs:
           status,body,latency=request("https://generativelanguage.googleapis.com/v1beta/models?pageSize=100")
           models=sorted(m.get("name","").removeprefix("models/") for m in body.get("models",[]) if "generateContent" in m.get("supportedGenerationMethods",[]) and re.fullmatch(r"models/gemini-[a-z0-9.-]+",m.get("name","")))
           print(json.dumps({"operation":"catalog","httpStatus":status,"latencyMs":latency,"models":models}))
-          selected=next((m for m in ["gemini-2.5-flash","gemini-2.5-flash-lite","gemini-3-flash","gemini-3.5-flash"] if m in models),None)
+          selected=next((m for m in ["gemini-3.5-flash","gemini-3.1-flash-lite"] if m in models),None)
           if not selected:print("BLOCKED: no listed stable alternative selected");raise SystemExit(1)
           body={"contents":[{"role":"user","parts":[{"text":"Call provider_ready with ready true."}]}],"tools":[{"functionDeclarations":[{"name":"provider_ready","description":"A protocol availability check only.","parametersJsonSchema":{"type":"object","properties":{"ready":{"type":"boolean"}},"required":["ready"],"additionalProperties":False}}]}],"toolConfig":{"functionCallingConfig":{"mode":"ANY","allowedFunctionNames":["provider_ready"]}},"generationConfig":{"maxOutputTokens":1024,"temperature":0}}
           status,result,latency=request("https://generativelanguage.googleapis.com/v1beta/models/"+selected+":generateContent",body)
