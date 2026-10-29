@@ -1,0 +1,107 @@
+name: Igor Taste Lens — private exact-commit proof
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-taste-lens-proof.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      QLOO_API_KEY: ""
+      GEMINI_API_KEY: ""
+      OPENAI_API_KEY: ""
+      LLM_API_KEY: ""
+      XAI_API_KEY: ""
+      BRIGHTDATA_API_KEY: ""
+      QLOO_MAX_CALLS: "0"
+    steps:
+      - name: Checkout exact private source, read-only
+        uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: 4541546d65cb3e6d65cf9519240ce171a4885a94
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          fetch-depth: 1
+          path: private-igor
+
+      - name: Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: private-igor/package-lock.json
+
+      - name: Install locked dependencies
+        working-directory: private-igor
+        run: npm ci --silent > /dev/null 2>&1
+
+      - name: Diagnose new code, report location only
+        working-directory: private-igor
+        shell: bash
+        run: |
+          set +e
+          npx prettier --check src/core/taste-lens.ts src/components/taste-lens.tsx src/app/taste-lens.css tests/unit/taste-lens.test.ts tests/browser/taste-lens.e2e.ts > /tmp/lens-prettier.log 2>&1
+          echo "FORMAT_EXIT=$?"
+          sed -n '1,25p' /tmp/lens-prettier.log
+          npm run typecheck > /tmp/lens-types.log 2>&1
+          result=$?
+          echo "TYPECHECK_EXIT=$result"
+          grep -E '^.+\([0-9]+,[0-9]+\): error TS' /tmp/lens-types.log | sed -E 's/^(.*)\(([0-9]+),([0-9]+)\): error TS([0-9]+):.*/TYPE_ERROR: \1:\2 TS\4/' | head -30
+          exit "$result"
+
+      - name: Run focused Taste Lens projection tests
+        working-directory: private-igor
+        shell: bash
+        run: |
+          set +e
+          npm test -- tests/unit/taste-lens.test.ts >/tmp/lens-unit.log 2>&1
+          code=$?
+          echo "UNIT_EXIT=$code"
+          grep -E 'Test Files|Tests  |FAIL|PASS|✓|×' /tmp/lens-unit.log | tail -16 || true
+          exit "$code"
+
+      - name: Build production application
+        working-directory: private-igor
+        shell: bash
+        run: |
+          set +e
+          npm run build >/tmp/lens-build.log 2>&1
+          code=$?
+          echo "BUILD_EXIT=$code"
+          if [ "$code" -ne 0 ]; then
+            grep -E 'error|Error|failed|Failed|Module not found|TypeScript' /tmp/lens-build.log | head -20 || true
+          fi
+          exit "$code"
+
+      - name: Install Chromium
+        working-directory: private-igor
+        run: npx playwright install --with-deps chromium >/dev/null 2>&1
+
+      - name: Browser capture — recorded Qloo only
+        working-directory: private-igor
+        shell: bash
+        run: |
+          set +e
+          npm run test:browser -- --project=taste-lens >/tmp/lens-browser.log 2>&1
+          code=$?
+          echo "BROWSER_EXIT=$code"
+          grep -E '^.*(failed|passed|Error:|Error|Timeout|expect\(|taste-lens\.e2e\.ts)' /tmp/lens-browser.log | tail -25 || true
+          exit "$code"
+
+      - name: Upload screenshot proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: igor-taste-lens-recorded-captures
+          path: private-igor/test-results/artifacts/**/*taste-lens*.png
+          if-no-files-found: ignore
+          retention-days: 7
