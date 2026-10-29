@@ -162,6 +162,7 @@ jobs:
 
       # This includes the full recorded collection/share/guest review journey.
       # Never silently skip it to make the Stage 1 gate green.
+      # Repeat after verified accessibility fix for the reviewer Preference select.
       - name: Stage 1 persistent conversation, provider boundary and connected-work browser journeys
         working-directory: private-igor
         run: npm run test:browser -- --project=workspace --project=provider-boundary --project=connected-work --project=continuity --trace retain-on-failure
