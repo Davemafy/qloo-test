@@ -30,6 +30,22 @@ jobs:
           fs.writeFileSync('visual-fixture/qloo-visual.json',JSON.stringify(result,null,2));
           console.log('Projected',rows.length,'archived insight responses; no source or credentials uploaded.');
           JS
+      - name: Cache exact provider image URLs for offline visual capture
+        working-directory: private-igor
+        run: |
+          node --input-type=module - <<'JS'
+          import fs from 'node:fs';
+          const data=JSON.parse(fs.readFileSync('visual-fixture/qloo-visual.json'));
+          fs.mkdirSync('visual-fixture/images',{recursive:true});
+          const entities=data.records[0].response.results.entities;
+          for (const e of entities) {
+            const url=e.properties?.image?.url;
+            if(!url||new URL(url).hostname!=='images.qloo.com')continue;
+            try {const r=await fetch(url,{signal:AbortSignal.timeout(12000)});if(!r.ok)continue;
+            fs.writeFileSync('visual-fixture/images/'+e.entity_id+'.jpg',Buffer.from(await r.arrayBuffer()));}catch{}
+          }
+          console.log('Cached provider image files',fs.readdirSync('visual-fixture/images').length);
+          JS
       - uses: actions/upload-artifact@v4
         with:
           name: igor-recorded-visual-fixture
