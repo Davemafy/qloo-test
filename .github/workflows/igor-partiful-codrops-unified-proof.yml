@@ -216,7 +216,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: 41ea644995b9ad987860d827178e81f1f5e20334
+          ref: 2803c4cc14801dec1cc5aabf104986a401a437c1
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: private-igor
@@ -260,7 +260,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: igor-live-acceptance-41ea644
+          name: igor-live-acceptance-2803c4c
           path: private-igor/test-results/live-flagship/report.json
           if-no-files-found: ignore
           retention-days: 7
