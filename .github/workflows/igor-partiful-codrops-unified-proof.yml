@@ -163,7 +163,7 @@ jobs:
       # Never silently skip it to make the Stage 1 gate green.
       - name: Stage 1 persistent conversation, provider boundary and connected-work browser journeys
         working-directory: private-igor
-        run: npm run test:browser -- --project=workspace --project=provider-boundary --project=connected-work --project=continuity
+        run: npm run test:browser -- --project=workspace --project=provider-boundary --project=connected-work --project=continuity --trace retain-on-failure
 
       - name: Editable Partiful invitation browser regression (desktop/mobile)
         working-directory: private-igor
@@ -178,6 +178,8 @@ jobs:
             private-igor/test-results/integrated/**/original-gallery.png
             private-igor/test-results/integrated/**/original-detailed.png
             private-igor/test-results/artifacts/**/igor-native-invitation-*.png
+            private-igor/test-results/results.json
+            private-igor/test-results/artifacts/**/trace.zip
           if-no-files-found: ignore
           retention-days: 7
 
