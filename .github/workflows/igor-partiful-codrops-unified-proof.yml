@@ -159,6 +159,8 @@ jobs:
         working-directory: private-igor
         run: npx playwright test --config tests/integrated.playwright.config.mts
 
+      # This includes the full recorded collection/share/guest review journey.
+      # Never silently skip it to make the Stage 1 gate green.
       - name: Stage 1 persistent conversation, provider boundary and connected-work browser journeys
         working-directory: private-igor
         run: npm run test:browser -- --project=workspace --project=provider-boundary --project=connected-work --project=continuity
