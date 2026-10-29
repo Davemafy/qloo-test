@@ -186,6 +186,10 @@ jobs:
         working-directory: private-igor
         run: npm run test:connected:browser
 
+      - name: Current main inline-work desktop and mobile regression
+        working-directory: private-igor
+        run: npx playwright test --config tests/inline-work.playwright.config.mts
+
       - name: Upload only recorded fixture screenshots (no source or traces)
         if: always()
         uses: actions/upload-artifact@v4
@@ -198,6 +202,7 @@ jobs:
             private-igor/test-results/results.json
             private-igor/test-results/connected-work/**/*.webm
             private-igor/test-results/morphing/*.png
+            private-igor/test-results/inline-work-*.png
           if-no-files-found: ignore
           retention-days: 7
 
@@ -209,7 +214,7 @@ jobs:
     # Never spend on the existing scheduled deterministic CI or ordinary pushes.
     if: (github.event_name == 'workflow_dispatch' && inputs.run_live) || (github.event_name == 'push' && (contains(github.event.head_commit.message, '[alternate-only]') || contains(github.event.head_commit.message, '[bounded-live]')))
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     env:
       NEXT_TELEMETRY_DISABLED: "1"
     steps:
@@ -241,7 +246,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: ${{ inputs.commit_sha || 'e6fc622cffadad8b2df9ea477af08cde42f547ec' }}
+          ref: ${{ inputs.commit_sha || '7698ac36f4e8a21e374e5a29709f1accffb55054' }}
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: private-igor
@@ -258,6 +263,7 @@ jobs:
         working-directory: private-igor
         env:
           IGOR_MODEL_PROVIDER: ${{ steps.providers.outputs.provider }}
+          GEMINI_MODEL: gemini-3.5-flash
           GEMINI_API_KEY: ${{ steps.providers.outputs.provider == 'gemini' && secrets.GEMINI_API_KEY || '' }}
           QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}
           IGOR_AGENT_MAX_STEPS: "10"
@@ -282,13 +288,21 @@ jobs:
             if curl --fail --silent http://127.0.0.1:3570/api/health > /dev/null; then break; fi
             sleep 1
           done
+          export IGOR_BUILD_SHA="$(git rev-parse HEAD)"
           timeout 540 node scripts/verify-live-flagship.mjs
+          timeout 720 node scripts/verify-live-experiences.mjs
       - name: Upload only sanitized LIVE acceptance report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: igor-live-acceptance-e6fc622
-          path: private-igor/test-results/live-flagship/report.json
+          name: igor-live-acceptance-7698ac3
+          path: |
+            private-igor/test-results/live-flagship/report.json
+            private-igor/test-results/live-flagship/*.png
+            private-igor/test-results/live-flagship/*.webm
+            private-igor/test-results/live-experiences/report.json
+            private-igor/test-results/live-experiences/*.png
+            private-igor/test-results/live-experiences/*.webm
           if-no-files-found: ignore
           retention-days: 7
 
