@@ -1,89 +1,168 @@
-name: Igor Partiful and Codrops unified product proof
+name: Igor single-branch CI (private source)
+# Runs ONLY in qloo-test. Igor's hosted runners are currently unhealthy.
 on:
   push:
     branches: [main]
-    paths:
-      - .github/workflows/igor-partiful-codrops-unified-proof.yml
+    paths: [.github/workflows/igor-partiful-codrops-unified-proof.yml]
+  workflow_dispatch:
+    inputs:
+      commit_sha:
+        description: Optional exact Igor commit SHA; blank means current active branch HEAD
+        type: string
+        required: false
+  schedule:
+    - cron: "17 */3 * * *"
+
 permissions:
   contents: read
+
+concurrency:
+  group: igor-single-branch-ci
+  cancel-in-progress: false
+
 jobs:
-  proof:
+  verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 45
     env:
-      NEXT_TELEMETRY_DISABLED: "1"
       CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      IGOR_BRANCH: feat/partiful-codrops-unified-20261029
       QLOO_API_KEY: ""
       GEMINI_API_KEY: ""
       XAI_API_KEY: ""
       ANTHROPIC_API_KEY: ""
       GROK_API_KEY: ""
       OPENAI_API_KEY: ""
-      LLM_API_KEY: ""
       BRIGHTDATA_API_KEY: ""
       QLOO_MAX_CALLS: "0"
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Resolve exact active Igor revision using private read token
+        id: revision
+        shell: bash
+        env:
+          READ_TOKEN: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          REQUESTED_SHA: ${{ inputs.commit_sha }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$READ_TOKEN" ]]; then
+            echo "::error::qloo-test needs PRIVATE_CI_READ_TOKEN with contents:read on Davemafy/igor."
+            exit 1
+          fi
+          if [[ -n "$REQUESTED_SHA" ]]; then
+            if ! [[ "$REQUESTED_SHA" =~ ^[a-fA-F0-9]{40}$ ]]; then
+              echo "::error::commit_sha must be a full 40-character SHA."
+              exit 1
+            fi
+            sha="$REQUESTED_SHA"
+          else
+            payload="$(curl --fail --silent --show-error \
+              --header "Authorization: Bearer $READ_TOKEN" \
+              --header "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/Davemafy/igor/branches/$IGOR_BRANCH")"
+            sha="$(node -e 'const o=JSON.parse(process.argv[1]);const s=o.commit?.sha; if(!/^[0-9a-f]{40}$/.test(s??""))process.exit(1);process.stdout.write(s)' "$payload")"
+          fi
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "Reviewed Igor SHA: $sha"
+          {
+            echo "### Igor single-branch CI"
+            echo "- Source: `Davemafy/igor`"
+            echo "- Branch: `$IGOR_BRANCH`"
+            echo "- Exact revision: `$sha`"
+            echo "- Runner: `Davemafy/qloo-test`, no Igor runner dependency"
+            echo "- Providers: disabled for deterministic recorded acceptance tests"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Checkout exact private Igor commit
+        uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: 85ef8845dfd95b1c75e6e82e66a467729bcd6f23
+          ref: ${{ steps.revision.outputs.sha }}
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           fetch-depth: 1
           path: private-igor
+
+      - name: Verify branch and upstream reuse constraints
+        working-directory: private-igor
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ steps.revision.outputs.sha }}"
+          test -s AGENTS.md
+          test -s docs/design-system.md
+          test -s src/vendor/codrops-grid/LICENSE
+          grep -q 'Partiful' docs/design-system.md
+          grep -q 'projectInvitationScene' src/components/agent-workspace.tsx
+          grep -q 'data-size-grid' src/components/liquid-discovery.tsx
+
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
           cache: npm
           cache-dependency-path: private-igor/package-lock.json
-      - name: Verify source and local license contract
-        working-directory: private-igor
-        run: |
-          test -s src/vendor/codrops-grid/LICENSE
-          grep -q "Partiful" docs/design-system.md
-          grep -q "projectInvitationScene" src/components/agent-workspace.tsx
-          grep -q "data-size-grid" src/components/liquid-discovery.tsx
+
       - name: Install locked dependencies
         working-directory: private-igor
-        run: npm ci --silent >/dev/null 2>&1
-      - name: Check formatting and report filenames
+        run: npm ci --silent > /dev/null 2>&1
+
+      - name: TypeScript
+        working-directory: private-igor
+        run: npm run typecheck
+
+      - name: ESLint
+        working-directory: private-igor
+        run: npm run lint
+
+      - name: All deterministic unit tests
+        working-directory: private-igor
+        run: npm test
+
+      - name: Formatting audit (existing debt reported, not hidden)
         working-directory: private-igor
         shell: bash
         run: |
           set +e
-          npx prettier --check src/core/invitation-scene.ts src/components/invitation-studio.tsx src/app/invitation-studio.css src/components/agent-workspace.tsx src/components/liquid-discovery.tsx src/app/integrated-discovery.css tests/unit/invitation-scene.test.ts tests/browser/native-invitation.e2e.ts tests/browser/integrated-discovery.e2e.ts tests/playwright.config.mts docs/design-system.md docs/design/partiful-native-invitation.md >/tmp/igor-format.log 2>&1
-          echo "FORMAT_EXIT=$?"
-          grep -E '\[warn\]|All matched|Checking formatting' /tmp/igor-format.log | head -22 || true
-          exit 0
-      - name: TypeScript
+          npm run format:check > "$RUNNER_TEMP/igor-format-audit.log" 2>&1
+          result=$?
+          echo "FORMAT_EXIT=$result"
+          if [ "$result" -ne 0 ]; then
+            echo "::warning::Igor repository-wide Prettier audit failed. This is outstanding quality debt."
+            echo "- Formatting audit: FAIL (not yet a blocking gate)" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- Formatting audit: PASS" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          rm -f "$RUNNER_TEMP/igor-format-audit.log"
+
+      - name: Production Next.js build
         working-directory: private-igor
-        run: npm run typecheck
-      - name: ESLint
+        run: npm run build > "$RUNNER_TEMP/igor-build.log" 2>&1 || { grep -E 'error|Error|failed|Failed|Module not found' "$RUNNER_TEMP/igor-build.log" | head -25 || true; exit 1; }
+
+      - name: Install Chromium
         working-directory: private-igor
-        run: npm run lint
-      - name: Focused invitation unit regression suite
-        working-directory: private-igor
-        run: npm test -- tests/unit/invitation-scene.test.ts
-      - name: Production build
-        working-directory: private-igor
-        run: npm run build >/tmp/igor-unified-build.log 2>&1 || { grep -E 'error|Error|failed|Failed|Module not found' /tmp/igor-unified-build.log | head -35 || true; exit 1; }
-      - name: Chromium
-        working-directory: private-igor
-        run: npx playwright install --with-deps chromium >/dev/null 2>&1
-      - name: Codrops gallery and existing integration tests
+        run: npx playwright install --with-deps chromium > /dev/null 2>&1
+
+      - name: Source-driven Codrops gallery browser regression
         working-directory: private-igor
         run: npx playwright test --config tests/integrated.playwright.config.mts
-      - name: Partiful invitation desktop and mobile
+
+      - name: Editable Partiful invitation browser regression (desktop/mobile)
         working-directory: private-igor
         run: npm run test:browser -- --project=native-invite
-      - name: Upload proof (sample data, no private source)
+
+      - name: Upload only recorded fixture screenshots (no source or traces)
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: igor-partiful-codrops-browser-views
+          name: igor-single-branch-browser-evidence
           path: |
             private-igor/test-results/integrated/**/original-gallery.png
             private-igor/test-results/integrated/**/original-detailed.png
             private-igor/test-results/artifacts/**/igor-native-invitation-*.png
-          if-no-files-found: warn
+          if-no-files-found: ignore
           retention-days: 7
+
+      - name: Record exact verified SHA
+        if: success()
+        run: echo "PASS — Igor commit ${{ steps.revision.outputs.sha }} at $(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_STEP_SUMMARY"
