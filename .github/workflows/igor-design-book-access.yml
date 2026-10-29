@@ -1,0 +1,115 @@
+name: Igor - authorized design-book access catalog
+
+# This workflow checks the five publisher/author access pages.
+# It NEVER copies commercial book PDFs or stores licensed material in public artifacts.
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/igor-design-book-access.yml
+
+permissions:
+  contents: read
+
+jobs:
+  official-sources:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check official access locations and create manifest
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import datetime
+          import json
+          import pathlib
+          import urllib.error
+          import urllib.request
+
+          books = [
+              {
+                  "title": "Refactoring UI",
+                  "creators": "Adam Wathan and Steve Schoger",
+                  "url": "https://refactoringui.com/",
+                  "access": "Paid complete book; author offers two free preview chapters",
+              },
+              {
+                  "title": "Practical UI (2nd edition)",
+                  "creators": "Adham Dannaway",
+                  "url": "https://adhamdannaway.gumroad.com/l/practical-ui",
+                  "access": "Paid complete book; author offers a free preview",
+              },
+              {
+                  "title": "Designing Interfaces (3rd edition)",
+                  "creators": "Jenifer Tidwell, Charles Brewer, and Aynne Valencia",
+                  "url": "https://www.oreilly.com/library/view/designing-interfaces-3rd/9781492051954/",
+                  "access": "Publisher access or library borrowing",
+              },
+              {
+                  "title": "Design Systems Handbook",
+                  "creators": "Marco Suarez, Jina Anne, Katie Sylor-Miller, Diana Mounter, Roy Stanfield",
+                  "url": "https://designbetter.com/books/design-systems-handbook",
+                  "access": "Design Better membership for complete PDF/EPUB",
+              },
+              {
+                  "title": "Strategic Writing for UX (2nd edition)",
+                  "creators": "Torrey Podmajersky",
+                  "url": "https://www.oreilly.com/library/view/strategic-writing-for/9781098174323/",
+                  "access": "Publisher access or library borrowing",
+              },
+          ]
+
+          for book in books:
+              request = urllib.request.Request(
+                  book["url"],
+                  method="HEAD",
+                  headers={"User-Agent": "Mozilla/5.0 (Igor authorized-source checker)"}
+              )
+              try:
+                  with urllib.request.urlopen(request, timeout=12) as response:
+                      book["http_status"] = response.status
+              except urllib.error.HTTPError as e:
+                  book["http_status"] = e.code
+                  book["note"] = "Automated HEAD may be blocked; open in a browser."
+              except Exception as e:
+                  book["http_status"] = None
+                  book["note"] = "Page check inconclusive; open in a browser."
+
+          output = pathlib.Path("igor-design-books")
+          output.mkdir(exist_ok=True)
+          manifest = {
+              "purpose": "Five official publisher/author access locations for Igor design research",
+              "generated_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              "notice": "This artifact is a reference catalog, NOT five book downloads. "
+                        "The source GitHub collection does not establish redistribution rights.",
+              "books": books,
+          }
+          (output / "manifest.json").write_text(
+              json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+          )
+          lines = [
+              "# Igor design reading: authorized access catalog",
+              "",
+              "This file contains publisher/author access locations, **not copies of the books**.",
+              "Do not upload purchased or unlicensed PDFs to artifacts of this public repository.",
+              "",
+          ]
+          for index, book in enumerate(books, 1):
+              lines += [
+                  f"## {index}. {book['title']}",
+                  f"- Authors: {book['creators']}",
+                  f"- Official source: {book['url']}",
+                  f"- Access: {book['access']}",
+                  f"- Automated HTTP check: {book['http_status'] or 'inconclusive'}",
+                  "",
+              ]
+          (output / "README.md").write_text("\n".join(lines), encoding="utf-8")
+          print("\n".join(lines))
+          PY
+
+      - name: Upload access catalog (no copyrighted books)
+        uses: actions/upload-artifact@v4
+        with:
+          name: igor-design-authorized-access
+          path: igor-design-books/
+          retention-days: 14
