@@ -97,6 +97,7 @@ jobs:
           test -s tests/unit/trueforge.test.ts
           test -s docs/TRUEFORGE_INTEGRATION.md
           test -s tests/unit/durable-turn.test.ts
+          test -s tests/unit/conversation-focus.test.ts
           grep -q 'Partiful' docs/design-system.md
           grep -q 'projectInvitationScene' src/components/agent-workspace.tsx
           grep -q 'data-size-grid' src/components/liquid-discovery.tsx
