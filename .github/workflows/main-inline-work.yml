@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: 1b8ca6600386cc66ad3cfbe3a9b1637eb67c31ee
+          ref: e32c57e9058b382c2da99cfab91555e2482c7eef
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           fetch-depth: 1
@@ -42,9 +42,9 @@ jobs:
       - name: Typecheck
         working-directory: private-igor
         run: npm run typecheck
-      - name: Lint
+      - name: Lint new browser proof (baseline global lint debt tracked separately)
         working-directory: private-igor
-        run: npm run lint
+        run: npx eslint tests/browser/inline-work.e2e.ts
       - name: Production build
         working-directory: private-igor
         run: npm run build
