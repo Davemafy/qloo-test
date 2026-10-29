@@ -246,7 +246,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: ${{ inputs.commit_sha || '7698ac36f4e8a21e374e5a29709f1accffb55054' }}
+          ref: ${{ inputs.commit_sha || '7ec84b00bcf8699daba54ff3ccc99c0822e1124d' }}
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: private-igor
@@ -256,6 +256,14 @@ jobs:
       - name: Install and build exact source
         working-directory: private-igor
         run: npm ci --silent > /dev/null 2>&1 && npm run build > "$RUNNER_TEMP/live-build.log" 2>&1
+      - name: Actual Gemini adapter routing check before the browser journey
+        if: steps.providers.outputs.provider == 'gemini'
+        working-directory: private-igor
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: gemini-3.1-flash-lite
+        run: timeout 210 node node_modules/vitest/vitest.mjs run --config tests/live-provider.vitest.config.mts
+
       - name: Install Chromium for actual browser acceptance
         working-directory: private-igor
         run: npx playwright install --with-deps chromium > /dev/null 2>&1
@@ -263,7 +271,7 @@ jobs:
         working-directory: private-igor
         env:
           IGOR_MODEL_PROVIDER: ${{ steps.providers.outputs.provider }}
-          GEMINI_MODEL: gemini-3.5-flash
+          GEMINI_MODEL: gemini-3.1-flash-lite
           GEMINI_API_KEY: ${{ steps.providers.outputs.provider == 'gemini' && secrets.GEMINI_API_KEY || '' }}
           QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}
           IGOR_AGENT_MAX_STEPS: "10"
@@ -295,7 +303,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: igor-live-acceptance-7698ac3
+          name: igor-live-acceptance-7ec84b0
           path: |
             private-igor/test-results/live-flagship/report.json
             private-igor/test-results/live-flagship/*.png
