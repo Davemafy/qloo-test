@@ -206,18 +206,36 @@ jobs:
 
   live-acceptance:
     # Never spend on the existing scheduled deterministic CI or ordinary pushes.
-    if: github.event_name == 'workflow_dispatch' && inputs.run_live
+    if: (github.event_name == 'workflow_dispatch' && inputs.run_live) || (github.event_name == 'push' && contains(github.event.head_commit.message, '[alternate-only]'))
     runs-on: ubuntu-latest
     timeout-minutes: 12
     env:
       NEXT_TELEMETRY_DISABLED: "1"
     steps:
-      - name: Check authorized provider bindings without printing values
+      - name: Select an existing authorized provider without printing values
+        id: providers
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+          GROK_API_KEY: ${{ secrets.GROK_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ALTERNATE_ONLY: ${{ github.event_name == 'push' }}
         run: |
-          test -n "$GEMINI_API_KEY" && test -n "$QLOO_API_KEY" || { echo "::error::BLOCKED: existing Gemini and Qloo bindings are both required."; exit 1; }
+          set -euo pipefail
+          test -n "$QLOO_API_KEY" || { echo "::error::BLOCKED: no existing Qloo binding."; exit 1; }
+          if [[ -n "$XAI_API_KEY" || -n "$GROK_API_KEY" ]]; then
+            provider=grok
+          elif [[ -n "$ANTHROPIC_API_KEY" ]]; then
+            provider=claude
+          elif [[ "$ALTERNATE_ONLY" != "true" && -n "$GEMINI_API_KEY" ]]; then
+            provider=gemini
+          else
+            echo "::error::BLOCKED: no existing Grok or Claude binding; Gemini is not retried."
+            exit 1
+          fi
+          echo "provider=$provider" >> "$GITHUB_OUTPUT"
+          echo "Selected authorized provider: $provider"
       - name: Checkout exact accepted Igor revision for bounded live run
         uses: actions/checkout@v4
         with:
@@ -235,18 +253,20 @@ jobs:
       - name: Install Chromium for actual browser acceptance
         working-directory: private-igor
         run: npx playwright install --with-deps chromium > /dev/null 2>&1
-      - name: Bounded LIVE Qloo and Gemini journey, never recorded fallback
+      - name: Bounded LIVE Qloo journey with selected authorized model, never recorded fallback
         working-directory: private-igor
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          IGOR_MODEL_PROVIDER: ${{ steps.providers.outputs.provider }}
+          GEMINI_API_KEY: ${{ steps.providers.outputs.provider == 'gemini' && secrets.GEMINI_API_KEY || '' }}
           QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}
           IGOR_AGENT_MAX_STEPS: "10"
           IGOR_AGENT_MAX_REQUESTS: "12"
           QLOO_MAX_CALLS: "20"
           IGOR_TEST_FIXTURES: ""
           IGOR_QLOO_RECORDING: ""
-          XAI_API_KEY: ""
-          ANTHROPIC_API_KEY: ""
+          XAI_API_KEY: ${{ steps.providers.outputs.provider == 'grok' && secrets.XAI_API_KEY || '' }}
+          GROK_API_KEY: ${{ steps.providers.outputs.provider == 'grok' && secrets.GROK_API_KEY || '' }}
+          ANTHROPIC_API_KEY: ${{ steps.providers.outputs.provider == 'claude' && secrets.ANTHROPIC_API_KEY || '' }}
           OPENAI_API_KEY: ""
           IGOR_DB_PATH: .igor/live-acceptance/tasks.sqlite
           IGOR_AUTH_PATH: .igor/live-acceptance/auth.sqlite
