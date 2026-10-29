@@ -118,6 +118,8 @@ jobs:
         working-directory: private-igor
         run: npm run lint
 
+      # The delegate is opt-in; CI exercises its official Sessions/Turns
+      # protocol against deterministic mocks, never paid live providers.
       - name: All deterministic unit tests
         working-directory: private-igor
         run: npm test
