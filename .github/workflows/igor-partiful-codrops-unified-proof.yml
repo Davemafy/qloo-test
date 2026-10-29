@@ -81,7 +81,7 @@ jobs:
           ref: ${{ steps.revision.outputs.sha }}
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
-          fetch-depth: 1
+          fetch-depth: 0
           path: private-igor
 
       - name: Verify branch and upstream reuse constraints
@@ -123,6 +123,7 @@ jobs:
       # The delegate is opt-in; CI exercises its official Sessions/Turns
       # protocol against deterministic mocks, never paid live providers.
       # The fixture uses actual SSE blank-line delimiters, as in TrueForge.
+      # Mission: full deterministic coverage, source archive integrity, all browser projects.
       # Stage 1: verified retry of failed accepted turns must not reappend user messages.
       - name: All deterministic unit tests
         working-directory: private-igor
@@ -148,6 +149,14 @@ jobs:
           fi
           rm -f "$RUNNER_TEMP/igor-format-audit.log"
 
+      - name: Blocking formatting check for mission changes
+        working-directory: private-igor
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -d '' files < <(git diff --name-only -z --diff-filter=ACMR 64615cf48adb7092654ce5b9ad6a48e1d71ecd86 HEAD -- '*.ts' '*.tsx' '*.mjs' '*.mts' '*.json' '*.md' '*.css')
+          if (( ${#files[@]} )); then npx prettier --check "${files[@]}"; fi
+
       - name: Production Next.js build
         working-directory: private-igor
         run: npm run build > "$RUNNER_TEMP/igor-build.log" 2>&1 || { grep -E 'error|Error|failed|Failed|Module not found' "$RUNNER_TEMP/igor-build.log" | head -25 || true; exit 1; }
@@ -165,11 +174,11 @@ jobs:
       # Repeat after verified accessibility fix for the reviewer Preference select.
       - name: Stage 1 persistent conversation, provider boundary and connected-work browser journeys
         working-directory: private-igor
-        run: npm run test:browser -- --project=workspace --project=provider-boundary --project=connected-work --project=continuity --trace retain-on-failure
+        run: npm run test:browser -- --trace retain-on-failure
 
-      - name: Editable Partiful invitation browser regression (desktop/mobile)
+      - name: Connected work desktop and mobile acceptance
         working-directory: private-igor
-        run: npm run test:browser -- --project=native-invite
+        run: npm run test:connected:browser
 
       - name: Upload only recorded fixture screenshots (no source or traces)
         if: always()
@@ -181,7 +190,8 @@ jobs:
             private-igor/test-results/integrated/**/original-detailed.png
             private-igor/test-results/artifacts/**/igor-native-invitation-*.png
             private-igor/test-results/results.json
-            private-igor/test-results/artifacts/**/trace.zip
+            private-igor/test-results/connected-work/**/*.webm
+            private-igor/test-results/morphing/*.png
           if-no-files-found: ignore
           retention-days: 7
 
