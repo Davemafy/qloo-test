@@ -1,0 +1,97 @@
+name: Igor native invitation — exact revision visual proof
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-partiful-native-proof.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      QLOO_API_KEY: ""
+      GEMINI_API_KEY: ""
+      OPENAI_API_KEY: ""
+      LLM_API_KEY: ""
+      XAI_API_KEY: ""
+      BRIGHTDATA_API_KEY: ""
+      QLOO_MAX_CALLS: "0"
+    steps:
+      - name: Check out exact reviewed private Igor branch revision
+        uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: ed5177c552b3d050b35e9be3488c02292ca67a07
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          fetch-depth: 1
+          path: private-igor
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: private-igor/package-lock.json
+
+      - name: Install locked dependencies
+        working-directory: private-igor
+        run: npm ci --silent >/dev/null 2>&1
+
+      - name: Focused formatting and typecheck
+        working-directory: private-igor
+        shell: bash
+        run: |
+          set +e
+          npx prettier --check src/core/invitation-scene.ts src/components/invitation-studio.tsx src/app/invitation-studio.css tests/unit/invitation-scene.test.ts tests/browser/native-invitation.e2e.ts docs/design/partiful-native-invitation.md >/tmp/invite-format.log 2>&1
+          echo "FORMAT_EXIT=$?"
+          grep -E '\[warn\]|All matched' /tmp/invite-format.log | head -20 || true
+          npm run typecheck >/tmp/invite-types.log 2>&1
+          code=$?
+          echo "TYPECHECK_EXIT=$code"
+          if [ "$code" -ne 0 ]; then grep -E '^.+\([0-9]+,[0-9]+\): error TS' /tmp/invite-types.log | head -30 || true; fi
+          exit "$code"
+
+      - name: Unit tests
+        working-directory: private-igor
+        run: npm test -- tests/unit/invitation-scene.test.ts
+
+      - name: Production build
+        working-directory: private-igor
+        shell: bash
+        run: |
+          npm run build >/tmp/invite-build.log 2>&1 || {
+            grep -E 'error|Error|failed|Failed|Module not found' /tmp/invite-build.log | head -25 || true
+            exit 1
+          }
+          echo "Production build: PASS"
+
+      - name: Chromium
+        working-directory: private-igor
+        run: npx playwright install --with-deps chromium >/dev/null 2>&1
+
+      - name: Browser journey and actual screenshots
+        working-directory: private-igor
+        shell: bash
+        run: |
+          set +e
+          npm run test:browser -- --project=native-invite >/tmp/invite-browser.log 2>&1
+          code=$?
+          echo "BROWSER_EXIT=$code"
+          grep -E 'failed|passed|Error:|Timeout|native-invitation.e2e.ts|expect\(' /tmp/invite-browser.log | tail -32 || true
+          exit "$code"
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: igor-native-invitation-browser-captures
+          path: private-igor/test-results/artifacts/**/*.png
+          if-no-files-found: ignore
+          retention-days: 7
