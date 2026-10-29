@@ -127,6 +127,10 @@ jobs:
         working-directory: private-igor
         run: npm test
 
+      - name: Domain evaluation tests
+        working-directory: private-igor
+        run: npm run test:eval
+
       - name: Formatting audit (existing debt reported, not hidden)
         working-directory: private-igor
         shell: bash
@@ -154,6 +158,10 @@ jobs:
       - name: Source-driven Codrops gallery browser regression
         working-directory: private-igor
         run: npx playwright test --config tests/integrated.playwright.config.mts
+
+      - name: Stage 1 persistent conversation, provider boundary and connected-work browser journeys
+        working-directory: private-igor
+        run: npm run test:browser -- --project=workspace --project=provider-boundary --project=connected-work --project=continuity
 
       - name: Editable Partiful invitation browser regression (desktop/mobile)
         working-directory: private-igor
