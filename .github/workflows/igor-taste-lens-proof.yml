@@ -27,7 +27,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: aa0e240cdd53accc714c355573e7f06b4f862835
+          ref: f848f8809ecdef6850d78076fcf2f39f46cfa8c6
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           fetch-depth: 1
@@ -102,6 +102,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: igor-taste-lens-recorded-captures
-          path: private-igor/test-results/artifacts/**/*taste-lens*.png
+          path: |
+            private-igor/test-results/artifacts/**/*taste-lens*.png
+            private-igor/test-results/artifacts/**/*.webm
           if-no-files-found: ignore
           retention-days: 7
