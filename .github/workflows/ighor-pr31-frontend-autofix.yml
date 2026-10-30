@@ -74,6 +74,7 @@ jobs:
             src/components/reference-work.tsx \
             src/components/reference-conversation-results.tsx \
             src/components/reference-create-stage.tsx \
+            src/components/reference-document-stage.tsx \
             src/components/reference-media.ts \
             src/components/igor-spatial-canvas.tsx \
             src/components/workspace-view-model.ts \
@@ -85,6 +86,8 @@ jobs:
             tests/unit/workspace-view-model.test.ts \
             tests/browser/reference-integrated.e2e.ts \
             tests/browser/reference-twelve.e2e.ts \
+            tests/browser/reference-populated.e2e.ts \
+            tests/unit/reference-create-stage.test.tsx \
             tests/reference-integrated.playwright.config.mts \
             docs/implementation/FRONTEND_VISUAL_AUDIT.md \
             docs/implementation/FRONTEND_COMPONENT_MAP.md \
