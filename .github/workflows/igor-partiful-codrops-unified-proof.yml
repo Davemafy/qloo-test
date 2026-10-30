@@ -1,4 +1,5 @@
 name: Igor single-branch CI (private source)
+# Verify Igor engine SHA 89bd4d75d983a8d83b961502c77f1678e96c1ccd (deterministic only)
 # Runs ONLY in qloo-test. Igor's hosted runners are currently unhealthy.
 on:
   push:
