@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      EXPECTED_HEAD: 35e1b3f35c3c7ffb025012415c53ba1e2240959c
+      EXPECTED_HEAD: 1cd2d875c6b13d617257cbdbefe4ab303fb8a9b4
       TARGET_BRANCH: fix/public-release-fixture-isolation
       CI: 'true'
       NEXT_TELEMETRY_DISABLED: '1'
@@ -45,9 +45,9 @@ jobs:
         working-directory: private-ighor
         run: |
           set -euo pipefail
-          npx prettier --write . > "$RUNNER_TEMP/prettier.log" 2>&1
           npx eslint src tests scripts next.config.ts eslint.config.mjs --fix \
             > "$RUNNER_TEMP/eslint.log" 2>&1 || true
+          npx prettier --write . > "$RUNNER_TEMP/prettier.log" 2>&1
           count="$(git status --porcelain | wc -l)"
           echo "Reformatted existing files: $count"
           test "$count" -gt 0 || { echo 'Nothing to commit'; exit 0; }
