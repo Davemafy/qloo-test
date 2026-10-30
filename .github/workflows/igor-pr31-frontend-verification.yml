@@ -160,6 +160,9 @@ jobs:
         with:
           name: igor-pr31-reference-layouts
           path: |
+            private-igor/test-results/ighor-populated-*.png
+            private-igor/test-results/ighor-home-1366x768-typography.png
+            private-igor/test-results/ighor-route-smoke-*.png
             private-igor/test-results/ighor-owner-*.png
             private-igor/test-results/igor-reference-home-1448.png
             private-igor/test-results/igor-reference-explore-1448.png
@@ -171,4 +174,4 @@ jobs:
       - name: Summarize private-source handling
         if: always()
         run: |
-          echo "No source, browser screenshots, traces, provider replies or credentials uploaded from private-igor." >> "$GITHUB_STEP_SUMMARY"
+          echo "Only synthetic fixture UI captures are uploaded; no source code, real task screenshots, traces, provider replies or credentials." >> "$GITHUB_STEP_SUMMARY"
