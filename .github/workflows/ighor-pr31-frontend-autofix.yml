@@ -1,0 +1,129 @@
+name: Ighor PR31 guarded frontend autofix (review branch only)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/ighor-pr31-frontend-autofix.yml
+
+permissions:
+  contents: read
+
+jobs:
+  format-review-branch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      EXPECTED_HEAD: 0d0a64ebee1c7b4b6b85c234714f23ece0a4afb2
+      TARGET_BRANCH: design/reference-contract-foundation-20261030
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      GIT_TERMINAL_PROMPT: "0"
+    steps:
+      - name: Checkout exact private frontend review branch
+        uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: design/reference-contract-foundation-20261030
+          token: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN }}
+          persist-credentials: false
+          fetch-depth: 0
+          path: private-igor
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: private-igor/package-lock.json
+
+      - name: Refuse concurrent edits, main, or missing write permission
+        working-directory: private-igor
+        shell: bash
+        env:
+          HAS_WRITE_TOKEN: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN != '' }}
+        run: |
+          set -euo pipefail
+          test "$HAS_WRITE_TOKEN" = true
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          test "$(git symbolic-ref --short HEAD)" = "$TARGET_BRANCH"
+
+      - name: Run frontend-only safe fixes and Prettier
+        working-directory: private-igor
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci > "$RUNNER_TEMP/ighor-ci-install.log" 2>&1
+          npx eslint --fix \
+            src/components/agent-workspace.tsx \
+            src/components/reference-work.tsx \
+            src/components/reference-conversation-results.tsx \
+            src/components/reference-create-stage.tsx \
+            src/components/reference-media.ts \
+            src/components/igor-spatial-canvas.tsx \
+            src/components/workspace-view-model.ts \
+            src/app/app/page.tsx \
+            tests/unit/workspace-view-model.test.ts \
+            tests/browser/reference-integrated.e2e.ts \
+            tests/browser/reference-twelve.e2e.ts \
+            > "$RUNNER_TEMP/ighor-ci-lint.log" 2>&1 || true
+          npx prettier --write \
+            src/components/agent-workspace.tsx \
+            src/components/reference-work.tsx \
+            src/components/reference-conversation-results.tsx \
+            src/components/reference-create-stage.tsx \
+            src/components/reference-media.ts \
+            src/components/igor-spatial-canvas.tsx \
+            src/components/workspace-view-model.ts \
+            src/components/workspace-api.ts \
+            src/app/app/page.tsx \
+            src/app/layout.tsx \
+            src/app/mockup-native.css \
+            tests/unit/workspace-view-model.test.ts \
+            tests/browser/reference-integrated.e2e.ts \
+            tests/browser/reference-twelve.e2e.ts \
+            tests/reference-integrated.playwright.config.mts \
+            docs/implementation/FRONTEND_VISUAL_AUDIT.md \
+            docs/implementation/FRONTEND_COMPONENT_MAP.md \
+            docs/implementation/FRONTEND_DESIGN_TOKENS.md \
+            docs/implementation/FRONTEND_IMPLEMENTATION_REPORT.md \
+            docs/implementation/FRONTEND_COHERENCE_CONTRACT.md \
+            > "$RUNNER_TEMP/ighor-ci-format.log" 2>&1
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          if test -z "$(git status --porcelain)"; then
+            echo "No formatting changes needed"
+            exit 0
+          fi
+          git config user.name "ighor-review-ci"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -u
+          git commit -m "style(frontend): normalize PR31 formatting and safe lint fixes" \
+            > "$RUNNER_TEMP/ighor-ci-commit.log" 2>&1
+          echo "Prepared review-only formatting commit"
+
+      - name: Push only to pinned frontend draft branch
+        working-directory: private-igor
+        shell: bash
+        env:
+          IGHOR_WRITE_TOKEN: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN }}
+        run: |
+          set -euo pipefail
+          test "$(git symbolic-ref --short HEAD)" = "$TARGET_BRANCH"
+          cat > "$RUNNER_TEMP/ighor-askpass" <<'SH'
+          #!/bin/sh
+          case "$1" in
+            *Username*) printf '%s\n' 'x-access-token' ;;
+            *Password*) printf '%s\n' "$IGHOR_WRITE_TOKEN" ;;
+            *) exit 1 ;;
+          esac
+          SH
+          chmod 700 "$RUNNER_TEMP/ighor-askpass"
+          export GIT_ASKPASS="$RUNNER_TEMP/ighor-askpass"
+          git push https://github.com/Davemafy/igor.git HEAD:refs/heads/design/reference-contract-foundation-20261030 \
+            > "$RUNNER_TEMP/ighor-ci-push.log" 2>&1
+          echo "Updated draft frontend branch; no merge and no deploy."
+
+      - name: Clear private logs and credentials
+        if: always()
+        run: |
+          rm -f "$RUNNER_TEMP"/ighor-ci-*.log "$RUNNER_TEMP/ighor-askpass" || true
+          echo "Private source and credentials were not published." >> "$GITHUB_STEP_SUMMARY"
