@@ -1,0 +1,88 @@
+name: Ighor release — format and safe ESLint autofixes on review branch
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/ighor-release-autofix.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  autofix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      EXPECTED_HEAD: 35e1b3f35c3c7ffb025012415c53ba1e2240959c
+      TARGET_BRANCH: fix/public-release-fixture-isolation
+      CI: 'true'
+      NEXT_TELEMETRY_DISABLED: '1'
+      GIT_TERMINAL_PROMPT: '0'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Davemafy/ighor
+          ref: fix/public-release-fixture-isolation
+          token: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN }}
+          persist-credentials: false
+          fetch-depth: 0
+          path: private-ighor
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: private-ighor/package-lock.json
+
+      - name: Guard against concurrent branch changes and install dependencies
+        working-directory: private-ighor
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD" || { echo '::error::Review branch moved; no formatting changes'; exit 1; }
+          npm ci > "$RUNNER_TEMP/setup.log" 2>&1
+
+      - name: Apply Prettier and safe ESLint --fix changes without public source logs
+        working-directory: private-ighor
+        run: |
+          set -euo pipefail
+          npx prettier --write . > "$RUNNER_TEMP/prettier.log" 2>&1
+          npx eslint src tests scripts next.config.ts eslint.config.mjs --fix \
+            > "$RUNNER_TEMP/eslint.log" 2>&1 || true
+          count="$(git status --porcelain | wc -l)"
+          echo "Reformatted existing files: $count"
+          test "$count" -gt 0 || { echo 'Nothing to commit'; exit 0; }
+          git config user.name "igor-release-ci"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -u
+          git commit -m "style(release): apply Prettier and ESLint automatic fixes" > "$RUNNER_TEMP/gitcommit.log" 2>&1
+
+      - name: Push the updated review branch only (never main)
+        working-directory: private-ighor
+        env:
+          IGHOR_WRITE_TOKEN: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git symbolic-ref --short HEAD)" = "$TARGET_BRANCH"
+          cat > "$RUNNER_TEMP/askpass" <<'SH'
+          #!/bin/sh
+          case "$1" in
+            *Username*) printf '%s\n' 'x-access-token' ;;
+            *Password*) printf '%s\n' "$IGHOR_WRITE_TOKEN" ;;
+            *) exit 1 ;;
+          esac
+          SH
+          chmod 700 "$RUNNER_TEMP/askpass"
+          export GIT_ASKPASS="$RUNNER_TEMP/askpass"
+          git push 'https://github.com/Davemafy/ighor.git' HEAD:refs/heads/fix/public-release-fixture-isolation \
+            > "$RUNNER_TEMP/push.log" 2>&1
+          echo "Updated review-only branch to $(git rev-parse HEAD)."
+          echo "No merge, deployment, public visibility change, or source artifact upload."
+
+      - name: Remove private diagnostic logs
+        if: always()
+        run: |
+          rm -f "$RUNNER_TEMP/setup.log" "$RUNNER_TEMP/prettier.log" \
+            "$RUNNER_TEMP/eslint.log" "$RUNNER_TEMP/gitcommit.log" \
+            "$RUNNER_TEMP/push.log" "$RUNNER_TEMP/askpass" || true
+          echo 'Private source logs and data withheld; no public artifacts uploaded.' >> "$GITHUB_STEP_SUMMARY"
