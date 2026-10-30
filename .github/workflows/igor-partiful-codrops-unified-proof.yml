@@ -27,12 +27,12 @@ permissions:
 
 concurrency:
   # Live provider checks must not hold up source-only validation jobs.
-  group: igor-${{ contains(github.event.head_commit.message, '[bounded-live]') && 'live' || contains(github.event.head_commit.message, '[format-probe]') && 'focus' || 'verify' }}
+  group: igor-${{ contains(github.event.head_commit.message, '[bounded-live]') && 'live' || contains(github.event.head_commit.message, '[format-probe]') && 'focus' || contains(github.event.head_commit.message, '[gemini-search]') && 'grounding' || contains(github.event.head_commit.message, '[xai-search]') && 'grounding' || 'verify' }}
   cancel-in-progress: false
 
 jobs:
   verify:
-    if: github.event_name != 'push' || (!contains(github.event.head_commit.message, '[model-readiness]') && !contains(github.event.head_commit.message, '[bounded-live]') && !contains(github.event.head_commit.message, '[format-probe]'))
+    if: github.event_name != 'push' || (!contains(github.event.head_commit.message, '[model-readiness]') && !contains(github.event.head_commit.message, '[bounded-live]') && !contains(github.event.head_commit.message, '[format-probe]') && !contains(github.event.head_commit.message, '[gemini-search]') && !contains(github.event.head_commit.message, '[xai-search]'))
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
