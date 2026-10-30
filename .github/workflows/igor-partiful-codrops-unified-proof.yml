@@ -336,14 +336,32 @@ jobs:
           IGOR_CACHE_PATH: .igor/live-acceptance/cache.sqlite
         run: |
           set -euo pipefail
+          # The health endpoint must report the SAME commit checked out above.
+          export IGOR_BUILD_SHA="$(git rev-parse HEAD)"
           npm start -- --port 3570 > "$RUNNER_TEMP/live-server.log" 2>&1 &
           server_pid=$!
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
-          for attempt in {1..30}; do
-            if curl --fail --silent http://127.0.0.1:3570/api/health > /dev/null; then break; fi
-            sleep 1
+          ready=false
+          for attempt in {1..45}; do
+            if ! kill -0 "$server_pid" 2>/dev/null; then
+              echo "::error::Igor process exited before readiness; provider acceptance was NOT executed."
+              exit 1
+            fi
+            if curl --fail --silent --show-error --max-time 2 \
+              http://127.0.0.1:3570/api/health > "$RUNNER_TEMP/igor-health.json" 2>/dev/null; then
+              if node -e 'const fs=require("fs"); const h=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); if(h.status!=="ok" || h.revision!==process.env.IGOR_BUILD_SHA)process.exit(1)' "$RUNNER_TEMP/igor-health.json"; then
+                ready=true
+                break
+              fi
+            fi
+            sleep 2
           done
-          export IGOR_BUILD_SHA="$(git rev-parse HEAD)"
+          if [[ "$ready" != true ]]; then
+            echo "::error::Igor server failed exact-SHA health readiness; skipping all paid provider calls."
+            exit 1
+          fi
+          echo "LIVE_RUNTIME_READY_SHA=$IGOR_BUILD_SHA"
+          rm -f "$RUNNER_TEMP/igor-health.json"
           status=0
           timeout 540 node scripts/verify-live-general-research.mjs || status=1
           timeout 540 node scripts/verify-live-flagship.mjs || status=1
