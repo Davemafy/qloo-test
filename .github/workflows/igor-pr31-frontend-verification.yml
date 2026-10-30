@@ -95,7 +95,7 @@ jobs:
           elif label=="ESLint":
               patterns=[r'^\s*\d+:\d+\s+error\s+[^\n]{0,180}',r'^.*(?:src|tests)/[^\n]{0,110}\.(?:tsx?|mts|mjs)']
           elif label=="Home Discover mobile Playwright":
-              patterns=[r'^\s*\d+\) [^\n]{0,150}',r'^\s*(?:Error:|Expected:|Received:|TimeoutError:|\[chromium\])[^\n]{0,190}',r'^.*(?:reference-integrated\.e2e\.ts|No tests found|webServer)[^\n]{0,170}']
+              patterns=[r'^\s*\d+\) [^\n]{0,150}',r'^\s*(?:Error:|Expected:|Received:|TimeoutError:|\[chromium\])[^\n]{0,190}',r'^.*(?:reference-integrated\.e2e\.ts|No tests found|webServer)[^\n]{0,170}',r'^UI_DIAG_[^\n]{0,900}']
           elif label=="Unit tests":
               patterns=[r'^\s*(?:FAIL|❯) [^\n]{0,160}']
           elif label=="Production build":
