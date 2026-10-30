@@ -87,10 +87,15 @@ jobs:
           import re,sys,pathlib
           label,filename=sys.argv[1:]
           text=pathlib.Path(filename).read_text(errors="replace")
+          text=re.sub(r'\x1b\[[0-9;]*m','',text)
           if label=="TypeScript":
               patterns=[r'^(?:src|tests)/[^\n]{0,180}error TS\d+[^\n]{0,220}']
           elif label=="Formatting (changed files)":
-              patterns=[r'^\[warn\] (?:src|tests|docs)/[^\n]{0,170}']
+              patterns=[r'^.*(?:src|tests|docs)/[^\n]{0,170}',r'^.*(?:prettier|No parser|Code style issues)[^\n]{0,170}']
+          elif label=="ESLint":
+              patterns=[r'^\s*\d+:\d+\s+error\s+[^\n]{0,180}',r'^.*(?:src|tests)/[^\n]{0,110}\.(?:tsx?|mts|mjs)']
+          elif label=="Home Discover mobile Playwright":
+              patterns=[r'^\s*\d+\) [^\n]{0,150}',r'^\s*(?:Error:|Expected:|Received:|TimeoutError:|\[chromium\])[^\n]{0,190}',r'^.*(?:reference-integrated\.e2e\.ts|No tests found|webServer)[^\n]{0,170}']
           elif label=="Unit tests":
               patterns=[r'^\s*(?:FAIL|❯) [^\n]{0,160}']
           elif label=="Production build":
