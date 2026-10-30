@@ -1,6 +1,6 @@
 name: Igor single-branch CI (private source)
 # Format-probe Igor SHA 7027ef3e14152d569527ad3defe4f50c3eb6a138
-# [bounded-live] reviewed Igor engine ecf24254c9fccacbee5c7fd446d102213a96d128
+# [bounded-live] reviewed Igor engine 7027ef3e14152d569527ad3defe4f50c3eb6a138
 # Targeted existing Gemini provider live acceptance; never fixtures
 # Verify Igor engine SHA ecf24254c9fccacbee5c7fd446d102213a96d128 (deterministic only)
 # Runs ONLY in qloo-test. Igor's hosted runners are currently unhealthy.
@@ -323,8 +323,8 @@ jobs:
           QLOO_MAX_CALLS: "20"
           IGOR_TEST_FIXTURES: ""
           IGOR_QLOO_RECORDING: ""
-          XAI_API_KEY: ${{ steps.providers.outputs.provider == 'grok' && secrets.XAI_API_KEY || '' }}
-          GROK_API_KEY: ${{ steps.providers.outputs.provider == 'grok' && secrets.GROK_API_KEY || '' }}
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+          GROK_API_KEY: ${{ secrets.GROK_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           BRIGHTDATA_API_KEY: ${{ secrets.BRIGHTDATA_API_KEY }}
           BRIGHTDATA_SERP_ZONE: ${{ secrets.BRIGHTDATA_SERP_ZONE }}
