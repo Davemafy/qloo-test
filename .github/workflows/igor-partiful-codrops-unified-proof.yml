@@ -418,14 +418,16 @@ jobs:
       - name: Install existing locked dependencies
         working-directory: private-igor
         run: npm ci --silent > /dev/null 2>&1
-      - name: Check formatting; expose only hunk locations if mismatched
+      - name: Check Igor router and unit regression before full suite
         working-directory: private-igor
         shell: bash
         run: |
-          if npx prettier --check src/core/unified-agent.ts tests/unit/agent-completion-budget.test.ts; then
+          npm run typecheck
+          npx vitest run tests/unit/gemini-routing-guard.test.ts
+          if npx prettier --check src/tools/tool-model.ts tests/unit/gemini-routing-guard.test.ts; then
             exit 0
           fi
-          npx prettier --write src/core/unified-agent.ts tests/unit/agent-completion-budget.test.ts > /dev/null
-          git diff --unified=0 -- src/core/unified-agent.ts tests/unit/agent-completion-budget.test.ts | grep '^@@' || true
-          echo "::error::Formatting mismatch. No files were published or pushed."
+          npx prettier --write src/tools/tool-model.ts tests/unit/gemini-routing-guard.test.ts > /dev/null
+          git diff --unified=0 -- src/tools/tool-model.ts tests/unit/gemini-routing-guard.test.ts | grep '^@@' || true
+          echo "::error::Router formatting mismatch. No source published."
           exit 1
