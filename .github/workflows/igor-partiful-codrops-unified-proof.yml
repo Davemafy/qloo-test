@@ -569,3 +569,47 @@ jobs:
                       raise SystemExit(1)
           raise SystemExit(1)
           PY
+
+  gemini-search-pilot:
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[gemini-search]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    permissions:
+      contents: read
+    steps:
+      - name: Verify real structured Google Search grounding through existing Gemini key
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os,json,urllib.request,urllib.error
+          key=os.getenv("GEMINI_API_KEY")
+          if not key:
+              print("GEMINI_GROUNDING_BLOCKED: key not configured")
+              raise SystemExit(1)
+          for model in ("gemini-3.5-flash-lite","gemini-2.5-flash"):
+              body={
+                  "contents":[{"role":"user","parts":[{"text":"Find a current public energy-agency report about electric-vehicle charging infrastructure. Use Google Search and cite the source."}]}],
+                  "tools":[{"google_search":{}}],
+                  "generationConfig":{"maxOutputTokens":800},
+              }
+              req=urllib.request.Request(
+                  "https://generativelanguage.googleapis.com/v1beta/models/"+model+":generateContent",
+                  data=json.dumps(body).encode(),method="POST",
+                  headers={"Content-Type":"application/json","x-goog-api-key":key},
+              )
+              try:
+                  with urllib.request.urlopen(req,timeout=95) as response:
+                      content=json.load(response)
+                      chunks=((content.get("candidates") or [{}])[0].get("groundingMetadata") or {}).get("groundingChunks") or []
+                      urls=[x["web"]["uri"] for x in chunks if isinstance(x,dict) and isinstance(x.get("web"),dict) and isinstance(x["web"].get("uri"),str)]
+                      print("GEMINI_GROUNDING_PILOT",json.dumps({"model":model,"httpStatus":response.status,"groundedSourceCount":len(urls),"safetyRefusal":not bool(content.get("candidates"))}))
+                      if urls:
+                          raise SystemExit(0)
+              except urllib.error.HTTPError as error:
+                  print("GEMINI_GROUNDING_PILOT",json.dumps({"model":model,"httpStatus":error.code,"groundedSourceCount":0}))
+                  if error.code not in (400,404,422,429,503):
+                      raise SystemExit(1)
+          raise SystemExit(1)
+          PY
