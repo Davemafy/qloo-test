@@ -34,7 +34,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Davemafy/ighor
-          ref: 1cd2d875c6b13d617257cbdbefe4ab303fb8a9b4
+          ref: c45a80caa4f0b8c83ebae6ea7d2ae12978a2b54a
           token: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN }}
           persist-credentials: false
           path: private-ighor
