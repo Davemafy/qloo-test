@@ -32,7 +32,7 @@ concurrency:
 
 jobs:
   verify:
-    if: github.event_name != 'push' || (!contains(github.event.head_commit.message, '[model-readiness]') && !contains(github.event.head_commit.message, '[bounded-live]') && !contains(github.event.head_commit.message, '[format-probe]') && !contains(github.event.head_commit.message, '[gemini-search]') && !contains(github.event.head_commit.message, '[xai-search]'))
+    if: github.event_name != 'push' || (!contains(github.event.head_commit.message, '[model-readiness]') && !contains(github.event.head_commit.message, '[bounded-live]') && !contains(github.event.head_commit.message, '[format-probe]') && !contains(github.event.head_commit.message, '[gemini-search]') && !contains(github.event.head_commit.message, '[xai-search]') && !contains(github.event.head_commit.message, '[alternate-only]'))
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
