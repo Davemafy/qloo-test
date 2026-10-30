@@ -26,7 +26,7 @@ jobs:
       OPENAI_API_KEY: ""
       XAI_API_KEY: ""
       ANTHROPIC_API_KEY: ""
-      IGOR_SHA: ${{ inputs.commit_sha || '912394f1b3ca4d148faf0c475624e41d4c719e94' }}
+      IGOR_SHA: ${{ inputs.commit_sha || '56f9c475f2fb6730918600ce671bbeda9cc06052' }}
     steps:
       - name: Validate pinned SHA and private read access
         env:
