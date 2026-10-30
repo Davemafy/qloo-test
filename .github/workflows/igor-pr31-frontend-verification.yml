@@ -1,0 +1,149 @@
+name: Igor PR31 isolated frontend verification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/igor-pr31-frontend-verification.yml
+  workflow_dispatch:
+    inputs:
+      commit_sha:
+        description: "Exact 40-character Igor commit SHA (no live provider calls)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: igor-pr31-frontend-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      CI: "true"
+      IGOR_TEST_FIXTURES: "1"
+      QLOO_MAX_CALLS: "0"
+      QLOO_API_KEY: ""
+      GEMINI_API_KEY: ""
+      OPENAI_API_KEY: ""
+      XAI_API_KEY: ""
+      ANTHROPIC_API_KEY: ""
+      IGOR_QLOO_RECORDING: ""
+      PINNED_IGOR_SHA: ${{ github.event_name == 'workflow_dispatch' && inputs.commit_sha || '32eac1d1384f7adb2f2e0ebd675568623f248d30' }}
+    steps:
+      - name: Confirm pinned revision and existing private read authorization
+        env:
+          HAS_READ_TOKEN: ${{ secrets.PRIVATE_CI_READ_TOKEN != '' }}
+        run: |
+          set -euo pipefail
+          test "$HAS_READ_TOKEN" = true || { echo "::error::PRIVATE_CI_READ_TOKEN is unavailable"; exit 1; }
+          [[ "$PINNED_IGOR_SHA" =~ ^[0-9a-fA-F]{40}$ ]] || { echo "::error::Use an exact 40-character SHA"; exit 1; }
+          echo "Reviewing Igor commit: $PINNED_IGOR_SHA"
+          echo "Live providers disabled; source will not be committed to this repository."
+
+      - name: Checkout exact private Igor SHA, without persisting credentials
+        uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: ${{ env.PINNED_IGOR_SHA }}
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          fetch-depth: 1
+          path: private-igor
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: private-igor/package-lock.json
+
+      - name: Run isolated checks and collect sanitized diagnostics
+        working-directory: private-igor
+        shell: bash
+        run: |
+          set -uo pipefail
+          log="$RUNNER_TEMP/igor-pr31-check.log"
+          trap 'rm -f "$log"' EXIT
+          failures=0
+          echo "### Igor PR31 frontend verification: $PINNED_IGOR_SHA" >> "$GITHUB_STEP_SUMMARY"
+
+          check () {
+            label="$1"; shift
+            if "$@" > "$log" 2>&1; then
+              echo "PASS: $label"
+              echo "- $label: PASS" >> "$GITHUB_STEP_SUMMARY"
+              return 0
+            fi
+            echo "::error::FAIL: $label"
+            echo "- $label: FAIL" >> "$GITHUB_STEP_SUMMARY"
+            # Errors only: private code, env secrets, raw fixture payloads, and traces
+            # are never written to the public job log or artifacts.
+            python3 - "$label" "$log" <<'PY'
+          import re,sys,pathlib
+          label,filename=sys.argv[1:]
+          text=pathlib.Path(filename).read_text(errors="replace")
+          if label=="TypeScript":
+              patterns=[r'^(?:src|tests)/[^\n]{0,180}error TS\d+[^\n]{0,220}']
+          elif label=="Formatting (changed files)":
+              patterns=[r'^\[warn\] (?:src|tests|docs)/[^\n]{0,170}']
+          elif label=="Unit tests":
+              patterns=[r'^\s*(?:FAIL|❯) [^\n]{0,160}']
+          elif label=="Production build":
+              patterns=[r'^(?:Error:|Module not found|Failed to compile)[^\n]{0,150}']
+          else:
+              patterns=[r'^\s*(?:FAIL|failed|Failed|Error:) [^\n]{0,140}']
+          lines=[]
+          for pattern in patterns:
+              lines.extend(re.findall(pattern,text,re.MULTILINE))
+          for line in lines[:24]:
+              print("CHECK_DIAGNOSTIC",label, line[:240])
+          if not lines: print("CHECK_DIAGNOSTIC", label, "no safe structured error found; inspect private-run logs")
+          PY
+            failures=$((failures+1))
+            return 1
+          }
+
+          if check "Install" npm ci; then
+            check "Formatting (changed files)" npx prettier --check \
+              src/components/reference-work.tsx \
+              src/components/workspace-view-model.ts \
+              src/components/agent-workspace.tsx \
+              src/components/workspace-api.ts \
+              src/app/app/page.tsx \
+              src/app/mockup-native.css \
+              tests/unit/workspace-view-model.test.ts \
+              tests/browser/reference-integrated.e2e.ts \
+              tests/reference-integrated.playwright.config.mts \
+              docs/implementation/FRONTEND_VISUAL_AUDIT.md \
+              docs/implementation/FRONTEND_COMPONENT_MAP.md \
+              docs/implementation/FRONTEND_DESIGN_TOKENS.md \
+              docs/implementation/FRONTEND_IMPLEMENTATION_REPORT.md || :
+            check "TypeScript" npm run typecheck || :
+            check "ESLint" npm run lint || :
+            check "Unit tests" npm test || :
+            check "Domain evaluation" npm run test:eval || :
+            if check "Production build" npm run build; then
+              if check "Chromium installation" npx playwright install --with-deps chromium; then
+                check "Home Discover mobile Playwright" npx playwright test --config tests/reference-integrated.playwright.config.mts || :
+              fi
+            else
+              echo "SKIP: Browser (requires successful build)"
+              echo "- Browser: SKIP (build required)" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          fi
+          echo "Verified target SHA: $PINNED_IGOR_SHA" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$failures" -gt 0 ]; then
+            echo "::error::$failures checks failed for pinned Igor commit."
+            exit 1
+          fi
+          echo "All checks passed for pinned Igor commit."
+
+      - name: Summarize private-source handling
+        if: always()
+        run: |
+          echo "No source, browser screenshots, traces, provider replies or credentials uploaded from private-igor." >> "$GITHUB_STEP_SUMMARY"
