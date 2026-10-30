@@ -1,0 +1,158 @@
+name: Igor submission — private sanitized staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type STAGE-PRIVATE-ONLY; never makes a repository public
+        type: string
+        required: true
+      pinned_sha:
+        description: Reviewed Igor source revision (40-character SHA)
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      SOURCE_SHA: ${{ inputs.pinned_sha }}
+      CONFIRMATION: ${{ inputs.confirmation }}
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      QLOO_MAX_CALLS: "0"
+      QLOO_API_KEY: ""
+      OPENAI_API_KEY: ""
+      GEMINI_API_KEY: ""
+    steps:
+      - name: Require explicit private staging authorization and scoped tokens
+        env:
+          HAS_READ: ${{ secrets.PRIVATE_CI_READ_TOKEN != '' }}
+          HAS_WRITE: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN != '' }}
+        run: |
+          set -euo pipefail
+          test "$CONFIRMATION" = 'STAGE-PRIVATE-ONLY'
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$HAS_READ" = 'true'
+          test "$HAS_WRITE" = 'true'
+
+      - name: Require empty PRIVATE destination, never replace existing history
+        env:
+          WRITE_TOKEN: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN }}
+        run: |
+          set -euo pipefail
+          code="$(curl -sS -o "$RUNNER_TEMP/repo.json" -w '%{http_code}' \
+            -H "Authorization: Bearer $WRITE_TOKEN" \
+            -H 'Accept: application/vnd.github+json' \
+            'https://api.github.com/repos/Davemafy/igor-submission')"
+          test "$code" = 200 || { echo '::error::Create an EMPTY PRIVATE Davemafy/igor-submission repository'; exit 1; }
+          python - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ['RUNNER_TEMP'])/'repo.json'
+          d=json.loads(p.read_text())
+          assert d.get('private') is True and d.get('full_name')=='Davemafy/igor-submission', 'Destination is not private'
+          PY
+          code="$(curl -sS -o /dev/null -w '%{http_code}' \
+            -H "Authorization: Bearer $WRITE_TOKEN" \
+            'https://api.github.com/repos/Davemafy/igor-submission/git/ref/heads/main')"
+          test "$code" = 404 || { echo '::error::Destination already contains a main branch; refusing overwrite'; exit 1; }
+
+      - uses: actions/checkout@v4
+        with:
+          path: tooling
+          persist-credentials: false
+
+      - name: Read private source history without persisting credentials
+        uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: design/reference-contract-foundation-20261030
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          fetch-depth: 0
+          persist-credentials: false
+          path: private-igor
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install pinned sanitizer and scanner
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet git-filter-repo==2.47.0
+          curl -fsSL --retry 2 \
+            'https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz' \
+            -o "$RUNNER_TEMP/gitleaks.tar.gz"
+          mkdir -p "$RUNNER_TEMP/gitleaks-bin"
+          tar -xzf "$RUNNER_TEMP/gitleaks.tar.gz" -C "$RUNNER_TEMP/gitleaks-bin" gitleaks
+          echo "$RUNNER_TEMP/gitleaks-bin" >> "$GITHUB_PATH"
+
+      - name: Rewrite authentic history with sensitive files excluded
+        run: |
+          set -euo pipefail
+          python tooling/scripts/sanitize_igor_history.py \
+            --source "$GITHUB_WORKSPACE/private-igor" \
+            --output "$RUNNER_TEMP/igor-clean" \
+            --expected-sha "$SOURCE_SHA" \
+            --report "$RUNNER_TEMP/sanitization.json"
+          test -z "$(git -C "$RUNNER_TEMP/igor-clean" remote)"
+          rm -rf "$GITHUB_WORKSPACE/private-igor"
+
+      - name: Fail closed on ANY retained history or HEAD secret scan finding
+        run: |
+          set -euo pipefail
+          gitleaks git --redact --report-format json \
+            --report-path "$RUNNER_TEMP/history.json" \
+            "$RUNNER_TEMP/igor-clean" > "$RUNNER_TEMP/scan.log" 2>&1
+          gitleaks dir --redact --report-format json \
+            --report-path "$RUNNER_TEMP/head.json" \
+            "$RUNNER_TEMP/igor-clean" >> "$RUNNER_TEMP/scan.log" 2>&1
+          echo 'Retained history and HEAD scans passed.'
+
+      - name: Require install, typecheck, build, and unit-test success
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/igor-clean"
+          for cmd in "npm ci" "npm run typecheck" "npm run build" "npm test"; do
+            if ! $cmd > "$RUNNER_TEMP/check.log" 2>&1; then
+              echo "::error::Sanitized validation failed: $cmd; no push performed."
+              exit 1
+            fi
+            echo "PASS: $cmd"
+          done
+
+      - name: Push ONLY to empty private destination
+        env:
+          IGOR_SUBMISSION_WRITE_TOKEN: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN }}
+          GIT_TERMINAL_PROMPT: '0'
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/askpass" <<'SH'
+          #!/bin/sh
+          case "$1" in
+            *Username*) printf '%s\n' 'x-access-token' ;;
+            *Password*) printf '%s\n' "$IGOR_SUBMISSION_WRITE_TOKEN" ;;
+            *) exit 1 ;;
+          esac
+          SH
+          chmod 700 "$RUNNER_TEMP/askpass"
+          export GIT_ASKPASS="$RUNNER_TEMP/askpass"
+          git -C "$RUNNER_TEMP/igor-clean" push \
+            'https://github.com/Davemafy/igor-submission.git' HEAD:refs/heads/main
+          echo 'Sanitized history staged in PRIVATE repository, never made public.'
+
+      - name: Delete temporary private data, without uploading source artifacts
+        if: always()
+        run: |
+          rm -rf "$RUNNER_TEMP/igor-clean" "$GITHUB_WORKSPACE/private-igor" \
+            "$RUNNER_TEMP/askpass" "$RUNNER_TEMP/scan.log" "$RUNNER_TEMP/check.log" \
+            "$RUNNER_TEMP/history.json" "$RUNNER_TEMP/head.json" \
+            "$RUNNER_TEMP/sanitization.json" "$RUNNER_TEMP/repo.json" || true
+          echo 'No private source artifacts uploaded. No public visibility change performed.' >> "$GITHUB_STEP_SUMMARY"
