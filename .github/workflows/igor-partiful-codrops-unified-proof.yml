@@ -1,6 +1,6 @@
 name: Igor single-branch CI (private source)
 # Recheck with exact-SHA health gate: 12bfb43c1ce93d0f2d2c4f2e38d1b5f5ae89e846
-# Format-probe Igor SHA 80082d7ddbffba772e2276fb0d13ef51d95b1177
+# Format-probe Igor SHA 8328130dbae54ec007e3ebca70b121a079e327ec
 # [bounded-live] reviewed Igor engine 12bfb43c1ce93d0f2d2c4f2e38d1b5f5ae89e846
 # Targeted existing Gemini provider live acceptance; never fixtures
 # Verify Igor engine SHA 33554c93ee55e1055453000dc9f2abd269959039 (deterministic only)
@@ -453,12 +453,12 @@ jobs:
         run: |
           npm run typecheck
           npm run lint
-          npx vitest run tests/unit/agent-recovery-artifact.test.ts tests/unit/agent-completion-budget.test.ts tests/unit/unified-agent.test.ts tests/unit/xai-web-research.test.ts
-          if npx prettier --check src/core/agent-recovery-artifact.ts src/core/unified-agent.ts src/core/agent-tool-registry.ts tests/unit/agent-recovery-artifact.test.ts scripts/verify-live-general-research.mjs src/core/agent-acceptance.ts tests/unit/agent-completion-budget.test.ts src/tools/xai-web-research.ts src/tools/live-research.ts tests/unit/xai-web-research.test.ts; then
+          npx vitest run tests/unit/agent-recovery-artifact.test.ts tests/unit/agent-completion-budget.test.ts tests/unit/unified-agent.test.ts tests/unit/xai-web-research.test.ts tests/unit/gemini-web-research.test.ts
+          if npx prettier --check src/core/agent-recovery-artifact.ts src/core/unified-agent.ts src/core/agent-tool-registry.ts tests/unit/agent-recovery-artifact.test.ts scripts/verify-live-general-research.mjs src/core/agent-acceptance.ts tests/unit/agent-completion-budget.test.ts src/tools/xai-web-research.ts src/tools/live-research.ts tests/unit/xai-web-research.test.ts src/tools/gemini-web-research.ts tests/unit/gemini-web-research.test.ts; then
             exit 0
           fi
-          npx prettier --write src/core/agent-recovery-artifact.ts src/core/unified-agent.ts src/core/agent-tool-registry.ts tests/unit/agent-recovery-artifact.test.ts scripts/verify-live-general-research.mjs src/core/agent-acceptance.ts tests/unit/agent-completion-budget.test.ts src/tools/xai-web-research.ts src/tools/live-research.ts tests/unit/xai-web-research.test.ts > /dev/null
-          git diff --unified=0 -- src/core/agent-recovery-artifact.ts src/core/unified-agent.ts src/core/agent-tool-registry.ts tests/unit/agent-recovery-artifact.test.ts scripts/verify-live-general-research.mjs src/core/agent-acceptance.ts tests/unit/agent-completion-budget.test.ts src/tools/xai-web-research.ts src/tools/live-research.ts tests/unit/xai-web-research.test.ts | grep '^@@' || true
+          npx prettier --write src/core/agent-recovery-artifact.ts src/core/unified-agent.ts src/core/agent-tool-registry.ts tests/unit/agent-recovery-artifact.test.ts scripts/verify-live-general-research.mjs src/core/agent-acceptance.ts tests/unit/agent-completion-budget.test.ts src/tools/xai-web-research.ts src/tools/live-research.ts tests/unit/xai-web-research.test.ts src/tools/gemini-web-research.ts tests/unit/gemini-web-research.test.ts > /dev/null
+          git diff --unified=0 -- src/core/agent-recovery-artifact.ts src/core/unified-agent.ts src/core/agent-tool-registry.ts tests/unit/agent-recovery-artifact.test.ts scripts/verify-live-general-research.mjs src/core/agent-acceptance.ts tests/unit/agent-completion-budget.test.ts src/tools/xai-web-research.ts src/tools/live-research.ts tests/unit/xai-web-research.test.ts src/tools/gemini-web-research.ts tests/unit/gemini-web-research.test.ts | grep '^@@' || true
           echo "::error::Agent recovery formatting mismatch. No source published."
           exit 1
 
