@@ -25,7 +25,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: igor-single-branch-ci
+  # Live provider checks must not hold up source-only validation jobs.
+  group: igor-${{ contains(github.event.head_commit.message, '[bounded-live]') && 'live' || contains(github.event.head_commit.message, '[format-probe]') && 'focus' || 'verify' }}
   cancel-in-progress: false
 
 jobs:
