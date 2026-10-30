@@ -1,0 +1,105 @@
+name: Igor PR33 — read-only exact-SHA build
+on:
+  push:
+    branches: [ci/igor-pr33-typescript-build-20261030]
+    paths:
+      - .github/workflows/igor-pr33-exact-build.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: igor-pr33-build-20261030
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      QLOO_API_KEY: ""
+      GEMINI_API_KEY: ""
+      ANTHROPIC_API_KEY: ""
+      XAI_API_KEY: ""
+      OPENAI_API_KEY: ""
+      BRIGHTDATA_API_KEY: ""
+      QLOO_MAX_CALLS: "0"
+    steps:
+      - name: Require configured read-only private source token
+        env:
+          HAS_TOKEN: ${{ secrets.PRIVATE_CI_READ_TOKEN != '' }}
+        run: |
+          test "$HAS_TOKEN" = "true" || { echo "::error::PRIVATE_CI_READ_TOKEN missing"; exit 1; }
+
+      - name: Read-only checkout of exact Igor PR33 commit
+        uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: b8d20527fb6e9a17492f95a9d52c15fbe9f85059
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          fetch-depth: 1
+          path: private-igor
+
+      - name: Verify immutable source
+        working-directory: private-igor
+        run: test "$(git rev-parse HEAD)" = "b8d20527fb6e9a17492f95a9d52c15fbe9f85059"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: private-igor/package-lock.json
+
+      - name: Install production-locked source dependencies
+        working-directory: private-igor
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci > "$RUNNER_TEMP/igor-pr33-install.log" 2>&1 || {
+            echo "::error::npm ci failed (private diagnostics withheld)"
+            grep -E '^npm error|^npm ERR|^Error:' "$RUNNER_TEMP/igor-pr33-install.log" | head -n 12 || true
+            exit 1
+          }
+          rm -f "$RUNNER_TEMP/igor-pr33-install.log"
+          echo "- npm ci: PASS" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: TypeScript, production build, unit tests and lint
+        working-directory: private-igor
+        shell: bash
+        run: |
+          set -uo pipefail
+          failures=0
+          run_check() {
+            label="$1"; shift
+            log="$RUNNER_TEMP/igor-pr33-check.log"
+            if "$@" > "$log" 2>&1; then
+              echo "$label: PASS"
+              echo "- $label: PASS" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "$label: FAIL"
+              echo "- $label: FAIL" >> "$GITHUB_STEP_SUMMARY"
+              # Diagnostic metadata only; do not publish source, tokens or full logs.
+              grep -E '^[a-zA-Z0-9_./-]+\([0-9]+,[0-9]+\): error TS[0-9]+|^.*error TS[0-9]+|^Error:|^Failed to|^Module not found|^✖' "$log" | head -n 22 || true
+              failures=$((failures+1))
+            fi
+            rm -f "$log"
+          }
+          echo "### Read-only Igor PR33 verification" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Exact source SHA: \`b8d20527fb6e9a17492f95a9d52c15fbe9f85059\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Providers disabled; no writes to Igor and no deployment" >> "$GITHUB_STEP_SUMMARY"
+          run_check "Typecheck" npm run typecheck
+          run_check "Production Next.js build" npm run build
+          run_check "Unit tests" npm test
+          run_check "Lint" npm run lint
+          if (( failures > 0 )); then
+            echo "::error::$failures checks failed on this exact SHA"
+            exit 1
+          fi
+          echo "All four local gates passed at exact SHA."
+      - name: Confirm nothing exported
+        if: always()
+        run: |
+          echo "- No private source, browser captures, reports or credentials uploaded" >> "$GITHUB_STEP_SUMMARY"
