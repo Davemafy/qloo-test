@@ -28,7 +28,7 @@ concurrency:
 
 jobs:
   verify:
-    if: github.event_name != 'push' || (!contains(github.event.head_commit.message, '[model-readiness]') && !contains(github.event.head_commit.message, '[bounded-live]'))
+    if: github.event_name != 'push' || (!contains(github.event.head_commit.message, '[model-readiness]') && !contains(github.event.head_commit.message, '[bounded-live]') && !contains(github.event.head_commit.message, '[format-probe]'))
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
@@ -393,3 +393,37 @@ jobs:
           print(json.dumps({"operation":"protocol_check","model":selected,"httpStatus":status,"latencyMs":latency,"functionCallValid":valid,"applicationAcceptance":False}))
           if not valid:raise SystemExit(1)
           PY
+
+  format-probe:
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[format-probe]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: feat/partiful-codrops-unified-20261029
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          path: private-igor
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: private-igor/package-lock.json
+      - name: Install existing locked dependencies
+        working-directory: private-igor
+        run: npm ci --silent > /dev/null 2>&1
+      - name: Check formatting; expose only hunk locations if mismatched
+        working-directory: private-igor
+        shell: bash
+        run: |
+          if npx prettier --check src/core/unified-agent.ts tests/unit/agent-completion-budget.test.ts; then
+            exit 0
+          fi
+          npx prettier --write src/core/unified-agent.ts tests/unit/agent-completion-budget.test.ts > /dev/null
+          git diff --unified=0 -- src/core/unified-agent.ts tests/unit/agent-completion-budget.test.ts | grep '^@@' || true
+          echo "::error::Formatting mismatch. No files were published or pushed."
+          exit 1
