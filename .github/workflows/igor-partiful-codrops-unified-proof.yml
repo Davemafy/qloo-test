@@ -1,4 +1,5 @@
 name: Igor single-branch CI (private source)
+# Recheck with exact-SHA health gate: 12bfb43c1ce93d0f2d2c4f2e38d1b5f5ae89e846
 # Format-probe Igor SHA 5c0db0ae5c779366acfb55395495ac63eddff274
 # [bounded-live] reviewed Igor engine 12bfb43c1ce93d0f2d2c4f2e38d1b5f5ae89e846
 # Targeted existing Gemini provider live acceptance; never fixtures
