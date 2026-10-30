@@ -48,10 +48,14 @@ def main() -> None:
     original = call(["git", "rev-parse", "HEAD"], source)
     if original != args.expected_sha:
         raise RuntimeError("The private branch has moved; review before rerunning")
-    # file:// avoids --local object copying and transfers the selected branch's
-    # reachable commit history, not every private branch and tag.
+    # Construct a temporary branch at the PINNED commit in this disposable
+    # runner checkout. Never follow a live branch head that can move mid-run.
+    pinned_branch = "igor-sanitization-pinned"
+    call(["git", "branch", "-f", pinned_branch, original], source)
+    # file:// avoids --local copying; --single-branch retains this commit's
+    # genuine ancestry but excludes unrelated private branch tips and tags.
     call(["git", "clone", "--no-tags", "--single-branch", "--branch",
-          BRANCH, source.as_uri(), str(target)])
+          pinned_branch, source.as_uri(), str(target)])
     if call(["git", "rev-parse", "HEAD"], target) != original:
         raise RuntimeError("Local copied branch does not match pinned commit")
     count_before = int(call(["git", "rev-list", "--count", "HEAD"], target))
