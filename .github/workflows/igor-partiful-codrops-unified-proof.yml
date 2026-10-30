@@ -266,12 +266,12 @@ jobs:
         run: |
           set -euo pipefail
           test -n "$QLOO_API_KEY" || { echo "::error::BLOCKED: no existing Qloo binding."; exit 1; }
-          if [[ -n "$XAI_API_KEY" || -n "$GROK_API_KEY" ]]; then
-            provider=grok
+          if [[ "$ALTERNATE_ONLY" != "true" && -n "$GEMINI_API_KEY" ]]; then
+            provider=gemini
           elif [[ -n "$ANTHROPIC_API_KEY" ]]; then
             provider=claude
-          elif [[ "$ALTERNATE_ONLY" != "true" && -n "$GEMINI_API_KEY" ]]; then
-            provider=gemini
+          elif [[ -n "$XAI_API_KEY" || -n "$GROK_API_KEY" ]]; then
+            provider=grok
           else
             echo "::error::BLOCKED: no existing Grok or Claude binding; Gemini is not retried."
             exit 1
