@@ -26,7 +26,7 @@ jobs:
       XAI_API_KEY: ""
       ANTHROPIC_API_KEY: ""
       BRIGHTDATA_API_KEY: ""
-      IGOR_SHA: ${{ inputs.commit_sha || '9f1e551dcc6d88474d01736f13e4b77d0f4047f7' }}
+      IGOR_SHA: ${{ inputs.commit_sha || '2c0e4dd1dfc899c08054dbc77ef68707df61ff0e' }}
     steps:
       - name: Confirm pinned SHA without disclosing private source
         shell: bash
@@ -68,10 +68,10 @@ jobs:
       - name: Install Chromium for real browser map captures
         working-directory: private-igor
         run: npx playwright install --with-deps chromium
-      - name: Browser flows for empty map, verified pins, and discover
+      - name: Browser flows for Home, Explore, and live map
         working-directory: private-igor
         run: |
-          npx playwright test --config tests/reference-integrated.playwright.config.mts --grep "a real map opens immediately|Home map action opens|Discover starts with functional requests|verified geocoded places|a task.s verified place"
+          npx playwright test --config tests/reference-integrated.playwright.config.mts --grep "a real map opens immediately|Home map action opens|Discover starts with functional requests|verified geocoded places|a task.s verified place|connected workspace Home|Home is a coherent task-first workspace|Discover opens in the same authenticated workspace|Home typography"
       - name: Preserve map browser screenshots
         if: always()
         uses: actions/upload-artifact@v4
