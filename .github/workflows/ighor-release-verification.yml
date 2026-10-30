@@ -24,6 +24,12 @@ jobs:
       OPENAI_API_KEY: ""
       IGOR_QLOO_RECORDING: ""
     steps:
+      - name: Checkout public diagnostics helper
+        uses: actions/checkout@v4
+        with:
+          path: tooling
+          persist-credentials: false
+
       - name: Fetch pinned PRIVATE submission branch
         uses: actions/checkout@v4
         with:
@@ -56,6 +62,7 @@ jobs:
             fi
             echo "$label: FAIL (private details withheld)"
             echo "- $label: FAIL" >> "$GITHUB_STEP_SUMMARY"
+            python3 ../tooling/scripts/ighor_release_diagnostics.py "$label" "$log"
             failures=$((failures + 1))
             return 1
           }
