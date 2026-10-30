@@ -26,7 +26,7 @@ jobs:
       XAI_API_KEY: ""
       ANTHROPIC_API_KEY: ""
       BRIGHTDATA_API_KEY: ""
-      IGOR_SHA: ${{ inputs.commit_sha || '688bc40972b083821423af51a77ace9f37913dca' }}
+      IGOR_SHA: ${{ inputs.commit_sha || 'c90c5e4a98e242c131315e8b5e9db8747795cdbb' }}
     steps:
       - name: Confirm pinned SHA without disclosing private source
         shell: bash
@@ -71,7 +71,7 @@ jobs:
       - name: Browser flows for Home, Explore, and live map
         working-directory: private-igor
         run: |
-          npx playwright test --config tests/reference-integrated.playwright.config.mts --grep "a real map opens immediately|Home map action opens|Discover starts with functional requests|verified geocoded places|a task.s verified place|connected workspace Home|Home is a coherent task-first workspace|Discover opens in the same authenticated workspace|Home typography|V4 rail is 76px|Igor uses one navigation geometry|shared product density|Igor.s rounded landing mark"
+          npx playwright test --config tests/reference-integrated.playwright.config.mts --grep "a real map opens immediately|Home map action opens|Discover starts with functional requests|verified geocoded places|a task.s verified place|connected workspace Home|Home is a coherent task-first workspace|Discover opens in the same authenticated workspace|Home typography|V4 rail is 76px|Igor uses one navigation geometry|shared product density|Igor.s rounded landing mark|Discover opens in the same authenticated workspace|Home is a coherent"
       - name: Preserve map browser screenshots
         if: always()
         uses: actions/upload-artifact@v4
