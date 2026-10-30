@@ -1,7 +1,7 @@
 name: Igor single-branch CI (private source)
 # Format-probe Igor SHA 172ef2cbe094b10010780e35a18434dfd24b3730
 # [bounded-live] reviewed Igor engine 452ca718e4a16f454aba0cabedf1c53d5f7644af
-# Verify Igor engine SHA aee0dc405193298ba30a3830664bb6cbfef9305c (deterministic only)
+# Verify Igor engine SHA 172ef2cbe094b10010780e35a18434dfd24b3730 (deterministic only)
 # Runs ONLY in qloo-test. Igor's hosted runners are currently unhealthy.
 on:
   push:
