@@ -34,7 +34,7 @@ jobs:
       XAI_API_KEY: ""
       ANTHROPIC_API_KEY: ""
       IGOR_QLOO_RECORDING: ""
-      PINNED_IGOR_SHA: ${{ github.event_name == 'workflow_dispatch' && inputs.commit_sha || '8816cfe9360593ebf2f8e32c4bbdec3d08597795' }}
+      PINNED_IGOR_SHA: ${{ github.event_name == 'workflow_dispatch' && inputs.commit_sha || 'df1d94d3e6019389319ea52f585cd504e2378c50' }}
     steps:
       - name: Confirm pinned revision and existing private read authorization
         env:
@@ -95,7 +95,7 @@ jobs:
           elif label=="ESLint":
               patterns=[r'^\s*\d+:\d+\s+error\s+[^\n]{0,180}',r'^.*(?:src|tests)/[^\n]{0,110}\.(?:tsx?|mts|mjs)']
           elif label=="Home Discover mobile Playwright":
-              patterns=[r'^\s*\d+\) [^\n]{0,150}',r'^\s*(?:Error:|Expected:|Received:|TimeoutError:|\[chromium\])[^\n]{0,190}',r'^.*(?:reference-integrated\.e2e\.ts|No tests found|webServer)[^\n]{0,170}',r'^UI_DIAG_[^\n]{0,900}']
+              patterns=[r'^\s*\d+\) [^\n]{0,150}',r'^\s*(?:Error:|Expected:|Received:|TimeoutError:|\[chromium\])[^\n]{0,190}',r'^.*(?:reference-integrated\.e2e\.ts|No tests found|webServer)[^\n]{0,170}',r'^IGOR_VISUAL_METRIC_[^\n]{0,700}',r'^UI_DIAG_[^\n]{0,900}']
           elif label=="Unit tests":
               patterns=[r'^\s*(?:FAIL|❯) [^\n]{0,160}']
           elif label=="Production build":
@@ -147,6 +147,19 @@ jobs:
             exit 1
           fi
           echo "All checks passed for pinned Igor commit."
+
+      - name: Upload only synthetic reference-layout captures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: igor-pr31-reference-layouts
+          path: |
+            private-igor/test-results/igor-reference-home-1448.png
+            private-igor/test-results/igor-reference-explore-1448.png
+            private-igor/test-results/reference-native-home-mobile.png
+            private-igor/test-results/reference-native-discover-mobile.png
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Summarize private-source handling
         if: always()
