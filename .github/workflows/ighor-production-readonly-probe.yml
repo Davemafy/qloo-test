@@ -1,0 +1,41 @@
+name: Ighor public deployment read-only probe
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/ighor-production-readonly-probe.yml
+permissions: {}
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check public Railway URL without authentication or deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          for endpoint in / /app; do
+            url="https://igor-production-243e.up.railway.app${endpoint}"
+            echo "ENDPOINT: ${endpoint}"
+            code=$(curl -sSL --connect-timeout 8 --max-time 20 -o /tmp/ighor-public.html -w '%{http_code}' "$url") || code="unreachable"
+            echo "HTTP_CODE: ${code}"
+            if test -s /tmp/ighor-public.html; then
+              python3 - <<'PY'
+import html
+import re
+from pathlib import Path
+s = Path("/tmp/ighor-public.html").read_text(errors="replace")
+title = re.search(r"<title[^>]*>(.*?)</title>", s, re.I|re.S)
+print("PAGE_TITLE:", html.unescape(title.group(1))[:180] if title else "(not in HTML)")
+for name, pattern in [
+    ("IGHOR_BRAND",r"(?<![A-Za-z])ighor(?![A-Za-z])"),
+    ("IGOR_BRAND",r"(?<![A-Za-z])igor(?![A-Za-z])"),
+    ("HOME_HEADLINE",r"Your agent"),
+    ("NEXTJS",r"/_next/"),
+]:
+    print(name+":", bool(re.search(pattern,s,re.I)))
+print("HTML_BYTES:",len(s))
+PY
+            fi
+            rm -f /tmp/ighor-public.html
+          done
