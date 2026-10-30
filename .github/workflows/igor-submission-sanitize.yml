@@ -93,16 +93,20 @@ jobs:
           failed=0
           if npm ci > "$RUNNER_TEMP/build-check.log" 2>&1; then
             echo "- npm ci: PASS" >> "$GITHUB_STEP_SUMMARY"
+            echo "CHECK_INSTALL=PASS"
             for cmd in typecheck build test; do
               if npm run "$cmd" > "$RUNNER_TEMP/build-check.log" 2>&1; then
                 echo "- $cmd: PASS" >> "$GITHUB_STEP_SUMMARY"
+                echo "CHECK_${cmd}=PASS"
               else
                 echo "- $cmd: FAIL (private diagnostics withheld)" >> "$GITHUB_STEP_SUMMARY"
+                echo "CHECK_${cmd}=FAIL"
                 failed=1
               fi
             done
           else
             echo "- npm ci: FAIL (private diagnostics withheld)" >> "$GITHUB_STEP_SUMMARY"
+            echo "CHECK_INSTALL=FAIL"
             failed=1
           fi
           exit "$failed"
