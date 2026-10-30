@@ -1,9 +1,6 @@
 name: Igor submission — private sanitized staging
 
 on:
-  push:
-    branches: [main]
-    paths: [.github/workflows/igor-submission-private-stage.yml]
   workflow_dispatch:
     inputs:
       confirmation:
@@ -35,17 +32,17 @@ jobs:
       - name: Require explicit private staging authorization and scoped tokens
         env:
           HAS_READ: ${{ secrets.PRIVATE_CI_READ_TOKEN != '' }}
-          HAS_WRITE: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN != '' || secrets.PRIVATE_CI_READ_TOKEN != '' }}
+          HAS_WRITE: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN != '' }}
         run: |
           set -euo pipefail
           test "$CONFIRMATION" = 'STAGE-PRIVATE-ONLY'
           [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
           test "$HAS_READ" = 'true'
-          test "$HAS_WRITE" = 'true'
+          test "$HAS_WRITE" = 'true' || { echo '::error::Add the repository-scoped IGOR_SUBMISSION_WRITE_TOKEN secret to qloo-test Actions'; exit 1; }
 
       - name: Require empty PRIVATE destination, never replace existing history
         env:
-          WRITE_TOKEN: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN || secrets.PRIVATE_CI_READ_TOKEN }}
+          WRITE_TOKEN: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN }}
         run: |
           set -euo pipefail
           code="$(curl -sS -o "$RUNNER_TEMP/repo.json" -w '%{http_code}' \
@@ -142,7 +139,7 @@ jobs:
 
       - name: Push ONLY to empty private destination
         env:
-          IGOR_SUBMISSION_WRITE_TOKEN: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN || secrets.PRIVATE_CI_READ_TOKEN }}
+          IGOR_SUBMISSION_WRITE_TOKEN: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN }}
           GIT_TERMINAL_PROMPT: '0'
         run: |
           set -euo pipefail
