@@ -1,0 +1,56 @@
+name: Ighor release — lint error locations only
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/ighor-lint-locations.yml]
+permissions:
+  contents: read
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      CI: 'true'
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Davemafy/ighor
+          ref: 9c4d8d100d1aea755d188f722eb6120ecec765fa
+          token: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN }}
+          persist-credentials: false
+          path: private-ighor
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: private-ighor/package-lock.json
+      - name: Print ONLY ESLint filename, line, column and rule
+        working-directory: private-ighor
+        run: |
+          set -uo pipefail
+          npm ci > "$RUNNER_TEMP/ci.log" 2>&1 || { echo 'Install failed'; exit 1; }
+          npx eslint src tests scripts next.config.ts eslint.config.mjs \
+            --format json > "$RUNNER_TEMP/lint.json" 2>"$RUNNER_TEMP/eslint-error.log" || :
+          python - <<'PY'
+          import json,os,pathlib,collections
+          path=pathlib.Path(os.environ['RUNNER_TEMP'])/'lint.json'
+          try: data=json.loads(path.read_text())
+          except Exception: print('Lint JSON unavailable'); raise SystemExit(1)
+          results=[]
+          for file in data:
+              name=str(file.get('filePath','')).split('/private-ighor/')[-1]
+              if '/' not in name: name=pathlib.PurePosixPath(name).name
+              for diag in file.get('messages',[]):
+                  if diag.get('severity')==2:
+                      results.append((name,diag.get('line'),diag.get('column'),diag.get('ruleId') or 'parse-error'))
+          counts=collections.Counter(row[3] for row in results)
+          print('LINT_ERROR_COUNT',len(results))
+          print('LINT_RULE_COUNTS',dict(counts))
+          for name,line,col,rule in results[:80]:
+              print('LINT_LOCATION',name,line,col,rule)
+          PY
+          rm -f "$RUNNER_TEMP/ci.log" "$RUNNER_TEMP/lint.json" "$RUNNER_TEMP/eslint-error.log"
+      - name: Confirm private details withheld
+        if: always()
+        run: echo 'Only lint rule IDs and locations printed; no private source or secrets.' >> "$GITHUB_STEP_SUMMARY"
