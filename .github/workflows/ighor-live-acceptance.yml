@@ -1,0 +1,125 @@
+name: Ighor — bounded live agent acceptance (no deployment)
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/ighor-live-acceptance.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      IGOR_TEST_FIXTURES: ""
+      IGOR_QLOO_RECORDING: ""
+      IGOR_BASE_URL: "http://127.0.0.1:3570"
+    steps:
+      - name: Confirm server-side provider secrets are available
+        env:
+          QLOO_PRESENT: ${{ secrets.QLOO_API_KEY != '' }}
+          MODEL_PRESENT: ${{ secrets.XAI_API_KEY != '' || secrets.GEMINI_API_KEY != '' || secrets.ANTHROPIC_API_KEY != '' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$QLOO_PRESENT" = "true" || { echo "::error::Qloo secret unavailable; live acceptance cannot run"; exit 1; }
+          test "$MODEL_PRESENT" = "true" || { echo "::error::No configured model secret; live acceptance cannot run"; exit 1; }
+          echo "Provider credentials present; their values and responses will be withheld."
+
+      - name: Checkout exact PRIVATE sanitized source
+        uses: actions/checkout@v4
+        with:
+          repository: Davemafy/ighor
+          ref: 9ecbbfdb7e7339ebeabc5a69c192111f63eb0d2c
+          token: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN }}
+          persist-credentials: false
+          path: private-ighor
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: private-ighor/package-lock.json
+
+      - name: Build with no provider credentials available to the bundler
+        working-directory: private-ighor
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci > "$RUNNER_TEMP/install.log" 2>&1
+          npm run build > "$RUNNER_TEMP/build.log" 2>&1
+          npx playwright install --with-deps chromium > "$RUNNER_TEMP/chromium.log" 2>&1
+          echo "Build and Chromium installation passed."
+
+      - name: Launch temporary PRIVATE runtime with bounded LIVE provider credentials
+        working-directory: private-ighor
+        shell: bash
+        env:
+          QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          QLOO_MAX_CALLS: "4"
+          IGOR_DB_PATH: ${{ runner.temp }}/ighor-live-tasks.sqlite
+          IGOR_AUTH_PATH: ${{ runner.temp }}/ighor-live-auth.sqlite
+          IGOR_OUTCOMES_PATH: ${{ runner.temp }}/ighor-live-outcomes.sqlite
+          IGOR_CACHE_PATH: ${{ runner.temp }}/ighor-live-cache.sqlite
+        run: |
+          set -euo pipefail
+          nohup npm start -- --port 3570 > "$RUNNER_TEMP/private-server.log" 2>&1 &
+          echo "$!" > "$RUNNER_TEMP/private-server.pid"
+          for i in $(seq 1 60); do
+            if curl -fsS -o /dev/null http://127.0.0.1:3570/api/health; then
+              echo "Private runtime health endpoint responded."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::Private runtime did not start."
+          exit 1
+
+      - name: Verify LIVE ordinary reply, owner-authored independent goal, and persistence
+        working-directory: private-ighor
+        shell: bash
+        env:
+          IGOR_UNSCRIPTED_PROMPT: "planning a weekend trip with friends"
+        run: |
+          set -uo pipefail
+          node scripts/verify-live-alternatives.mjs > "$RUNNER_TEMP/live.log" 2>&1
+          code=$?
+          if test -f test-results/live-alternatives/report.json; then
+            python - <<'PY'
+          import json,pathlib,os
+          data=json.loads(pathlib.Path('test-results/live-alternatives/report.json').read_text())
+          print('LIVE_ACCEPTANCE_PASS',bool(data.get('passed')))
+          for case in data.get('cases',[]):
+              print('LIVE_CASE',case.get('name'),
+                    'PASS',bool(case.get('passed')),
+                    'PERSISTED',bool(case.get('preservedAcrossReload')),
+                    'REPLIED',bool(case.get('hasAssistantReply')),
+                    'GENERIC_FAILURE',bool(case.get('genericFailure')),
+                    'LIVE_CULTURAL_RECORDS',int(case.get('liveCulturalEvidenceCount') or 0))
+          PY
+          fi
+          test "$code" = 0 || { echo "::error::Live acceptance failed; private provider details withheld."; exit 1; }
+
+      - name: Erase temporary source, provider traces and responses
+        if: always()
+        shell: bash
+        run: |
+          if test -f "$RUNNER_TEMP/private-server.pid"; then
+            kill "$(cat "$RUNNER_TEMP/private-server.pid")" 2>/dev/null || true
+          fi
+          rm -rf "$GITHUB_WORKSPACE/private-ighor" \
+            "$RUNNER_TEMP/install.log" "$RUNNER_TEMP/build.log" \
+            "$RUNNER_TEMP/chromium.log" "$RUNNER_TEMP/private-server.log" \
+            "$RUNNER_TEMP/private-server.pid" "$RUNNER_TEMP/live.log" \
+            "$RUNNER_TEMP/ighor-live-tasks.sqlite"* \
+            "$RUNNER_TEMP/ighor-live-auth.sqlite"* \
+            "$RUNNER_TEMP/ighor-live-outcomes.sqlite"* \
+            "$RUNNER_TEMP/ighor-live-cache.sqlite"* || true
+          echo 'No private screenshots, provider payloads, credentials or source artifacts uploaded.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'No deployment, merge or repository visibility changes.' >> "$GITHUB_STEP_SUMMARY"
