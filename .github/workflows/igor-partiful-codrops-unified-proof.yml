@@ -306,12 +306,14 @@ jobs:
       - name: Install Chromium for actual browser acceptance
         working-directory: private-igor
         run: npx playwright install --with-deps chromium > /dev/null 2>&1
+      # Permits exactly one already configured backup through FallbackModel;
+      # a provider 400/503 must not silently downgrade to fixtures.
       - name: Bounded LIVE Qloo journey with selected authorized model, never recorded fallback
         working-directory: private-igor
         env:
           IGOR_MODEL_PROVIDER: ${{ steps.providers.outputs.provider }}
           GEMINI_MODEL: gemini-3.1-flash-lite
-          GEMINI_API_KEY: ${{ steps.providers.outputs.provider == 'gemini' && secrets.GEMINI_API_KEY || '' }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}
           IGOR_AGENT_MAX_STEPS: "10"
           IGOR_AGENT_MAX_REQUESTS: "12"
@@ -320,7 +322,7 @@ jobs:
           IGOR_QLOO_RECORDING: ""
           XAI_API_KEY: ${{ steps.providers.outputs.provider == 'grok' && secrets.XAI_API_KEY || '' }}
           GROK_API_KEY: ${{ steps.providers.outputs.provider == 'grok' && secrets.GROK_API_KEY || '' }}
-          ANTHROPIC_API_KEY: ${{ steps.providers.outputs.provider == 'claude' && secrets.ANTHROPIC_API_KEY || '' }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY: ""
           IGOR_DB_PATH: .igor/live-acceptance/tasks.sqlite
           IGOR_AUTH_PATH: .igor/live-acceptance/auth.sqlite
