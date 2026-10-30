@@ -325,6 +325,9 @@ jobs:
           XAI_API_KEY: ${{ steps.providers.outputs.provider == 'grok' && secrets.XAI_API_KEY || '' }}
           GROK_API_KEY: ${{ steps.providers.outputs.provider == 'grok' && secrets.GROK_API_KEY || '' }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          BRIGHTDATA_API_KEY: ${{ secrets.BRIGHTDATA_API_KEY }}
+          BRIGHTDATA_SERP_ZONE: ${{ secrets.BRIGHTDATA_SERP_ZONE }}
+          BRIGHTDATA_UNLOCKER_ZONE: ${{ secrets.BRIGHTDATA_UNLOCKER_ZONE }}
           OPENAI_API_KEY: ""
           IGOR_DB_PATH: .igor/live-acceptance/tasks.sqlite
           IGOR_AUTH_PATH: .igor/live-acceptance/auth.sqlite
@@ -340,14 +343,20 @@ jobs:
             sleep 1
           done
           export IGOR_BUILD_SHA="$(git rev-parse HEAD)"
-          timeout 540 node scripts/verify-live-flagship.mjs
-          timeout 720 node scripts/verify-live-experiences.mjs
+          status=0
+          timeout 540 node scripts/verify-live-general-research.mjs || status=1
+          timeout 540 node scripts/verify-live-flagship.mjs || status=1
+          if [[ "$status" == "0" ]]; then
+            timeout 720 node scripts/verify-live-experiences.mjs || status=1
+          fi
+          exit "$status"
       - name: Upload only sanitized LIVE acceptance report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: igor-live-acceptance-a4d2f1c
           path: |
+            private-igor/test-results/live-general-research/report.json
             private-igor/test-results/live-flagship/report.json
             private-igor/test-results/live-flagship/*.png
             private-igor/test-results/live-flagship/*.webm
