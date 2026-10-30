@@ -1,0 +1,86 @@
+name: Ighor sanitized release - private diagnostics
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/ighor-sanitized-diagnostics.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: 'true'
+      NEXT_TELEMETRY_DISABLED: '1'
+      QLOO_MAX_CALLS: '0'
+      QLOO_API_KEY: ''
+      OPENAI_API_KEY: ''
+      GEMINI_API_KEY: ''
+    steps:
+      - name: Checkout exact sanitized private release commit
+        uses: actions/checkout@v4
+        with:
+          repository: Davemafy/ighor
+          ref: 7e382b4ceb7d10a0a16671c42e9711bd568f8e76
+          token: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN }}
+          persist-credentials: false
+          path: private-submission
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: private-submission/package-lock.json
+
+      - name: Install and display limited diagnostic metadata only
+        working-directory: private-submission
+        shell: bash
+        run: |
+          set -uo pipefail
+          if ! npm ci > "$RUNNER_TEMP/igor-ci.log" 2>&1; then
+            echo 'CHECK_INSTALL=FAIL'
+            exit 1
+          fi
+          echo 'CHECK_INSTALL=PASS'
+          for cmd in typecheck build test; do
+            if npm run "$cmd" > "$RUNNER_TEMP/igor-ci.log" 2>&1; then
+              echo "CHECK_COMMAND=PASS"
+              continue
+            fi
+            echo "CHECK_COMMAND=FAIL"
+            STEP="$cmd" python - <<'PY'
+          import os,re,pathlib
+          text=(pathlib.Path(os.environ['RUNNER_TEMP'])/'igor-ci.log').read_text(errors='replace')
+          step=os.environ['STEP']
+          print('CHECK_STEP',step)
+          if step=='typecheck':
+              found=[]
+              for path,line,col,code in re.findall(r'([A-Za-z0-9_./-]+\.(?:ts|tsx|mts))\((\d+),(\d+)\):\s*error TS(\d+)',text):
+                  found.append((pathlib.PurePosixPath(path).name,line,'TS'+code))
+              print('TYPE_ERROR_COUNT',len(found))
+              for info in found[:35]: print('TYPE_ERROR',*info)
+          elif step=='build':
+              names=re.findall(r'(?:Module not found: Can.t resolve|Cannot find module)\s*[\x27\x22]([^\x27\x22]+)[\x27\x22]',text)
+              for name in names[:20]: print('BUILD_MISSING_MODULE',pathlib.PurePosixPath(name).name)
+              types=[]
+              for x in text.splitlines():
+                  if re.search(r'^(?:Error:|Failed to compile|Module not found|Build failed)',x):
+                      types.append(re.sub(r'[^A-Za-z0-9 ]','',x)[:65])
+              print('BUILD_ERROR_KINDS',len(types))
+              for x in types[:10]:print('BUILD_ERROR_KIND',x)
+          elif step=='test':
+              names=re.findall(r'(?m)^\s*(?:FAIL|❯)\s+([^\n]{1,200})',text)
+              print('TEST_FAILURE_LINES',len(names))
+              for name in names[:30]:
+                  clean=re.sub(r'[^A-Za-z0-9 ._/-]','',name).split(' > ')[0]
+                  print('TEST_FAILED_FILE',pathlib.PurePosixPath(clean.strip()).name[:80])
+          PY
+          done
+          rm -f "$RUNNER_TEMP/igor-ci.log"
+
+      - name: Confirm private data withheld
+        if: always()
+        run: echo 'No private code, provider data, test traces or full logs uploaded.' >> "$GITHUB_STEP_SUMMARY"
