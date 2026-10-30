@@ -496,3 +496,58 @@ jobs:
           test -n "$GEMINI_API_KEY" || { echo "::error::Configured Gemini binding is missing."; exit 1; }
           echo "Reviewed engine SHA: $(git rev-parse HEAD)"
           timeout 210 node node_modules/vitest/vitest.mjs run --config tests/live-provider.vitest.config.mts
+
+  xai-web-search-pilot:
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[xai-search]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Test configured xAI key with one real citation-producing search
+        shell: bash
+        env:
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+          GROK_API_KEY: ${{ secrets.GROK_API_KEY }}
+        run: |
+          python3 - <<'PY'
+          import os, json, urllib.request, urllib.error
+          key = os.getenv("XAI_API_KEY") or os.getenv("GROK_API_KEY")
+          if not key:
+              print("XAI_SEARCH_BLOCKED: no configured Grok key")
+              raise SystemExit(1)
+          for model in ("grok-4.7", "grok-4.3"):
+              data = {
+                  "model": model,
+                  "max_turns": 2,
+                  "input": [{"role": "user", "content": "Find reputable sources about the global EV charging market from public energy agencies. Cite public pages."}],
+                  "tools": [{"type": "web_search"}],
+              }
+              req = urllib.request.Request(
+                  "https://api.x.ai/v1/responses",
+                  data=json.dumps(data).encode(),
+                  headers={
+                      "Authorization": "Bearer " + key,
+                      "Content-Type": "application/json",
+                  },
+                  method="POST",
+              )
+              try:
+                  with urllib.request.urlopen(req, timeout=95) as response:
+                      body = json.load(response)
+                      citations = body.get("citations") or []
+                      usage = (body.get("usage") or {}).get("server_side_tool_usage_details") or {}
+                      print("XAI_SEARCH_PILOT", json.dumps({
+                          "model": model, "httpStatus": response.status,
+                          "status": body.get("status"), "citationCount": len(citations),
+                          "webSearchCalls": usage.get("web_search_calls"),
+                      }))
+                      if body.get("status") == "completed" and citations:
+                          raise SystemExit(0)
+                      raise SystemExit(1)
+              except urllib.error.HTTPError as error:
+                  print("XAI_SEARCH_PILOT", json.dumps({"model":model,"httpStatus":error.code,"citationCount":0}))
+                  if error.code not in (400, 404, 422):
+                      raise SystemExit(1)
+          raise SystemExit(1)
+          PY
