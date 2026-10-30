@@ -26,7 +26,7 @@ jobs:
       OPENAI_API_KEY: ""
       XAI_API_KEY: ""
       ANTHROPIC_API_KEY: ""
-      IGOR_SHA: ${{ inputs.commit_sha || '56f9c475f2fb6730918600ce671bbeda9cc06052' }}
+      IGOR_SHA: ${{ inputs.commit_sha || '04f4d3444b9e812df283b63ccd9fe3fcf030d05c' }}
     steps:
       - name: Validate pinned SHA and private read access
         env:
@@ -66,7 +66,7 @@ jobs:
         working-directory: private-igor
         run: |
           npx playwright test --config tests/reference-integrated.playwright.config.mts \
-            --grep "cinematic Home accepts|Discover opens in|Home reconstructs|Library stays right|App uses the rounded landing|Maps opens an interactive|map tile layer must render|verified geocoded places" \
+            --grep "cinematic Home accepts|Discover opens in|Home reconstructs|Library stays right|App uses the rounded landing|Maps opens an interactive|capture real map rendering|verified geocoded places" \
             --workers=1
       - name: Upload only synthetic UI screenshot evidence
         if: always()
