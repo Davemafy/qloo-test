@@ -1,0 +1,27 @@
+name: Igor public map provider reachability
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/igor-map-provider-probe.yml
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Probe public map tile and embed endpoints without tokens
+        shell: bash
+        run: |
+          set -u
+          for item in \
+            'OSM_EMBED|https://www.openstreetmap.org/export/embed.html?bbox=-74.1%2C40.66%2C-73.92%2C40.77%26layer=mapnik' \
+            'OSM_TILES|https://tile.openstreetmap.org/12/1205/1540.png' \
+            'CARTO_TILES|https://basemaps.cartocdn.com/light_all/12/1205/1540.png' \
+            'GOOGLE_MAPS|https://www.google.com/maps'; do
+            name="${item%%|*}"; url="${item#*|}"
+            code="$(curl -L --max-time 8 -sS -o /tmp/map-probe -w '%{http_code}' "$url" 2>/dev/null || true)"
+            bytes="$(wc -c </tmp/map-probe 2>/dev/null || echo 0)"
+            echo "MAP_PROVIDER_STATUS $name status=$code bytes=$bytes"
+          done
