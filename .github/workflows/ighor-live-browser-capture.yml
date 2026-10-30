@@ -1,0 +1,75 @@
+name: Ighor live read-only browser capture
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/ighor-live-browser-capture.yml"]
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Install isolated browser test package
+        run: |
+          mkdir -p /tmp/ighor-capture
+          cd /tmp/ighor-capture
+          npm init -y >/dev/null
+          npm install --no-save playwright@1.58.2 >/dev/null
+          npx playwright install chromium >/dev/null
+      - name: Capture public, unauthenticated Home and Explore
+        working-directory: /tmp/ighor-capture
+        shell: bash
+        run: |
+          cat > capture.cjs <<'JS'
+          const {chromium}=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const context=await browser.newContext({viewport:{width:1448,height:1086},deviceScaleFactor:1});
+            for(const [view,url] of [
+              ['home','https://igor-production-243e.up.railway.app/app?view=home'],
+              ['explore','https://igor-production-243e.up.railway.app/app?view=explore'],
+            ]){
+              const page=await context.newPage();
+              const errors=[];
+              page.on('pageerror',e=>errors.push(e.message.slice(0,130)));
+              const response=await page.goto(url,{waitUntil:'domcontentloaded',timeout:45000});
+              await page.waitForTimeout(4500);
+              await page.evaluate(()=>document.fonts.ready);
+              await page.screenshot({path:'ighor-production-'+view+'.png',fullPage:false});
+              const metrics=await page.evaluate(()=>{
+                const get=(selector)=>{
+                  const e=document.querySelector(selector);
+                  if(!e)return null;
+                  const b=e.getBoundingClientRect(),s=getComputedStyle(e);
+                  return {text:e.textContent?.trim().slice(0,80),x:Math.round(b.x),y:Math.round(b.y),width:Math.round(b.width),height:Math.round(b.height),font:s.fontFamily,fontSize:s.fontSize,tracking:s.letterSpacing,wordSpacing:s.wordSpacing};
+                };
+                return {
+                  title:document.title,
+                  heading:get('.iw-intro h1')||get('h1'),
+                  sidebar:get('.iw-nav'),
+                  search:get('.iw-composer')||get('.ir-search'),
+                  cards:document.querySelectorAll('.iw-story-card,.ir-reference-tile').length,
+                  horizontalOverflow:document.documentElement.scrollWidth>innerWidth,
+                  brand:document.querySelector('.iw-brand')?.textContent?.trim()||'missing'
+                };
+              });
+              console.log('LIVE_CAPTURE',view,'HTTP',response?.status(),JSON.stringify(metrics));
+              console.log('BROWSER_ERRORS',view,JSON.stringify(errors.slice(0,5)));
+              await page.close();
+            }
+            await browser.close();
+          })().catch(error=>{console.error('CAPTURE_FAILED',String(error));process.exitCode=1;});
+          JS
+          node capture.cjs
+      - name: Upload fresh public session screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ighor-live-production-home-explore
+          path: /tmp/ighor-capture/ighor-production-*.png
+          if-no-files-found: ignore
+          retention-days: 7
