@@ -1,4 +1,5 @@
 name: Igor PR31 isolated frontend verification
+# Preserve existing PR31 baseline; run audit before any targeted UI changes.
 
 on:
   push:
