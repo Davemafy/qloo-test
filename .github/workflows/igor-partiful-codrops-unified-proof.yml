@@ -4,7 +4,7 @@ name: Igor single-branch CI (private source)
 # Current Grok cited-web probe against configured provider
 # Recheck with exact-SHA health gate: 12bfb43c1ce93d0f2d2c4f2e38d1b5f5ae89e846
 # Format-probe Igor SHA 6c86c07288b64538532add9d8b0a587770714438
-# [bounded-live] reviewed Igor engine 7a3e897347ce3f8c576fa05a88f98709210df278
+# [bounded-live] reviewed Igor engine 08efd278223dd5b46f2d6d0f51a4d9ee110af2a8
 # Targeted existing Gemini provider live acceptance; never fixtures
 # Verify Igor engine SHA 08efd278223dd5b46f2d6d0f51a4d9ee110af2a8 (deterministic only)
 # Runs ONLY in qloo-test. Igor's hosted runners are currently unhealthy.
@@ -272,7 +272,9 @@ jobs:
         run: |
           set -euo pipefail
           test -n "$QLOO_API_KEY" || { echo "::error::BLOCKED: no existing Qloo binding."; exit 1; }
-          if [[ "$ALTERNATE_ONLY" != "true" && -n "$GEMINI_API_KEY" ]]; then
+          if [[ "$ALTERNATE_ONLY" == "true" && ( -n "$XAI_API_KEY" || -n "$GROK_API_KEY" ) ]]; then
+            provider=grok
+          elif [[ "$ALTERNATE_ONLY" != "true" && -n "$GEMINI_API_KEY" ]]; then
             provider=gemini
           elif [[ -n "$ANTHROPIC_API_KEY" ]]; then
             provider=claude
