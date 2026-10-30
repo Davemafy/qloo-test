@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     env:
-      SOURCE_SHA: ${{ github.event_name == 'workflow_dispatch' && inputs.pinned_sha || '50f5f441894d8b2005d34739f8d021aec53f38bf' }}
+      SOURCE_SHA: ${{ github.event_name == 'workflow_dispatch' && inputs.pinned_sha || 'e9e6c348f5452a63008094ae9beea44864bb92f7' }}
       CONFIRMATION: ${{ github.event_name == 'workflow_dispatch' && inputs.confirmation || 'STAGE-PRIVATE-ONLY' }}
       CI: "true"
       NEXT_TELEMETRY_DISABLED: "1"
@@ -74,7 +74,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: design/reference-contract-foundation-20261030
+          ref: ${{ env.SOURCE_SHA }}
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           fetch-depth: 0
           persist-credentials: false
