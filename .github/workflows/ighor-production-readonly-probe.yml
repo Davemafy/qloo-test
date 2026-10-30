@@ -2,40 +2,24 @@ name: Ighor public deployment read-only probe
 on:
   push:
     branches: [main]
-    paths:
-      - .github/workflows/ighor-production-readonly-probe.yml
+    paths: [".github/workflows/ighor-production-readonly-probe.yml"]
 permissions: {}
 jobs:
   probe:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Check public Railway URL without authentication or deployment
+      - name: Inspect public Railway pages without credentials
         shell: bash
         run: |
-          set -euo pipefail
+          set -eu
           for endpoint in / /app; do
             url="https://igor-production-243e.up.railway.app${endpoint}"
             echo "ENDPOINT: ${endpoint}"
-            code=$(curl -sSL --connect-timeout 8 --max-time 20 -o /tmp/ighor-public.html -w '%{http_code}' "$url") || code="unreachable"
+            code=$(curl -sSL --connect-timeout 8 --max-time 20 -o /tmp/ighor-public.html -w '%{http_code}' "$url") || code=unreachable
             echo "HTTP_CODE: ${code}"
             if test -s /tmp/ighor-public.html; then
-              python3 - <<'PY'
-import html
-import re
-from pathlib import Path
-s = Path("/tmp/ighor-public.html").read_text(errors="replace")
-title = re.search(r"<title[^>]*>(.*?)</title>", s, re.I|re.S)
-print("PAGE_TITLE:", html.unescape(title.group(1))[:180] if title else "(not in HTML)")
-for name, pattern in [
-    ("IGHOR_BRAND",r"(?<![A-Za-z])ighor(?![A-Za-z])"),
-    ("IGOR_BRAND",r"(?<![A-Za-z])igor(?![A-Za-z])"),
-    ("HOME_HEADLINE",r"Your agent"),
-    ("NEXTJS",r"/_next/"),
-]:
-    print(name+":", bool(re.search(pattern,s,re.I)))
-print("HTML_BYTES:",len(s))
-PY
+              python3 -c 'import re,html,pathlib; s=pathlib.Path("/tmp/ighor-public.html").read_text(errors="replace"); m=re.search(r"<title[^>]*>(.*?)</title>",s,re.I|re.S); print("TITLE:",html.unescape(m.group(1))[:180] if m else "none"); print("HAS_IGHOR:",bool(re.search(r"ighor",s,re.I))); print("HAS_IGOR:",bool(re.search(r"igor",s,re.I))); print("HAS_HOME:", "Your agent" in s); print("HTML_BYTES:",len(s))'
             fi
             rm -f /tmp/ighor-public.html
           done
