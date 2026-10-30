@@ -418,18 +418,18 @@ jobs:
       - name: Install existing locked dependencies
         working-directory: private-igor
         run: npm ci --silent > /dev/null 2>&1
-      - name: Check Igor router and unit regression before full suite
+      - name: Check Igor grounded recovery and argument repair
         working-directory: private-igor
         shell: bash
         run: |
           npm run typecheck
-          npx vitest run tests/unit/gemini-routing-guard.test.ts
-          if npx prettier --check src/tools/tool-model.ts tests/unit/gemini-routing-guard.test.ts; then
+          npx vitest run tests/unit/agent-recovery-artifact.test.ts tests/unit/agent-completion-budget.test.ts
+          if npx prettier --check src/core/agent-recovery-artifact.ts src/core/unified-agent.ts src/core/agent-tool-registry.ts tests/unit/agent-recovery-artifact.test.ts; then
             exit 0
           fi
-          npx prettier --write src/tools/tool-model.ts tests/unit/gemini-routing-guard.test.ts > /dev/null
-          git diff --unified=0 -- src/tools/tool-model.ts tests/unit/gemini-routing-guard.test.ts | grep '^@@' || true
-          echo "::error::Router formatting mismatch. No source published."
+          npx prettier --write src/core/agent-recovery-artifact.ts src/core/unified-agent.ts src/core/agent-tool-registry.ts tests/unit/agent-recovery-artifact.test.ts > /dev/null
+          git diff --unified=0 -- src/core/agent-recovery-artifact.ts src/core/unified-agent.ts src/core/agent-tool-registry.ts tests/unit/agent-recovery-artifact.test.ts | grep '^@@' || true
+          echo "::error::Agent recovery formatting mismatch. No source published."
           exit 1
 
   gemini-routing:
