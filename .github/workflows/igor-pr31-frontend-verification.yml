@@ -34,7 +34,7 @@ jobs:
       XAI_API_KEY: ""
       ANTHROPIC_API_KEY: ""
       IGOR_QLOO_RECORDING: ""
-      PINNED_IGOR_SHA: ${{ github.event_name == 'workflow_dispatch' && inputs.commit_sha || '1868137ded7ec1093c67c731f34424f54ca066d1' }}
+      PINNED_IGOR_SHA: ${{ github.event_name == 'workflow_dispatch' && inputs.commit_sha || 'b0b5eb5b01ce83e337831b985628851ffbd95484' }}
     steps:
       - name: Confirm pinned revision and existing private read authorization
         env:
