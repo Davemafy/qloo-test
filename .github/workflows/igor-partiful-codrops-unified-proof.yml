@@ -28,8 +28,8 @@ permissions:
   contents: read
 
 concurrency:
-  # Live provider checks must not hold up source-only validation jobs.
-  group: igor-${{ contains(github.event.head_commit.message, '[bounded-live]') && 'live' || contains(github.event.head_commit.message, '[format-probe]') && 'focus' || contains(github.event.head_commit.message, '[gemini-search]') && 'grounding' || contains(github.event.head_commit.message, '[xai-search]') && 'grounding' || 'verify' }}
+  # Exact-source verification cannot be blocked by a stuck older CI attempt.
+  group: igor-${{ github.sha }}
   cancel-in-progress: false
 
 jobs:
