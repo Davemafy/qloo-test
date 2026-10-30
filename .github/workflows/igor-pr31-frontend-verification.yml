@@ -34,7 +34,7 @@ jobs:
       XAI_API_KEY: ""
       ANTHROPIC_API_KEY: ""
       IGOR_QLOO_RECORDING: ""
-      PINNED_IGOR_SHA: ${{ github.event_name == 'workflow_dispatch' && inputs.commit_sha || '4f81956ee6713c9260aa3108dbd68cf8e47c1a1e' }}
+      PINNED_IGOR_SHA: ${{ github.event_name == 'workflow_dispatch' && inputs.commit_sha || '1868137ded7ec1093c67c731f34424f54ca066d1' }}
     steps:
       - name: Confirm pinned revision and existing private read authorization
         env:
@@ -154,6 +154,7 @@ jobs:
         with:
           name: igor-pr31-reference-layouts
           path: |
+            private-igor/test-results/ighor-owner-*.png
             private-igor/test-results/igor-reference-home-1448.png
             private-igor/test-results/igor-reference-explore-1448.png
             private-igor/test-results/reference-native-home-mobile.png
