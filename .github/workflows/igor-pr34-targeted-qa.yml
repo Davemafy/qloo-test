@@ -1,0 +1,83 @@
+name: Igor PR34 preserve-PR31 targeted visual QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/igor-pr34-targeted-qa.yml
+  workflow_dispatch:
+    inputs:
+      commit_sha:
+        description: Reviewed Igor commit SHA
+        required: false
+        type: string
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      IGOR_TEST_FIXTURES: "1"
+      QLOO_MAX_CALLS: "0"
+      QLOO_API_KEY: ""
+      GEMINI_API_KEY: ""
+      OPENAI_API_KEY: ""
+      XAI_API_KEY: ""
+      ANTHROPIC_API_KEY: ""
+      IGOR_SHA: ${{ inputs.commit_sha || 'fa41a32de3ca7c84d34a2627d5203722b8018b55' }}
+    steps:
+      - name: Validate pinned SHA and private read access
+        env:
+          READ_TOKEN_PRESENT: ${{ secrets.PRIVATE_CI_READ_TOKEN != '' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$IGOR_SHA" =~ ^[a-f0-9]{40}$ ]]
+          test "$READ_TOKEN_PRESENT" = true
+      - name: Checkout exact private Igor revision
+        uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: ${{ env.IGOR_SHA }}
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          fetch-depth: 1
+          path: private-igor
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: private-igor/package-lock.json
+      - name: Locked install
+        working-directory: private-igor
+        run: npm ci --silent > /dev/null 2>&1
+      - name: TypeScript validation
+        working-directory: private-igor
+        run: npm run typecheck
+      - name: Next production build
+        working-directory: private-igor
+        run: npm run build
+      - name: Install Chromium
+        working-directory: private-igor
+        run: npx playwright install --with-deps chromium
+      - name: Run original Home plus targeted Library and Map journeys
+        working-directory: private-igor
+        run: |
+          npx playwright test --config tests/reference-integrated.playwright.config.mts \
+            --grep "cinematic Home accepts|Discover opens in|Home reconstructs|Library stays right|App uses the rounded landing|Maps opens an interactive|verified geocoded places" \
+            --workers=1
+      - name: Upload only synthetic UI screenshot evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: igor-pr31-preservation-${{ env.IGOR_SHA }}
+          path: |
+            private-igor/test-results/**/*.png
+            private-igor/test-results/**/*.webm
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Summarize checks
+        if: success()
+        run: echo "Verified production build and focused browser tests for Igor $IGOR_SHA" >> "$GITHUB_STEP_SUMMARY"
