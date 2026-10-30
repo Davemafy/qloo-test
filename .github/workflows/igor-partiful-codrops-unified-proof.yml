@@ -504,50 +504,68 @@ jobs:
     permissions:
       contents: read
     steps:
-      - name: Test configured xAI key with one real citation-producing search
+      - name: Inspect configured model catalog and run a bounded cited web search
         shell: bash
         env:
           XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
           GROK_API_KEY: ${{ secrets.GROK_API_KEY }}
         run: |
           python3 - <<'PY'
-          import os, json, urllib.request, urllib.error
-          key = os.getenv("XAI_API_KEY") or os.getenv("GROK_API_KEY")
+          import os,json,urllib.request,urllib.error
+          key=os.getenv("XAI_API_KEY") or os.getenv("GROK_API_KEY")
           if not key:
-              print("XAI_SEARCH_BLOCKED: no configured Grok key")
+              print("XAI_SEARCH_BLOCKED: no configured key")
               raise SystemExit(1)
-          for model in ("grok-4.7", "grok-4.3"):
-              data = {
-                  "model": model,
-                  "max_turns": 2,
-                  "input": [{"role": "user", "content": "Find reputable sources about the global EV charging market from public energy agencies. Cite public pages."}],
-                  "tools": [{"type": "web_search"}],
-              }
-              req = urllib.request.Request(
-                  "https://api.x.ai/v1/responses",
-                  data=json.dumps(data).encode(),
-                  headers={
-                      "Authorization": "Bearer " + key,
-                      "Content-Type": "application/json",
-                  },
-                  method="POST",
-              )
+          headers={"Authorization":"Bearer "+key,"Content-Type":"application/json"}
+          candidates=("grok-4.7","grok-4.6","grok-4.3","grok-4")
+          try:
+              req=urllib.request.Request("https://api.x.ai/v1/models",headers=headers)
+              with urllib.request.urlopen(req,timeout=25) as response:
+                  catalog=json.load(response)
+              available={m.get("id") for m in catalog.get("data",[]) if isinstance(m,dict)}
+              print("XAI_MODEL_CATALOG",json.dumps({"reachable":True,"usableCandidates":[m for m in candidates if m in available],"totalModelCount":len(available)}))
+          except (urllib.error.HTTPError,urllib.error.URLError,ValueError):
+              print("XAI_MODEL_CATALOG",json.dumps({"reachable":False}))
+              available=set()
+          def error_kind(err):
               try:
-                  with urllib.request.urlopen(req, timeout=95) as response:
-                      body = json.load(response)
-                      citations = body.get("citations") or []
-                      usage = (body.get("usage") or {}).get("server_side_tool_usage_details") or {}
-                      print("XAI_SEARCH_PILOT", json.dumps({
-                          "model": model, "httpStatus": response.status,
-                          "status": body.get("status"), "citationCount": len(citations),
-                          "webSearchCalls": usage.get("web_search_calls"),
-                      }))
-                      if body.get("status") == "completed" and citations:
+                  data=json.load(err)
+                  detail=data.get("error",data)
+                  message=str(detail.get("message","")) if isinstance(detail,dict) else ""
+                  code=str(detail.get("code","")) if isinstance(detail,dict) else ""
+                  value=(message+" "+code).lower()
+              except (ValueError,AttributeError,TypeError):
+                  return "unknown"
+              for kind,words in (
+                  ("access",("permission","not allowed","not authorized","not available","not accessible")),
+                  ("model",("model","not found","unknown")),
+                  ("billing",("credit","insufficient","billing","balance")),
+                  ("schema",("max_turns","invalid","unsupported","tool","parameter","field","input")),
+                  ("authentication",("api key","unauthorized","authentication")),
+              ):
+                  if any(word in value for word in words):
+                      return kind
+              return "unknown"
+          models=[m for m in candidates if m in available] or ["grok-4.7","grok-4.3"]
+          for model in models[:2]:
+              data={
+                  "model":model,
+                  "max_turns":2,
+                  "input":[{"role":"user","content":"Search the web for an official energy-agency report about EV charging. Return one cited public source."}],
+                  "tools":[{"type":"web_search"}],
+              }
+              req=urllib.request.Request("https://api.x.ai/v1/responses",data=json.dumps(data).encode(),headers=headers,method="POST")
+              try:
+                  with urllib.request.urlopen(req,timeout=95) as response:
+                      body=json.load(response)
+                      citations=body.get("citations") or []
+                      usage=(body.get("usage") or {}).get("server_side_tool_usage_details") or {}
+                      print("XAI_SEARCH_PILOT",json.dumps({"model":model,"httpStatus":response.status,"status":body.get("status"),"citationCount":len(citations),"webSearchCalls":usage.get("web_search_calls")}))
+                      if body.get("status")=="completed" and citations:
                           raise SystemExit(0)
-                      raise SystemExit(1)
-              except urllib.error.HTTPError as error:
-                  print("XAI_SEARCH_PILOT", json.dumps({"model":model,"httpStatus":error.code,"citationCount":0}))
-                  if error.code not in (400, 404, 422):
+              except urllib.error.HTTPError as err:
+                  print("XAI_SEARCH_PILOT",json.dumps({"model":model,"httpStatus":err.code,"category":error_kind(err),"citationCount":0}))
+                  if err.code not in (400,404,422):
                       raise SystemExit(1)
           raise SystemExit(1)
           PY
