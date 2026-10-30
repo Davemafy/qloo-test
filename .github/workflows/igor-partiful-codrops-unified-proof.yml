@@ -28,7 +28,7 @@ concurrency:
 
 jobs:
   verify:
-    if: github.event_name != 'push' || !contains(github.event.head_commit.message, '[model-readiness]')
+    if: github.event_name != 'push' || (!contains(github.event.head_commit.message, '[model-readiness]') && !contains(github.event.head_commit.message, '[bounded-live]'))
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
