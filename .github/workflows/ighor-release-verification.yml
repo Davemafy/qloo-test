@@ -1,0 +1,94 @@
+name: Ighor — sanitized release verification
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/ighor-release-verification.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      IGOR_TEST_FIXTURES: "1"
+      QLOO_API_KEY: ""
+      QLOO_MAX_CALLS: "0"
+      GEMINI_API_KEY: ""
+      ANTHROPIC_API_KEY: ""
+      XAI_API_KEY: ""
+      OPENAI_API_KEY: ""
+      IGOR_QLOO_RECORDING: ""
+    steps:
+      - name: Fetch pinned PRIVATE submission branch
+        uses: actions/checkout@v4
+        with:
+          repository: Davemafy/ighor
+          ref: 35e1b3f35c3c7ffb025012415c53ba1e2240959c
+          token: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN }}
+          persist-credentials: false
+          path: private-ighor
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: private-ighor/package-lock.json
+
+      - name: Run honest, independent release checks with private logs withheld
+        working-directory: private-ighor
+        shell: bash
+        run: |
+          set -uo pipefail
+          log="$RUNNER_TEMP/ighor-check.log"
+          failures=0
+          build_pass=0
+          run_check() {
+            label="$1"; shift
+            if "$@" > "$log" 2>&1; then
+              echo "$label: PASS"
+              echo "- $label: PASS" >> "$GITHUB_STEP_SUMMARY"
+              return 0
+            fi
+            echo "$label: FAIL (private details withheld)"
+            echo "- $label: FAIL" >> "$GITHUB_STEP_SUMMARY"
+            failures=$((failures + 1))
+            return 1
+          }
+          echo "### Ighor sanitized submission: pinned exact commit" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Private Qloo replay suites intentionally excluded: 8" >> "$GITHUB_STEP_SUMMARY"
+          if run_check Install npm ci; then
+            run_check Formatting npm run format:check || :
+            run_check TypeScript npm run typecheck || :
+            run_check ESLint npm run lint || :
+            run_check Independent-unit-suite npm test || :
+            run_check Domain-evaluation npm run test:eval || :
+            if run_check Production-build npm run build; then
+              build_pass=1
+            fi
+            if [[ "$build_pass" == 1 ]]; then
+              if run_check Chromium-install npx playwright install --with-deps chromium; then
+                run_check Home-Discover-mobile-browser npx playwright test --config tests/reference-integrated.playwright.config.mts || :
+              fi
+            else
+              echo "- Home-Discover-mobile-browser: SKIPPED (build failed)" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          else
+            echo "- Other checks: SKIPPED (install failed)" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          rm -f "$log"
+          if ((failures)); then
+            echo "::error::$failures offline checks failed; do not claim full release readiness."
+            exit 1
+          fi
+          echo "All invoked OFFLINE release checks passed; authenticated live Qloo and hosted demo remain separately unverified."
+
+      - name: Confirm no private source or browser evidence exported
+        if: always()
+        run: |
+          echo "- No source, screenshots, traces, provider payloads or secrets uploaded" >> "$GITHUB_STEP_SUMMARY"
+          echo "- No deployment or public visibility changes" >> "$GITHUB_STEP_SUMMARY"
