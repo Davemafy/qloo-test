@@ -1,0 +1,128 @@
+name: Igor submission history — safe audit
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-submission-sanitize.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      SOURCE_SHA: 689c2dd79ac1dccab639ff312e1f26794cb4e821
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      QLOO_API_KEY: ""
+      OPENAI_API_KEY: ""
+      GEMINI_API_KEY: ""
+      QLOO_MAX_CALLS: "0"
+    steps:
+      - name: Check availability of private read-only token
+        env:
+          HAS_TOKEN: ${{ secrets.PRIVATE_CI_READ_TOKEN != '' }}
+        run: |
+          test "$HAS_TOKEN" = true || { echo "::error::Missing PRIVATE_CI_READ_TOKEN"; exit 1; }
+
+      - name: Checkout public helper
+        uses: actions/checkout@v4
+        with:
+          path: tooling
+          persist-credentials: false
+
+      - name: Checkout Igor privately, without persisting credentials
+        uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: design/reference-contract-foundation-20261030
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          fetch-depth: 0
+          persist-credentials: false
+          path: private-igor
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned Git history and scanning tools
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet git-filter-repo==2.47.0
+          curl -fsSL --retry 2 \
+            https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz \
+            -o "$RUNNER_TEMP/gitleaks.tar.gz"
+          mkdir -p "$RUNNER_TEMP/gitleaks-bin"
+          tar -xzf "$RUNNER_TEMP/gitleaks.tar.gz" -C "$RUNNER_TEMP/gitleaks-bin" gitleaks
+          echo "$RUNNER_TEMP/gitleaks-bin" >> "$GITHUB_PATH"
+
+      - name: Preserve genuine history while removing restricted paths
+        run: |
+          set -euo pipefail
+          python tooling/scripts/sanitize_igor_history.py \
+            --source "$GITHUB_WORKSPACE/private-igor" \
+            --output "$RUNNER_TEMP/igor-clean" \
+            --expected-sha "$SOURCE_SHA" \
+            --report "$RUNNER_TEMP/igor-audit.json"
+          test -z "$(git -C "$RUNNER_TEMP/igor-clean" remote)"
+          rm -rf "$GITHUB_WORKSPACE/private-igor"
+
+      - name: Scan rewritten Git history and files without logging any findings
+        run: |
+          set -uo pipefail
+          gitleaks git --redact --report-format json --report-path "$RUNNER_TEMP/history.json" \
+            "$RUNNER_TEMP/igor-clean" > "$RUNNER_TEMP/scan.log" 2>&1
+          history_status=$?
+          gitleaks dir --redact --report-format json --report-path "$RUNNER_TEMP/head.json" \
+            "$RUNNER_TEMP/igor-clean" >> "$RUNNER_TEMP/scan.log" 2>&1
+          head_status=$?
+          echo "- History secret scan: $([[ $history_status == 0 ]] && echo PASS || echo BLOCKED)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- HEAD secret scan: $([[ $head_status == 0 ]] && echo PASS || echo BLOCKED)" >> "$GITHUB_STEP_SUMMARY"
+          test "$history_status" -eq 0 && test "$head_status" -eq 0 || {
+            echo "::error::Secret scan found issues or failed. No publishing."
+            exit 1
+          }
+
+      - name: Check clean repository installation, typecheck, build and tests
+        run: |
+          set -uo pipefail
+          cd "$RUNNER_TEMP/igor-clean"
+          failed=0
+          if npm ci > "$RUNNER_TEMP/build-check.log" 2>&1; then
+            echo "- npm ci: PASS" >> "$GITHUB_STEP_SUMMARY"
+            for cmd in typecheck build test; do
+              if npm run "$cmd" > "$RUNNER_TEMP/build-check.log" 2>&1; then
+                echo "- $cmd: PASS" >> "$GITHUB_STEP_SUMMARY"
+              else
+                echo "- $cmd: FAIL (private diagnostics withheld)" >> "$GITHUB_STEP_SUMMARY"
+                failed=1
+              fi
+            done
+          else
+            echo "- npm ci: FAIL (private diagnostics withheld)" >> "$GITHUB_STEP_SUMMARY"
+            failed=1
+          fi
+          exit "$failed"
+
+      - name: Report counts only and delete all temporary source
+        if: always()
+        run: |
+          echo "### Igor private-history sanitization (audit only)" >> "$GITHUB_STEP_SUMMARY"
+          if test -f "$RUNNER_TEMP/igor-audit.json"; then
+            python - <<'PY'
+          import json,os,pathlib
+          d=json.loads((pathlib.Path(os.environ["RUNNER_TEMP"])/"igor-audit.json").read_text())
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as f:
+            f.write(f"- Original commits: {d['original_commit_count']}\n")
+            f.write(f"- Preserved authentic commits: {d['sanitized_commit_count']}\n")
+          PY
+          fi
+          echo "- Private source artifact uploaded: NO" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Destination repository created or published: NO" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Remaining review: original commit messages/emails, image rights, third-party terms and live demo." >> "$GITHUB_STEP_SUMMARY"
+          rm -rf "$RUNNER_TEMP/igor-clean" "$GITHUB_WORKSPACE/private-igor" \
+            "$RUNNER_TEMP/history.json" "$RUNNER_TEMP/head.json" \
+            "$RUNNER_TEMP/scan.log" "$RUNNER_TEMP/build-check.log" "$RUNNER_TEMP/igor-audit.json" || true
