@@ -88,8 +88,9 @@ jobs:
           IGOR_UNSCRIPTED_PROMPT: "planning a weekend trip with friends"
         run: |
           set -uo pipefail
-          node scripts/verify-live-alternatives.mjs > "$RUNNER_TEMP/live.log" 2>&1
-          code=$?
+          code=0
+          node scripts/verify-live-alternatives.mjs > "$RUNNER_TEMP/live.log" 2>&1 || code=$?
+          echo "LIVE_HARNESS_EXIT=$code"
           if test -f test-results/live-alternatives/report.json; then
             python - <<'PY'
           import json,pathlib,os
@@ -102,6 +103,16 @@ jobs:
                     'REPLIED',bool(case.get('hasAssistantReply')),
                     'GENERIC_FAILURE',bool(case.get('genericFailure')),
                     'LIVE_CULTURAL_RECORDS',int(case.get('liveCulturalEvidenceCount') or 0))
+          PY
+          fi
+          if ! test -f test-results/live-alternatives/report.json; then
+            python - <<'PY'
+          import os,pathlib
+          t=(pathlib.Path(os.environ['RUNNER_TEMP'])/'live.log').read_text(errors='replace')
+          kinds=['ERR_MODULE_NOT_FOUND','MODULE_NOT_FOUND','browserType.launch','Executable does not exist','EACCES','SyntaxError','ERR_INVALID_ARG_TYPE']
+          print('LIVE_HARNESS_NO_REPORT',True)
+          for kind in kinds:
+              if kind in t: print('LIVE_HARNESS_ERROR_KIND',kind)
           PY
           fi
           test "$code" = 0 || { echo "::error::Live acceptance failed; private provider details withheld."; exit 1; }
