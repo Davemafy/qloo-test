@@ -44,7 +44,7 @@ elif label == "Home-Discover-mobile-browser":
           (re.findall(r"(?m)^\s*(\d+)\s+passed\b", data) or ["unknown"])[-1])
     print("BROWSER_TESTS_FAILED",
           (re.findall(r"(?m)^\s*(\d+)\s+failed\b", data) or ["unknown"])[-1])
-    sites = re.findall(r"at [^\n]*reference-integrated\\.e2e\\.ts:(\\d+):(\\d+)", data)
+    sites = re.findall(r"at [^\n]*reference-integrated\.e2e\.ts:(\d+):(\d+)", data)
     for line,col in sites[:8]:
         print("BROWSER_ASSERTION_SITE", line, col)
     for token in ("visible", "hidden", "true", "false", "toHaveCount", "toBe", "toBeVisible"):
