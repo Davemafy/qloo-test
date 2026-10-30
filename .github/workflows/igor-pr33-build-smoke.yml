@@ -17,7 +17,7 @@ permissions:
 jobs:
   build-smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 40
     env:
       NEXT_TELEMETRY_DISABLED: "1"
       IGOR_TEST_FIXTURES: "1"
@@ -26,7 +26,7 @@ jobs:
       XAI_API_KEY: ""
       ANTHROPIC_API_KEY: ""
       BRIGHTDATA_API_KEY: ""
-      IGOR_SHA: ${{ inputs.commit_sha || '561e4e63d0cd16499a9fb6abc9e0e04355d34c1f' }}
+      IGOR_SHA: ${{ inputs.commit_sha || '916faab7fa043c70f69be94ce850122ac5511361' }}
     steps:
       - name: Confirm pinned SHA without disclosing private source
         shell: bash
@@ -62,6 +62,26 @@ jobs:
             exit 1
           }
           echo "PASS: production Next.js build at $IGOR_SHA"
+      - name: Unit tests for live map truth and marker boundaries
+        working-directory: private-igor
+        run: npx vitest run --config tests/vitest.config.mts tests/unit/live-map-flow.test.tsx
+      - name: Install Chromium for real browser map captures
+        working-directory: private-igor
+        run: npx playwright install --with-deps chromium
+      - name: Browser flows for empty map, verified pins, and discover
+        working-directory: private-igor
+        run: |
+          npx playwright test --config tests/reference-integrated.playwright.config.mts --grep "a real map opens immediately|Home map action opens|Discover starts with functional requests|verified geocoded places|a task.s verified place"
+      - name: Preserve map browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: igor-map-and-flow-${{ env.IGOR_SHA }}
+          path: |
+            private-igor/test-results/**/*.png
+            private-igor/test-results/**/*.webm
+            private-igor/test-results/**/*.html
+          if-no-files-found: ignore
       - name: Record result
         if: success()
-        run: echo "PASS — exact Igor frontend SHA $IGOR_SHA" >> "$GITHUB_STEP_SUMMARY"
+        run: echo "PASS — exact Igor frontend SHA $IGOR_SHA (typecheck, build, map unit/browser tests)" >> "$GITHUB_STEP_SUMMARY"
