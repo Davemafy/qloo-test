@@ -1,5 +1,5 @@
 name: Igor single-branch CI (private source)
-# Format-probe Igor SHA bb57815d6e2fa1fc055377f4817e91708bc9bc99
+# Format-probe Igor SHA 5c0db0ae5c779366acfb55395495ac63eddff274
 # [bounded-live] reviewed Igor engine bb57815d6e2fa1fc055377f4817e91708bc9bc99
 # Targeted existing Gemini provider live acceptance; never fixtures
 # Verify Igor engine SHA bb57815d6e2fa1fc055377f4817e91708bc9bc99 (deterministic only)
@@ -434,7 +434,7 @@ jobs:
         run: |
           npm run typecheck
           npm run lint
-          npx vitest run tests/unit/agent-recovery-artifact.test.ts tests/unit/agent-completion-budget.test.ts
+          npx vitest run tests/unit/agent-recovery-artifact.test.ts tests/unit/agent-completion-budget.test.ts tests/unit/unified-agent.test.ts
           if npx prettier --check src/core/agent-recovery-artifact.ts src/core/unified-agent.ts src/core/agent-tool-registry.ts tests/unit/agent-recovery-artifact.test.ts scripts/verify-live-general-research.mjs src/core/agent-acceptance.ts tests/unit/agent-completion-budget.test.ts; then
             exit 0
           fi
