@@ -1,5 +1,5 @@
 name: Igor single-branch CI (private source)
-# Format-probe Igor SHA 2afc071d33a9748ab4a1a0f871738798d21ac343
+# Format-probe Igor SHA 53fff33c147663f680f5b814720d6e7c03382848
 # [bounded-live] reviewed Igor engine 1b23535d5c65027b2d4b341f2fd9b1a148ea8556
 # Targeted existing Gemini provider live acceptance; never fixtures
 # Verify Igor engine SHA 1b23535d5c65027b2d4b341f2fd9b1a148ea8556 (deterministic only)
@@ -434,11 +434,11 @@ jobs:
           npm run typecheck
           npm run lint
           npx vitest run tests/unit/agent-recovery-artifact.test.ts tests/unit/agent-completion-budget.test.ts
-          if npx prettier --check src/core/agent-recovery-artifact.ts src/core/unified-agent.ts src/core/agent-tool-registry.ts tests/unit/agent-recovery-artifact.test.ts; then
+          if npx prettier --check src/core/agent-recovery-artifact.ts src/core/unified-agent.ts src/core/agent-tool-registry.ts tests/unit/agent-recovery-artifact.test.ts scripts/verify-live-general-research.mjs; then
             exit 0
           fi
-          npx prettier --write src/core/agent-recovery-artifact.ts src/core/unified-agent.ts src/core/agent-tool-registry.ts tests/unit/agent-recovery-artifact.test.ts > /dev/null
-          git diff --unified=0 -- src/core/agent-recovery-artifact.ts src/core/unified-agent.ts src/core/agent-tool-registry.ts tests/unit/agent-recovery-artifact.test.ts | grep '^@@' || true
+          npx prettier --write src/core/agent-recovery-artifact.ts src/core/unified-agent.ts src/core/agent-tool-registry.ts tests/unit/agent-recovery-artifact.test.ts scripts/verify-live-general-research.mjs > /dev/null
+          git diff --unified=0 -- src/core/agent-recovery-artifact.ts src/core/unified-agent.ts src/core/agent-tool-registry.ts tests/unit/agent-recovery-artifact.test.ts scripts/verify-live-general-research.mjs | grep '^@@' || true
           echo "::error::Agent recovery formatting mismatch. No source published."
           exit 1
 
