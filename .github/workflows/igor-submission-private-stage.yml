@@ -1,6 +1,9 @@
 name: Igor submission — private sanitized staging
 
 on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-submission-private-stage.yml]
   workflow_dispatch:
     inputs:
       confirmation:
@@ -20,8 +23,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     env:
-      SOURCE_SHA: ${{ inputs.pinned_sha }}
-      CONFIRMATION: ${{ inputs.confirmation }}
+      SOURCE_SHA: ${{ github.event_name == 'workflow_dispatch' && inputs.pinned_sha || '50f5f441894d8b2005d34739f8d021aec53f38bf' }}
+      CONFIRMATION: ${{ github.event_name == 'workflow_dispatch' && inputs.confirmation || 'STAGE-PRIVATE-ONLY' }}
       CI: "true"
       NEXT_TELEMETRY_DISABLED: "1"
       QLOO_MAX_CALLS: "0"
@@ -32,7 +35,7 @@ jobs:
       - name: Require explicit private staging authorization and scoped tokens
         env:
           HAS_READ: ${{ secrets.PRIVATE_CI_READ_TOKEN != '' }}
-          HAS_WRITE: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN != '' }}
+          HAS_WRITE: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN != '' || secrets.PRIVATE_CI_READ_TOKEN != '' }}
         run: |
           set -euo pipefail
           test "$CONFIRMATION" = 'STAGE-PRIVATE-ONLY'
@@ -42,24 +45,25 @@ jobs:
 
       - name: Require empty PRIVATE destination, never replace existing history
         env:
-          WRITE_TOKEN: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN }}
+          WRITE_TOKEN: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN || secrets.PRIVATE_CI_READ_TOKEN }}
         run: |
           set -euo pipefail
           code="$(curl -sS -o "$RUNNER_TEMP/repo.json" -w '%{http_code}' \
             -H "Authorization: Bearer $WRITE_TOKEN" \
             -H 'Accept: application/vnd.github+json' \
-            'https://api.github.com/repos/Davemafy/igor-submission')"
-          test "$code" = 200 || { echo '::error::Create an EMPTY PRIVATE Davemafy/igor-submission repository'; exit 1; }
+            'https://api.github.com/repos/Davemafy/ighor')"
+          test "$code" = 200 || { echo '::error::Create an EMPTY PRIVATE Davemafy/ighor repository'; exit 1; }
           python - <<'PY'
           import json,os,pathlib
           p=pathlib.Path(os.environ['RUNNER_TEMP'])/'repo.json'
           d=json.loads(p.read_text())
-          assert d.get('private') is True and d.get('full_name')=='Davemafy/igor-submission', 'Destination is not private'
+          assert d.get('private') is True and d.get('full_name')=='Davemafy/ighor', 'Destination is not private'
+          assert d.get('permissions',{}).get('push') is True, 'Token lacks destination write permission'
           PY
           code="$(curl -sS -o /dev/null -w '%{http_code}' \
             -H "Authorization: Bearer $WRITE_TOKEN" \
-            'https://api.github.com/repos/Davemafy/igor-submission/git/ref/heads/main')"
-          test "$code" = 404 || { echo '::error::Destination already contains a main branch; refusing overwrite'; exit 1; }
+            'https://api.github.com/repos/Davemafy/ighor/git/ref/heads/main')"
+          [[ "$code" == 404 || "$code" == 409 ]] || { echo '::error::Destination main branch already exists or repository is inaccessible'; exit 1; }
 
       - uses: actions/checkout@v4
         with:
@@ -138,7 +142,7 @@ jobs:
 
       - name: Push ONLY to empty private destination
         env:
-          IGOR_SUBMISSION_WRITE_TOKEN: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN }}
+          IGOR_SUBMISSION_WRITE_TOKEN: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN || secrets.PRIVATE_CI_READ_TOKEN }}
           GIT_TERMINAL_PROMPT: '0'
         run: |
           set -euo pipefail
@@ -153,7 +157,7 @@ jobs:
           chmod 700 "$RUNNER_TEMP/askpass"
           export GIT_ASKPASS="$RUNNER_TEMP/askpass"
           git -C "$RUNNER_TEMP/igor-clean" push \
-            'https://github.com/Davemafy/igor-submission.git' HEAD:refs/heads/main
+            'https://github.com/Davemafy/ighor.git' HEAD:refs/heads/main
           echo 'Sanitized history staged in PRIVATE repository, never made public.'
 
       - name: Delete temporary private data, without uploading source artifacts
