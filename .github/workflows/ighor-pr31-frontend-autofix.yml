@@ -125,9 +125,15 @@ jobs:
           SH
           chmod 700 "$RUNNER_TEMP/ighor-askpass"
           export GIT_ASKPASS="$RUNNER_TEMP/ighor-askpass"
-          git push https://github.com/Davemafy/igor.git HEAD:refs/heads/design/reference-contract-foundation-20261030 \
-            > "$RUNNER_TEMP/ighor-ci-push.log" 2>&1
-          echo "Updated draft frontend branch; no merge and no deploy."
+          if git push https://github.com/Davemafy/igor.git HEAD:refs/heads/design/reference-contract-foundation-20261030 \
+            > "$RUNNER_TEMP/ighor-ci-push.log" 2>&1; then
+            echo "Updated draft frontend branch; no merge and no deploy."
+          else
+            # Only display sanitized remote status; no credentials, code, or payloads.
+            sed -n '/^remote:/p; /^fatal:/p; /^error:/p' "$RUNNER_TEMP/ighor-ci-push.log" \
+              | sed -E 's/(ghp_|github_pat_)[A-Za-z0-9_]+/[redacted-token]/g' | head -n 8
+            exit 1
+          fi
 
       - name: Clear private logs and credentials
         if: always()
