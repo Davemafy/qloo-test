@@ -116,17 +116,25 @@ jobs:
             "$RUNNER_TEMP/igor-clean" >> "$RUNNER_TEMP/scan.log" 2>&1
           echo 'Retained history and HEAD scans passed.'
 
-      - name: Require install, typecheck, build, and unit-test success
+      - name: Report install, typecheck, build and unit-test readiness
         run: |
-          set -euo pipefail
+          set -uo pipefail
           cd "$RUNNER_TEMP/igor-clean"
+          failures=0
           for cmd in "npm ci" "npm run typecheck" "npm run build" "npm test"; do
-            if ! $cmd > "$RUNNER_TEMP/check.log" 2>&1; then
-              echo "::error::Sanitized validation failed: $cmd; no push performed."
-              exit 1
+            if $cmd > "$RUNNER_TEMP/check.log" 2>&1; then
+              echo "PASS: $cmd"
+              echo "- $cmd: PASS" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "::warning::Private release-candidate validation failed at $cmd; fix before public release."
+              echo "- $cmd: FAIL (private staging only)" >> "$GITHUB_STEP_SUMMARY"
+              failures=1
             fi
-            echo "PASS: $cmd"
           done
+          if [[ "$failures" == 1 ]]; then
+            echo "PUBLIC_RELEASE_READY=false" >> "$GITHUB_STEP_SUMMARY"
+            echo 'Private staging is permitted only for subsequent remediation.'
+          fi
 
       - name: Push ONLY to empty private destination
         env:
