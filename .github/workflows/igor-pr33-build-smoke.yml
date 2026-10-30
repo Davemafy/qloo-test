@@ -26,7 +26,7 @@ jobs:
       XAI_API_KEY: ""
       ANTHROPIC_API_KEY: ""
       BRIGHTDATA_API_KEY: ""
-      IGOR_SHA: ${{ inputs.commit_sha || '65fb9763ea15663bd82a0dcb81b061ae9ba65661' }}
+      IGOR_SHA: ${{ inputs.commit_sha || '3a48c99eb106c563e7260b4ab1ddf63269f1bce7' }}
     steps:
       - name: Confirm pinned SHA without disclosing private source
         shell: bash
