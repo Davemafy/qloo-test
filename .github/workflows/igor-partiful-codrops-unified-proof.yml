@@ -431,3 +431,38 @@ jobs:
           git diff --unified=0 -- src/tools/tool-model.ts tests/unit/gemini-routing-guard.test.ts | grep '^@@' || true
           echo "::error::Router formatting mismatch. No source published."
           exit 1
+
+  gemini-routing:
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[gemini-routing]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: feat/partiful-codrops-unified-20261029
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          path: private-igor
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: private-igor/package-lock.json
+      - name: Locked install
+        working-directory: private-igor
+        run: npm ci --silent > /dev/null 2>&1
+      - name: Run real Gemini route regression without Qloo or fixtures
+        working-directory: private-igor
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: gemini-3.1-flash-lite
+          QLOO_API_KEY: ""
+          XAI_API_KEY: ""
+          ANTHROPIC_API_KEY: ""
+        run: |
+          test -n "$GEMINI_API_KEY" || { echo "::error::Configured Gemini binding is missing."; exit 1; }
+          echo "Reviewed engine SHA: $(git rev-parse HEAD)"
+          timeout 210 node node_modules/vitest/vitest.mjs run --config tests/live-provider.vitest.config.mts
