@@ -34,7 +34,7 @@ jobs:
       XAI_API_KEY: ""
       ANTHROPIC_API_KEY: ""
       IGOR_QLOO_RECORDING: ""
-      PINNED_IGOR_SHA: ${{ github.event_name == 'workflow_dispatch' && inputs.commit_sha || '42dea6c472e802cf7277247c16cbab6169927aa9' }}
+      PINNED_IGOR_SHA: ${{ github.event_name == 'workflow_dispatch' && inputs.commit_sha || 'b3224ca1bde1118f6da69e44abc29bad0334394a' }}
     steps:
       - name: Confirm pinned revision and existing private read authorization
         env:
@@ -122,6 +122,12 @@ jobs:
               src/app/app/page.tsx \
               src/app/mockup-native.css \
               tests/unit/workspace-view-model.test.ts \
+              tests/unit/reference-create-stage.test.tsx \
+              tests/browser/reference-populated.e2e.ts \
+              tests/browser/reference-twelve.e2e.ts \
+              src/components/reference-create-stage.tsx \
+              src/components/reference-document-stage.tsx \
+              src/app/reference-acceptance.css \
               tests/browser/reference-integrated.e2e.ts \
               tests/reference-integrated.playwright.config.mts \
               docs/implementation/FRONTEND_VISUAL_AUDIT.md \
