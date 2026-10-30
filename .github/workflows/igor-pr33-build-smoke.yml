@@ -1,0 +1,67 @@
+name: Igor PR33 exact-commit build smoke
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/igor-pr33-build-smoke.yml
+  workflow_dispatch:
+    inputs:
+      commit_sha:
+        description: Exact Igor commit SHA for frontend branch
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      IGOR_TEST_FIXTURES: "1"
+      QLOO_API_KEY: ""
+      GEMINI_API_KEY: ""
+      XAI_API_KEY: ""
+      ANTHROPIC_API_KEY: ""
+      BRIGHTDATA_API_KEY: ""
+      IGOR_SHA: ${{ inputs.commit_sha || 'b8d20527fb6e9a17492f95a9d52c15fbe9f85059' }}
+    steps:
+      - name: Confirm pinned SHA without disclosing private source
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$IGOR_SHA" =~ ^[a-f0-9]{40}$ ]]
+          echo "Verifying Igor frontend SHA $IGOR_SHA"
+      - name: Checkout private Igor commit
+        uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: ${{ env.IGOR_SHA }}
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          path: private-igor
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: private-igor/package-lock.json
+      - name: Locked installation
+        working-directory: private-igor
+        run: npm ci --silent > /dev/null 2>&1
+      - name: TypeScript validation
+        working-directory: private-igor
+        run: npm run typecheck
+      - name: Production Next.js build
+        working-directory: private-igor
+        shell: bash
+        run: |
+          npm run build > "$RUNNER_TEMP/igor-pr33-build.log" 2>&1 || {
+            grep -E 'error TS[0-9]+|Failed to compile|Module not found|Error:' "$RUNNER_TEMP/igor-pr33-build.log" | head -30 || true
+            exit 1
+          }
+          echo "PASS: production Next.js build at $IGOR_SHA"
+      - name: Record result
+        if: success()
+        run: echo "PASS — exact Igor frontend SHA $IGOR_SHA" >> "$GITHUB_STEP_SUMMARY"
