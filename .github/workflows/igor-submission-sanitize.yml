@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 35
     env:
-      SOURCE_SHA: 689c2dd79ac1dccab639ff312e1f26794cb4e821
+      SOURCE_SHA: 06bc202067ef846069782640bd81870e1d87c1c9
       CI: "true"
       NEXT_TELEMETRY_DISABLED: "1"
       QLOO_API_KEY: ""
