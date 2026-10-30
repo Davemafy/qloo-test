@@ -230,6 +230,28 @@ jobs:
     env:
       NEXT_TELEMETRY_DISABLED: "1"
     steps:
+      - name: Pin the exact reviewed Igor engine revision
+        id: revision
+        shell: bash
+        env:
+          READ_TOKEN: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          REQUESTED_SHA: ${{ inputs.commit_sha }}
+          IGOR_BRANCH: feat/partiful-codrops-unified-20261029
+        run: |
+          set -euo pipefail
+          test -n "$READ_TOKEN" || { echo "::error::Private read token unavailable."; exit 1; }
+          if [[ -n "$REQUESTED_SHA" ]]; then
+            sha="$REQUESTED_SHA"
+          else
+            payload="$(curl --fail --silent --show-error \
+              --header "Authorization: Bearer $READ_TOKEN" \
+              --header "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/Davemafy/igor/branches/$IGOR_BRANCH")"
+            sha="$(node -e 'const o=JSON.parse(process.argv[1]); process.stdout.write(o.commit?.sha ?? "")' "$payload")"
+          fi
+          [[ "$sha" =~ ^[a-fA-F0-9]{40}$ ]] || { echo "::error::Invalid Igor commit SHA."; exit 1; }
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "Live acceptance source SHA: $sha"
       - name: Select an existing authorized provider without printing values
         id: providers
         env:
@@ -258,10 +280,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: ${{ inputs.commit_sha || '2f725786f7a0c26a61a6064617e20929eae7efc3' }}
+          ref: ${{ steps.revision.outputs.sha }}
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: private-igor
+      - name: Verify checked-out live acceptance source
+        working-directory: private-igor
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "${{ steps.revision.outputs.sha }}"
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
