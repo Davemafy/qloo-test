@@ -2,7 +2,7 @@ name: Igor single-branch CI (private source)
 # Format-probe Igor SHA 5c0db0ae5c779366acfb55395495ac63eddff274
 # [bounded-live] reviewed Igor engine bb57815d6e2fa1fc055377f4817e91708bc9bc99
 # Targeted existing Gemini provider live acceptance; never fixtures
-# Verify Igor engine SHA bb57815d6e2fa1fc055377f4817e91708bc9bc99 (deterministic only)
+# Verify Igor engine SHA 12bfb43c1ce93d0f2d2c4f2e38d1b5f5ae89e846 (deterministic only)
 # Runs ONLY in qloo-test. Igor's hosted runners are currently unhealthy.
 on:
   push:
