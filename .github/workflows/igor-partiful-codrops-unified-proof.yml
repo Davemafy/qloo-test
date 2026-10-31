@@ -37,7 +37,7 @@ concurrency:
 
 jobs:
   verify:
-    if: github.event_name != 'push' || (!contains(github.event.head_commit.message, '[model-readiness]') && !contains(github.event.head_commit.message, '[bounded-live]') && !contains(github.event.head_commit.message, '[format-probe]') && !contains(github.event.head_commit.message, '[gemini-search]') && !contains(github.event.head_commit.message, '[xai-search]') && !contains(github.event.head_commit.message, '[alternate-only]'))
+    if: github.event_name != 'push' || (!contains(github.event.head_commit.message, '[model-readiness]') && !contains(github.event.head_commit.message, '[bounded-live]') && !contains(github.event.head_commit.message, '[format-probe]') && !contains(github.event.head_commit.message, '[gemini-search]') && !contains(github.event.head_commit.message, '[xai-search]') && !contains(github.event.head_commit.message, '[alternate-only]') && !contains(github.event.head_commit.message, '[grok-auth]'))
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
@@ -436,6 +436,40 @@ jobs:
           print(json.dumps({"operation":"protocol_check","model":selected,"httpStatus":status,"latencyMs":latency,"functionCallValid":valid,"applicationAcceptance":False}))
           if not valid:raise SystemExit(1)
           PY
+
+  grok-auth:
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[grok-auth]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+    env:
+      XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+      GROK_API_KEY: ${{ secrets.GROK_API_KEY }}
+    steps:
+      - name: Verify existing xAI key status and model access (no values logged)
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +x
+          key="${XAI_API_KEY:-${GROK_API_KEY:-}}"
+          if [[ -z "$key" ]]; then
+            echo "::error::Neither xAI credential is configured in this test repository."
+            exit 1
+          fi
+          list_code=$(curl --silent --show-error --max-time 20 --output /dev/null --write-out '%{http_code}' \
+            --header "Authorization: Bearer $key" \
+            --header 'Accept: application/json' https://api.x.ai/v1/models)
+          model_code=$(curl --silent --show-error --max-time 20 --output /dev/null --write-out '%{http_code}' \
+            --header "Authorization: Bearer $key" \
+            --header 'Accept: application/json' https://api.x.ai/v1/models/grok-4.3)
+          echo "xAI models list HTTP status: $list_code"
+          echo "xAI grok-4.3 access HTTP status: $model_code"
+          if [[ "$list_code" != "200" || "$model_code" != "200" ]]; then
+            echo "::error::xAI provider is not verified usable; do not treat it as a healthy fallback."
+            exit 1
+          fi
+          echo "xAI credential and model access verified. This does not establish agent tool-calling success."
 
   format-probe:
     if: github.event_name == 'push' && contains(github.event.head_commit.message, '[format-probe]')
