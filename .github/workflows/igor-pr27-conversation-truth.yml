@@ -53,3 +53,12 @@ jobs:
       - name: Build production application
         working-directory: candidate
         run: npm run build
+      - name: Print Prettier-only patch for review
+        if: always()
+        working-directory: candidate
+        shell: bash
+        run: |
+          npx prettier --write src/components/agent-workspace.tsx src/core/interpret-message.ts src/core/grounded-followup.ts
+          echo 'BEGIN_IGOR_PRETTIER_DIFF'
+          git diff --no-color -- src/components/agent-workspace.tsx src/core/interpret-message.ts src/core/grounded-followup.ts
+          echo 'END_IGOR_PRETTIER_DIFF'
