@@ -40,9 +40,19 @@ jobs:
           echo END_IGOR_FORMAT_DIFF
       - run: npm run typecheck
         working-directory: igor
+      - name: Apply repository lint auto-fixes
+        working-directory: igor
+        run: npx eslint --fix src/core/orchestrator.ts src/core/unified-agent.ts src/core/agent-acceptance.ts tests/unit/agent-intent-boundary.test.ts tests/unit/agent-market-turn-finalization.test.ts
       - run: npx eslint src/core/orchestrator.ts src/core/unified-agent.ts src/core/agent-acceptance.ts tests/unit/agent-intent-boundary.test.ts tests/unit/agent-market-turn-finalization.test.ts
         working-directory: igor
       - run: npx vitest run --config tests/vitest.config.mts tests/unit/agent-market-turn-finalization.test.ts tests/unit/agent-intent-boundary.test.ts tests/unit/unified-agent.test.ts
         working-directory: igor
       - run: npm run build
         working-directory: igor
+      - name: Emit exact verified source normalization diff
+        if: always()
+        working-directory: igor
+        run: |
+          echo BEGIN_VERIFIED_MARKET_DIFF
+          git diff --no-color -- src/core/orchestrator.ts src/core/unified-agent.ts src/core/agent-acceptance.ts tests/unit/agent-intent-boundary.test.ts tests/unit/agent-market-turn-finalization.test.ts
+          echo END_VERIFIED_MARKET_DIFF
