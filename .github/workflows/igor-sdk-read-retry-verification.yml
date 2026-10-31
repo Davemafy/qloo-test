@@ -1,0 +1,57 @@
+name: Igor SDK bounded retry verification (private source)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/igor-sdk-read-retry-verification.yml
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      QLOO_API_KEY: ""
+      QLOO_MAX_CALLS: "0"
+      GEMINI_API_KEY: ""
+      ANTHROPIC_API_KEY: ""
+      XAI_API_KEY: ""
+      OPENAI_API_KEY: ""
+      LLM_API_KEY: ""
+      IGOR_QLOO_RECORDING: ""
+    steps:
+      - name: Checkout exact private SDK-retry candidate without persisting credentials
+        uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: e0e60354115434b22e6a12617904685d8ff84492
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          path: candidate
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: candidate/package-lock.json
+
+      - name: Verify exact branch code without exporting private source
+        working-directory: candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci >/dev/null
+          echo "npm install: PASS" >> "$GITHUB_STEP_SUMMARY"
+          npx prettier --check src/core/ai-sdk-unified-agent.ts tests/unit/ai-sdk-unified-agent.test.ts
+          echo "Changed-file formatting: PASS" >> "$GITHUB_STEP_SUMMARY"
+          npm run typecheck
+          echo "TypeScript: PASS" >> "$GITHUB_STEP_SUMMARY"
+          npx vitest run tests/unit/ai-sdk-unified-agent.test.ts
+          echo "SDK recovery regressions: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "No real provider calls, merge, deploy or private source upload." >> "$GITHUB_STEP_SUMMARY"
