@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: 8d2052d848ce8255126ec08e0518fa7f9cfc2eb5
+          ref: 02e4a8804a6e1f028f0fe0da009885b22d8e0a85
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: candidate
@@ -54,7 +54,7 @@ jobs:
                 TypeScript)
                   grep -oE '[A-Za-z0-9_./-]+\\.(ts|tsx|mts)\\([0-9]+,[0-9]+\\): error TS[0-9]+' "$file" | head -30 || true ;;
                 Lint)
-                  grep -oE '[A-Za-z0-9_./-]+\\.(ts|tsx|mts)|@typescript-eslint/[A-Za-z-]+' "$file" | sort -u | head -30 || true ;;
+                  grep -E '^/home/runner/.*\\.(ts|tsx|mts)|^[[:space:]]*[0-9]+:[0-9]+[[:space:]]+error' "$file" | head -40 || true ;;
                 Unit)
                   grep -E 'FAIL |Test Files|Tests ' "$file" | tail -25 || true ;;
                 Build)
@@ -65,13 +65,6 @@ jobs:
             rm -f "$file"
           }
           check Install npm ci
-          echo "BEGIN REVIEWABLE FORMAT DIFF"
-          npx prettier --write src/core/agent-decision-gate.ts src/core/ai-sdk-unified-agent.ts src/core/unified-agent.ts src/core/contracts.ts tests/unit/agent-decision-gate.test.ts tests/unit/ai-sdk-unified-agent.test.ts > /dev/null
-          git diff -- src/core/agent-decision-gate.ts src/core/ai-sdk-unified-agent.ts src/core/unified-agent.ts src/core/contracts.ts tests/unit/agent-decision-gate.test.ts tests/unit/ai-sdk-unified-agent.test.ts || true
-          echo "END REVIEWABLE FORMAT DIFF"
-          npx eslint src/core/agent-decision-gate.ts src/core/ai-sdk-unified-agent.ts src/core/unified-agent.ts src/core/contracts.ts tests/unit/agent-decision-gate.test.ts tests/unit/ai-sdk-unified-agent.test.ts -f json > "$RUNNER_TEMP/lint.json" || true
-          node -e 'for(const f of require(process.argv[1]))for(const m of f.messages)console.log(f.filePath.split("/").pop()+":"+m.line+":"+m.ruleId)' "$RUNNER_TEMP/lint.json"
-          rm -f "$RUNNER_TEMP/lint.json"
           check Format npx prettier --check src/core/agent-decision-gate.ts src/core/ai-sdk-unified-agent.ts src/core/unified-agent.ts src/core/contracts.ts tests/unit/agent-decision-gate.test.ts tests/unit/ai-sdk-unified-agent.test.ts
           check TypeScript npm run typecheck
           check Lint npm run lint
