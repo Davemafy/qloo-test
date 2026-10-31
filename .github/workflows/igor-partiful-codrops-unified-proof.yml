@@ -1,4 +1,5 @@
 name: Igor single-branch CI (private source)
+# Read-only xAI model access verification for release fallback
 # Run real fallback-agent acceptance after diagnostic-only Gemini preflight
 # Current Gemini grounded-search probe against configured provider
 # Current Grok cited-web probe against configured provider
