@@ -1,0 +1,47 @@
+name: Igor existing open-source AI SDK agent proof
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/igor-ai-sdk-proof.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  prove:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      QLOO_API_KEY: ""
+      XAI_API_KEY: ""
+      GEMINI_API_KEY: ""
+      ANTHROPIC_API_KEY: ""
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: d99e6d105575b9c01cbcdd15c08f86ac2d1935c8
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          path: private-igor
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: private-igor/package-lock.json
+      - name: Locked install
+        working-directory: private-igor
+        run: npm ci --silent > /dev/null 2>&1
+      - name: Typecheck the real OSS runtime
+        working-directory: private-igor
+        run: npm run typecheck
+      - name: AI SDK provider-neutral live-execution contract with mocks
+        working-directory: private-igor
+        run: npx vitest run --config tests/vitest.config.mts tests/unit/ai-sdk-unified-agent.test.ts
+      - name: Review lint/format for touched runtime and tests
+        working-directory: private-igor
+        run: |
+          npx eslint src/core/ai-sdk-unified-agent.ts src/tools/sdk-language-model.ts tests/unit/ai-sdk-unified-agent.test.ts
+          npx prettier --check src/core/ai-sdk-unified-agent.ts src/tools/sdk-language-model.ts tests/unit/ai-sdk-unified-agent.test.ts
