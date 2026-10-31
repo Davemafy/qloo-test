@@ -1,0 +1,157 @@
+name: Igor PR27 — sanitized transfer for public igor-agent
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-pr27-sanitized-transfer.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: igor-pr27-sanitized-transfer
+  cancel-in-progress: false
+
+jobs:
+  sanitized-transfer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      EXPECTED_PR27_SHA: 0b83a6cc56ec3b0adba42d4ad8344d603124ffda
+      DEST_BRANCH: release/pr27-sanitized
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      QLOO_API_KEY: ""
+      GEMINI_API_KEY: ""
+      ANTHROPIC_API_KEY: ""
+      XAI_API_KEY: ""
+      QLOO_MAX_CALLS: "0"
+      GIT_TERMINAL_PROMPT: "0"
+    steps:
+      - name: Check source-read and destination-write tokens
+        shell: bash
+        env:
+          HAS_READ: ${{ secrets.PRIVATE_CI_READ_TOKEN != '' }}
+          HAS_WRITE: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN != '' }}
+        run: |
+          set -euo pipefail
+          test "$HAS_READ" = true
+          test "$HAS_WRITE" = true
+          echo 'Source and destination token presence validated.'
+
+      - name: Verify destination access and that staging branch does not yet exist
+        shell: bash
+        env:
+          WRITE_TOKEN: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN }}
+        run: |
+          set -euo pipefail
+          code="$(curl -sS -o "$RUNNER_TEMP/dest.json" -w '%{http_code}' \
+            -H "Authorization: Bearer $WRITE_TOKEN" \
+            -H 'Accept: application/vnd.github+json' \
+            'https://api.github.com/repos/Davemafy/igor-agent')"
+          test "$code" = 200
+          python - <<'PY'
+          import json,os,pathlib
+          r=json.loads((pathlib.Path(os.environ['RUNNER_TEMP'])/'dest.json').read_text())
+          assert r.get('full_name')=='Davemafy/igor-agent'
+          assert r.get('permissions',{}).get('push') is True
+          PY
+          code="$(curl -sS -o /dev/null -w '%{http_code}' \
+            -H "Authorization: Bearer $WRITE_TOKEN" \
+            'https://api.github.com/repos/Davemafy/igor-agent/git/ref/heads/release/pr27-sanitized')"
+          test "$code" = 404 || { echo '::error::Existing release branch must be reviewed; refusing overwrite'; exit 1; }
+
+      - uses: actions/checkout@v4
+        with:
+          path: tooling
+          persist-credentials: false
+
+      - name: Checkout exact private PR27 revision, including genuine ancestry
+        uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: 0b83a6cc56ec3b0adba42d4ad8344d603124ffda
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          fetch-depth: 0
+          path: private-source
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned sanitizer and scanner
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet git-filter-repo==2.47.0
+          curl -fsSL --retry 2 \
+            https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz \
+            -o "$RUNNER_TEMP/gitleaks.tar.gz"
+          mkdir -p "$RUNNER_TEMP/gitleaks-bin"
+          tar -xzf "$RUNNER_TEMP/gitleaks.tar.gz" -C "$RUNNER_TEMP/gitleaks-bin" gitleaks
+          echo "$RUNNER_TEMP/gitleaks-bin" >> "$GITHUB_PATH"
+
+      - name: Sanitize exact PR27 history, strip all private checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          python tooling/scripts/sanitize_igor_history.py \
+            --source "$GITHUB_WORKSPACE/private-source" \
+            --output "$RUNNER_TEMP/pr27-clean" \
+            --expected-sha "$EXPECTED_PR27_SHA" \
+            --report "$RUNNER_TEMP/pr27-report.json"
+          test -z "$(git -C "$RUNNER_TEMP/pr27-clean" remote)"
+          rm -rf "$GITHUB_WORKSPACE/private-source"
+
+      - name: Fail closed on retained secrets in Git history and current files
+        shell: bash
+        run: |
+          set -euo pipefail
+          gitleaks git --redact --report-format json \
+            --report-path "$RUNNER_TEMP/pr27-history.json" \
+            "$RUNNER_TEMP/pr27-clean" > "$RUNNER_TEMP/scan.log" 2>&1
+          gitleaks dir --redact --report-format json \
+            --report-path "$RUNNER_TEMP/pr27-head.json" \
+            "$RUNNER_TEMP/pr27-clean" >> "$RUNNER_TEMP/scan.log" 2>&1
+          echo 'History and current-file secret scans passed.'
+
+      - name: Push sanitized PR27 to new release branch, leaving main unchanged
+        shell: bash
+        env:
+          WRITE_TOKEN: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN }}
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/askpass" <<'SH'
+          #!/bin/sh
+          case "$1" in
+            *Username*) printf '%s\n' x-access-token ;;
+            *Password*) printf '%s\n' "$WRITE_TOKEN" ;;
+            *) exit 1 ;;
+          esac
+          SH
+          chmod 700 "$RUNNER_TEMP/askpass"
+          export GIT_ASKPASS="$RUNNER_TEMP/askpass"
+          git -C "$RUNNER_TEMP/pr27-clean" push \
+            https://github.com/Davemafy/igor-agent.git \
+            HEAD:refs/heads/release/pr27-sanitized \
+            > "$RUNNER_TEMP/push.log" 2>&1
+          python - <<'PY'
+          import json,os,pathlib
+          d=json.loads((pathlib.Path(os.environ['RUNNER_TEMP'])/'pr27-report.json').read_text())
+          print('ORIGINAL_COMMITS',d['original_commit_count'])
+          print('SANITIZED_COMMITS',d['sanitized_commit_count'])
+          print('SANITIZED_SHA',d['sanitized_revision'])
+          print('PR27_STAGED_WITHOUT_MAIN_UPDATE=TRUE')
+          PY
+
+      - name: Delete private data without uploading public artifacts
+        if: always()
+        shell: bash
+        run: |
+          rm -rf "$GITHUB_WORKSPACE/private-source" "$RUNNER_TEMP/pr27-clean" \
+            "$RUNNER_TEMP/askpass" "$RUNNER_TEMP/push.log" "$RUNNER_TEMP/scan.log" \
+            "$RUNNER_TEMP/pr27-history.json" "$RUNNER_TEMP/pr27-head.json" \
+            "$RUNNER_TEMP/pr27-report.json" "$RUNNER_TEMP/dest.json" || true
+          echo 'No private artifacts uploaded; destination main not changed by staging.' >> "$GITHUB_STEP_SUMMARY"
