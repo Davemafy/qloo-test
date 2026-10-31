@@ -13,7 +13,7 @@ jobs:
       - name: Confirm public Railway health and exact deployed revision
         shell: bash
         env:
-          EXPECTED_SHA: 43aae1e9e8e74e7d215d09776fe71eb4a832ac96
+          EXPECTED_SHA: 8b5c4ea4ce972519b715ee8c2d1a29a184314131
           HEALTH_URL: https://igor-production-243e.up.railway.app/api/health
         run: |
           set -euo pipefail
