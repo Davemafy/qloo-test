@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: 02e4a8804a6e1f028f0fe0da009885b22d8e0a85
+          ref: 725fa98a6e6cdaccead5202494cf6bdbf6c45d8e
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: candidate
@@ -65,11 +65,12 @@ jobs:
             rm -f "$file"
           }
           check Install npm ci
-          check Format npx prettier --check src/core/agent-decision-gate.ts src/core/ai-sdk-unified-agent.ts src/core/unified-agent.ts src/core/contracts.ts tests/unit/agent-decision-gate.test.ts tests/unit/ai-sdk-unified-agent.test.ts
+          check Format npx prettier --check src/core/agent-decision-gate.ts src/core/ai-sdk-unified-agent.ts src/core/unified-agent.ts src/core/contracts.ts tests/unit/agent-decision-gate.test.ts tests/unit/ai-sdk-unified-agent.test.ts src/components/agent-activity-copy.ts src/core/document-media.ts
           check TypeScript npm run typecheck
           check Lint npm run lint
-          check Unit npm test -- tests/unit/agent-decision-gate.test.ts tests/unit/ai-sdk-unified-agent.test.ts tests/unit/agent-research-loop.test.ts
-          echo "Build previously passed on this source SHA; temporarily skipped for lint diagnostics."
+          check Unit npm test
+          check Eval npm run test:eval
+          check Build npm run build
           if ((failures)); then
             echo "::error::$failures checks failed at pinned SHA"
             exit 1
