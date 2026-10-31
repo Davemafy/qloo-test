@@ -18,7 +18,7 @@ jobs:
       GEMINI_API_KEY: ""
       XAI_API_KEY: ""
       ANTHROPIC_API_KEY: ""
-      IGOR_SHA: 54507b4790ab8710459c7d3283a5c8ab4cdabb3f
+      IGOR_SHA: 1c665472092720ee9642559d788806b10cab7e1c
     steps:
       - uses: actions/checkout@v4
         with:
@@ -49,12 +49,9 @@ jobs:
       - name: Install Chromium
         working-directory: igor
         run: npx playwright install --with-deps chromium
-      - name: Connected UI and new artifact/evidence regressions
+      - name: Complete Home, Explore, Create, Map, Library and mobile browser suite
         working-directory: igor
-        run: >
-          npx playwright test --config tests/reference-integrated.playwright.config.mts
-          --grep "non-event research|a populated fixture|unsaved gathering|discovery gives factual coverage|Qloo query rank|verified geocoded places|Conversation and Your work|Mobile Conversation|cinematic Home accepts|Discover opens in|Library stays right"
-          --workers=1 --reporter=line
+        run: npx playwright test --config tests/reference-integrated.playwright.config.mts --workers=1 --reporter=line
       - name: Save browser captures and failure traces
         if: always()
         uses: actions/upload-artifact@v4
