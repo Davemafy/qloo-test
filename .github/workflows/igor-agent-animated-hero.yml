@@ -27,6 +27,14 @@ jobs:
           persist-credentials: false
           path: product
 
+      - name: Install ffmpeg for deterministic video preview rendering
+        shell: bash
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          command -v ffmpeg
+          command -v ffprobe
+
       - name: Verify exact source and choose real product footage
         working-directory: product
         shell: bash
