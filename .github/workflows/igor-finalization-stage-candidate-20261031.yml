@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: 8267e141850296db3e463833d6abeadfe90d8fb5
+          ref: acbf63cf218768c8b54778b5dc59cdf74c761d44
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: igor
@@ -34,16 +34,16 @@ jobs:
       - name: Normalize formatting and show exact patch
         working-directory: igor
         run: |
-          npx prettier --write src/core/unified-agent.ts src/core/agent-tool-registry.ts tests/unit/agent-intent-boundary.test.ts
+          npx prettier --write src/core/unified-agent.ts src/core/agent-tool-registry.ts tests/unit/agent-intent-boundary.test.ts tests/unit/agent-research-first.test.ts
           echo BEGIN_IGOR_FORMAT_DIFF
-          git diff --no-color -- src/core/unified-agent.ts src/core/agent-tool-registry.ts tests/unit/agent-intent-boundary.test.ts
+          git diff --no-color -- src/core/unified-agent.ts src/core/agent-tool-registry.ts tests/unit/agent-intent-boundary.test.ts tests/unit/agent-research-first.test.ts
           echo END_IGOR_FORMAT_DIFF
       - run: npm run typecheck
         working-directory: igor
       - name: Apply repository lint auto-fixes
         working-directory: igor
-        run: npx eslint --fix src/core/unified-agent.ts src/core/agent-tool-registry.ts tests/unit/agent-intent-boundary.test.ts
-      - run: npx eslint src/core/unified-agent.ts src/core/agent-tool-registry.ts tests/unit/agent-intent-boundary.test.ts
+        run: npx eslint --fix src/core/unified-agent.ts src/core/agent-tool-registry.ts tests/unit/agent-intent-boundary.test.ts tests/unit/agent-research-first.test.ts
+      - run: npx eslint src/core/unified-agent.ts src/core/agent-tool-registry.ts tests/unit/agent-intent-boundary.test.ts tests/unit/agent-research-first.test.ts
         working-directory: igor
       - name: Full unit regression suite
         run: npm test
@@ -55,5 +55,5 @@ jobs:
         working-directory: igor
         run: |
           echo BEGIN_VERIFIED_MARKET_DIFF
-          git diff --no-color -- src/core/unified-agent.ts src/core/agent-tool-registry.ts tests/unit/agent-intent-boundary.test.ts
+          git diff --no-color -- src/core/unified-agent.ts src/core/agent-tool-registry.ts tests/unit/agent-intent-boundary.test.ts tests/unit/agent-research-first.test.ts
           echo END_VERIFIED_MARKET_DIFF
