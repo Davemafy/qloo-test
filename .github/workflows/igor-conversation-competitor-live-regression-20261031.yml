@@ -10,7 +10,7 @@ jobs:
     timeout-minutes: 8
     env:
       IGOR_BASE: https://igor-production-243e.up.railway.app
-      IGOR_REVISION: 2a29d5a87ad06cc93c7bb0bc90ec7f0369b1d960
+      IGOR_REVISION: ddbc2bbb65741292b13d55789231238c2e21fb95
     steps:
       - name: Verify live conversation and bounded search are durable
         shell: bash
