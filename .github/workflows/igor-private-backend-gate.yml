@@ -25,13 +25,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: 6c6cd60da5702562d1804139fc308ca5161fd97e
+          ref: ee32c03fac683f9ed1e7e60344662fb01625b4e9
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: private-igor
       - name: Verify exact private engine revision
         working-directory: private-igor
-        run: test "$(git rev-parse HEAD)" = "6c6cd60da5702562d1804139fc308ca5161fd97e"
+        run: test "$(git rev-parse HEAD)" = "ee32c03fac683f9ed1e7e60344662fb01625b4e9"
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
