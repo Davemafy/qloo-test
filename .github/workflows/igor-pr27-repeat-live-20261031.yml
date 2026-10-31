@@ -10,7 +10,7 @@ jobs:
     timeout-minutes: 15
     env:
       IGOR_BASE: https://igor-production-243e.up.railway.app
-      EXPECTED_SHA: 05c3d3d2c60bec3f2c1462f833e2aa5ee40021a1
+      EXPECTED_SHA: d31e988aecf56451fc348cd4d5880c0a9ccc6d08
     steps:
       - name: Test three independent production conversations and follow-ups
         shell: bash
