@@ -1,0 +1,98 @@
+name: Igor merged UI + open-source SDK real Qloo acceptance
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-sdk-live-flagship.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: igor-sdk-live-flagship
+  cancel-in-progress: false
+jobs:
+  flagship:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      CI: "true"
+      IGOR_AGENT_RUNTIME: ai-sdk
+      IGOR_AGENT_MAX_STEPS: "12"
+      IGOR_AGENT_MAX_REQUESTS: "12"
+      QLOO_MAX_CALLS: "18"
+      IGOR_TEST_FIXTURES: ""
+      IGOR_QLOO_RECORDING: ""
+      QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+      GROK_API_KEY: ${{ secrets.GROK_API_KEY }}
+      BRIGHTDATA_API_KEY: ${{ secrets.BRIGHTDATA_API_KEY }}
+      BRIGHTDATA_SERP_ZONE: ${{ secrets.BRIGHTDATA_SERP_ZONE }}
+      BRIGHTDATA_UNLOCKER_ZONE: ${{ secrets.BRIGHTDATA_UNLOCKER_ZONE }}
+      IGOR_DB_PATH: .igor/real-sdk-live/tasks.sqlite
+      IGOR_AUTH_PATH: .igor/real-sdk-live/auth.sqlite
+      IGOR_OUTCOMES_PATH: .igor/real-sdk-live/outcomes.sqlite
+      IGOR_CACHE_PATH: .igor/real-sdk-live/cache.sqlite
+    steps:
+      - name: Confirm existing Qloo and model credentials
+        shell: bash
+        run: |
+          test -n "$QLOO_API_KEY" || { echo "::error::Qloo key unavailable"; exit 1; }
+          if [[ -n "$ANTHROPIC_API_KEY" ]]; then
+            echo "IGOR_SDK_MODEL_PROVIDER=claude" >> "$GITHUB_ENV"
+            echo "IGOR_MODEL_PROVIDER=claude" >> "$GITHUB_ENV"
+            echo "Selected existing Claude provider"
+          elif [[ -n "$GEMINI_API_KEY" ]]; then
+            echo "IGOR_SDK_MODEL_PROVIDER=gemini" >> "$GITHUB_ENV"
+            echo "IGOR_MODEL_PROVIDER=gemini" >> "$GITHUB_ENV"
+            echo "GEMINI_MODEL=gemini-3.1-flash-lite" >> "$GITHUB_ENV"
+            echo "Selected existing Gemini provider"
+          else
+            echo "::error::No authorized production model provider with known supported adapter."
+            exit 1
+          fi
+      - uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: bbae2c4451d14691840ba5e4e02395686f5f2858
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          path: private-igor
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: private-igor/package-lock.json
+      - name: Locked install and production build
+        working-directory: private-igor
+        run: |
+          test "$(git rev-parse HEAD)" = "bbae2c4451d14691840ba5e4e02395686f5f2858"
+          npm ci --silent >/dev/null 2>&1
+          npm run build > "$RUNNER_TEMP/sdk-live-build.log" 2>&1 || { tail -70 "$RUNNER_TEMP/sdk-live-build.log"; exit 1; }
+      - name: Chromium browser for actual user journey
+        working-directory: private-igor
+        run: npx playwright install --with-deps chromium >/dev/null 2>&1
+      - name: Live native AI SDK agent → Qloo → persisted proposal → revision
+        working-directory: private-igor
+        shell: bash
+        run: |
+          set -euo pipefail
+          export IGOR_BUILD_SHA="$(git rev-parse HEAD)"
+          npm start -- --port 3570 > "$RUNNER_TEMP/sdk-live-server.log" 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          ready=false
+          for i in {1..45}; do
+            kill -0 "$pid" || { echo "::error::SDK server exited"; tail -70 "$RUNNER_TEMP/sdk-live-server.log"; exit 1; }
+            if curl --fail --silent --max-time 2 http://127.0.0.1:3570/api/health > "$RUNNER_TEMP/health.json"; then
+              if node -e 'const h=require(process.argv[1]); if(h.status!=="ok"||h.revision!==process.env.IGOR_BUILD_SHA)process.exit(1)' "$RUNNER_TEMP/health.json"; then
+                ready=true
+                break
+              fi
+            fi
+            sleep 2
+          done
+          test "$ready" = true || { echo "::error::SDK server was not ready"; tail -70 "$RUNNER_TEMP/sdk-live-server.log"; exit 1; }
+          echo "REAL_SDK_READY_SHA=$IGOR_BUILD_SHA"
+          timeout 540 node scripts/verify-live-flagship.mjs
