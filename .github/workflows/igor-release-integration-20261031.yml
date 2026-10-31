@@ -1,0 +1,66 @@
+name: Igor PR38 engine and UI integration release gate
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/igor-release-integration-20261031.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: igor-pr38-integration-${{ github.sha }}
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      CI: "true"
+      IGOR_TEST_FIXTURES: "1"
+      QLOO_API_KEY: ""
+      GEMINI_API_KEY: ""
+      XAI_API_KEY: ""
+      GROK_API_KEY: ""
+      ANTHROPIC_API_KEY: ""
+    steps:
+      - name: Checkout exact integration commit
+        uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: b3fa1c26fecbda5e697131a653d59c61160ebb0d
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          path: private-igor
+      - name: Confirm immutable release candidate
+        working-directory: private-igor
+        run: test "$(git rev-parse HEAD)" = "b3fa1c26fecbda5e697131a653d59c61160ebb0d"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: private-igor/package-lock.json
+      - name: Locked installation
+        working-directory: private-igor
+        run: npm ci --silent > /dev/null 2>&1
+      - name: Typecheck
+        working-directory: private-igor
+        run: npm run typecheck
+      - name: ESLint
+        working-directory: private-igor
+        run: npm run lint
+      - name: Unit and engine regression
+        working-directory: private-igor
+        run: npm test
+      - name: Production build
+        working-directory: private-igor
+        run: npm run build
+      - name: Chromium installation
+        working-directory: private-igor
+        run: npx playwright install --with-deps chromium > /dev/null 2>&1
+      - name: Approved PR36 reference browser contract
+        working-directory: private-igor
+        run: npx playwright test --config tests/reference-integrated.playwright.config.mts
+      - name: Persistent connected-work browser contract
+        working-directory: private-igor
+        run: npx playwright test --config tests/connected-work.playwright.config.mts
