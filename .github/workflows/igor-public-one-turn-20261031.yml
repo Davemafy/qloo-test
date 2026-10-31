@@ -1,0 +1,68 @@
+name: Igor public one-turn acceptance (bounded, no secrets)
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-public-one-turn-20261031.yml]
+permissions: {}
+jobs:
+  public-turn:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Test one anonymous public cultural-planning conversation
+        shell: bash
+        env:
+          IGOR_BASE: https://igor-production-243e.up.railway.app
+        run: |
+          python3 - <<'PY'
+          import json,time,urllib.request,urllib.error,http.cookiejar,os
+          root=os.environ['IGOR_BASE']
+          jar=http.cookiejar.CookieJar()
+          opener=urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
+          def post(path,body):
+              req=urllib.request.Request(root+path,
+                  data=json.dumps(body).encode(),
+                  headers={'Content-Type':'application/json','Origin':root},
+                  method='POST')
+              return opener.open(req,timeout=100)
+          with post('/api/tasks',{}) as response:
+              task=json.load(response)
+              print('CREATE_HTTP',response.status)
+              print('TASK_MODE',task.get('mode'))
+          message='Help me plan a film and music evening for six friends. Ask about constraints before committing to options.'
+          started=time.monotonic()
+          try:
+              with post('/api/tasks/'+task['id']+'/turn',
+                      {'type':'message','text':message,'version':task['brief']['version']}) as stream:
+                  print('TURN_HTTP',stream.status)
+                  terminal=None
+                  for line in stream:
+                      if not line.startswith(b'data: '): continue
+                      try: ev=json.loads(line[6:])
+                      except Exception: continue
+                      if ev.get('type')=='done':
+                          work=ev.get('task') or {}
+                          print('RESULT_STATUS',work.get('status'))
+                          print('ASSISTANT_COUNT',len([x for x in work.get('messages',[]) if x.get('role')=='assistant']))
+                          print('CANDIDATES',len(work.get('catalogue') or []))
+                          print('QLOO_EVIDENCE',len(work.get('evidence') or []))
+                          print('DURATION_SECONDS',round(time.monotonic()-started,1))
+                          print('TRACE_ACTIONS',[x.get('action') for x in (work.get('trace') or [])[-6:]])
+                          terminal='done'
+                          break
+                      if ev.get('type')=='error':
+                          print('STREAM_ERROR_CODE',ev.get('code'))
+                          terminal='error'
+                          break
+                  if not terminal:
+                      print('RESULT','no terminal SSE event')
+                      raise SystemExit(2)
+                  if terminal=='error':
+                      raise SystemExit(3)
+          except urllib.error.HTTPError as error:
+              print('TURN_HTTP_ERROR',error.code)
+              raise SystemExit(4)
+          except Exception as error:
+              print('TURN_TRANSPORT_ERROR',type(error).__name__)
+              raise SystemExit(5)
+          PY
