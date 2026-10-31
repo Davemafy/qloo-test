@@ -1,0 +1,101 @@
+name: Igor PR27 real-production cultural agent release gate
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-pr27-real-release-gate-20261031.yml]
+permissions: {}
+jobs:
+  real-production:
+    runs-on: ubuntu-latest
+    timeout-minutes: 11
+    env:
+      IGOR_BASE: https://igor-production-243e.up.railway.app
+      EXPECTED_SHA: cc3a38a0a8087df37d6112db9be24a18254997b8
+    steps:
+      - name: Execute isolated real Qloo planning and revision acceptance
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os, json, time, uuid, urllib.request, urllib.error, http.cookiejar, sys
+          BASE=os.environ["IGOR_BASE"]
+          SHA=os.environ["EXPECTED_SHA"]
+          start=time.monotonic()
+          jar=http.cookiejar.CookieJar()
+          client=urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
+          def call(path, data=None, timeout=155):
+            kw={"headers":{"Origin":BASE,"Accept":"application/json"}}
+            if data is not None:
+              kw.update(data=json.dumps(data).encode(),headers={"Origin":BASE,"Content-Type":"application/json"})
+            req=urllib.request.Request(BASE+path,method="POST" if data is not None else "GET",**kw)
+            return client.open(req,timeout=timeout)
+          def check(flag,name):
+            print("RELEASE_CHECK",name,"PASS" if flag else "FAIL",flush=True)
+            if not flag: raise AssertionError(name)
+          def snapshot(t,stage):
+            e=t.get("evidence") or []
+            fresh=[x for x in e if x.get("freshness")=="current" and x.get("source")=="provider-returned" and x.get("kind")=="cultural" and x.get("delivery") in ("LIVE","CACHED")]
+            docs=(t.get("artifacts") or [])+(t.get("work") or {}).get("documents",[])
+            agent=t.get("agentRun") or {}
+            status=(agent.get("acceptance") or {}).get("status")
+            print("LIVE_STAGE",stage,"TASK_STATUS",t.get("status"),"ACCEPTANCE",status,
+                  "CURRENT_QLOO",len(fresh),"DOCUMENTS",len(docs),
+                  "AGENT_STEPS",[(x.get("tool"),x.get("status")) for x in (agent.get("steps") or [])[-12:]],
+                  "ELAPSED_SECONDS",round(time.monotonic()-start),flush=True)
+            return fresh,docs,status
+          def turn(t, message, stage):
+            tid=str(uuid.uuid4())
+            body={"type":"message","text":message,"version":t["brief"]["version"],"clientTurnId":tid,"workspaceId":t["id"]}
+            with call("/api/tasks/"+t["id"]+"/turn",body) as stream:
+              check(stream.status==200,stage+"_http")
+              terminal=None
+              for line in stream:
+                if not line.startswith(b"data: "): continue
+                try: ev=json.loads(line[6:])
+                except Exception: continue
+                if ev.get("type") in ("done","error"):
+                  terminal=ev.get("type")
+                  break
+            with call("/api/tasks/"+t["id"]+"/turn?turnId="+tid) as r:
+              journal=json.load(r)
+            if terminal!="done":
+              print("TURN_TERMINAL",stage,terminal,"JOURNAL_STATUS",journal.get("status"),
+                    "ERROR_CODE",(journal.get("error") or {}).get("code") if isinstance(journal.get("error"),dict) else "none",flush=True)
+            final=journal.get("task")
+            if not final:
+              with call("/api/tasks/"+t["id"]) as r: final=json.load(r)
+            snapshot(final,stage)
+            check(terminal=="done" and journal.get("status") not in ("failed","interrupted","running","accepted"),stage+"_finished")
+            return final
+          try:
+            with call("/api/health") as r: health=json.load(r)
+            check(health.get("status")=="ok" and health.get("revision")==SHA,"exact_deployed_sha")
+            with call("/api/tasks",{}) as r: task=json.load(r)
+            check(task.get("mode")=="qloo-live","real_mode_not_fixtures")
+            check(not task.get("evidence"),"no_prefilled_cultural_results")
+            task=turn(task,
+              "Plan a six-person Saturday gathering in Brooklyn on a $300 total budget. Our cultural references are Sade and Radiohead. Use actual Qloo taste intelligence to choose music and films that fit both references, and save an editable plan and invitation with cited cultural evidence. Do not invent venue availability, prices, or reservations.",
+              "initial")
+            cultural,docs,acceptance=snapshot(task,"initial_acceptance")
+            check(len(cultural)>0,"qloo_provider_evidence")
+            check(any(len(d.get("content") or "")>250 and d.get("freshness")=="current" for d in docs),"saved_useful_artifact")
+            check(acceptance=="satisfied","verified_agent_acceptance")
+            user_messages=[m for m in task.get("messages",[]) if m.get("role")=="user"]
+            check(len(user_messages)>=1,"conversation_persisted")
+            original_id={d.get("id") for d in docs if d.get("freshness")=="current"}
+            task=turn(task,
+              "Revise our saved plan to replace Radiohead with Bad Bunny. Keep the six-person headcount and $300 budget, preserve the previous useful work, identify which cultural choices changed, and update the existing saved plan and invitation. Do not invent citations.",
+              "revision")
+            cultural2,docs2,acceptance2=snapshot(task,"revision_acceptance")
+            check(acceptance2=="satisfied","revision_acceptance")
+            check(any(d.get("id") in original_id and d.get("version",0)>1 for d in docs2),"same_artifact_updated")
+            check(any(m.get("role")=="user" and "Bad Bunny" in m.get("text","") for m in task.get("messages",[])),"revision_user_context_persisted")
+            with call("/api/tasks/"+task["id"]) as r: loaded=json.load(r)
+            check(loaded.get("brief",{}).get("version")==task.get("brief",{}).get("version"),"reload_version")
+            check(len(loaded.get("evidence") or [])>=len(task.get("evidence") or []),"reload_evidence")
+            print("RELEASE_GATE_RESULT PASS REAL_PROVIDER_REAL_SAVED_WORK_REAL_REVISION",flush=True)
+          except Exception as exc:
+            label=type(exc).__name__
+            if isinstance(exc,urllib.error.HTTPError): label+=" HTTP_"+str(exc.code)
+            print("RELEASE_GATE_RESULT FAIL",label,"ELAPSED_SECONDS",round(time.monotonic()-start),flush=True)
+            sys.exit(1)
+          PY
