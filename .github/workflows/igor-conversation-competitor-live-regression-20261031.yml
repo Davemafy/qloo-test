@@ -25,12 +25,17 @@ jobs:
             if body is not None: headers["Content-Type"]="application/json"
             req=urllib.request.Request(base+path,headers=headers,method="POST" if body is not None else "GET",data=json.dumps(body).encode() if body is not None else None)
             return client.open(req,timeout=timeout)
-          with api("/api/health") as r: health=json.load(r)
-          for poll in range(18):
+          def safe_health():
+            try:
+              with api("/api/health",timeout=12) as r: return json.load(r)
+            except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError):
+              return {}
+          health={}
+          for poll in range(30):
+            health=safe_health()
             if health.get("revision")==os.environ["IGOR_REVISION"]: break
-            print("WAIT_DEPLOYED_REVISION",poll,"CURRENT",str(health.get("revision",""))[:9],flush=True)
+            print("WAIT_DEPLOYED_REVISION",poll,"CURRENT",str(health.get("revision","unknown"))[:9],flush=True)
             time.sleep(10)
-            with api("/api/health") as r: health=json.load(r)
           print("PRODUCTION_SHA_MATCH",health.get("revision")==os.environ["IGOR_REVISION"],flush=True)
           if health.get("revision")!=os.environ["IGOR_REVISION"]: sys.exit(3)
           with api("/api/tasks",{}) as r: task=json.load(r)
