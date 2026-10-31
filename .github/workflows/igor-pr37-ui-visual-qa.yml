@@ -1,0 +1,62 @@
+name: Igor PR37 release UI visual QA — actual screenshots
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-pr37-ui-visual-qa.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      IGOR_TEST_FIXTURES: "1"
+      QLOO_MAX_CALLS: "0"
+      QLOO_API_KEY: ""
+      GEMINI_API_KEY: ""
+      XAI_API_KEY: ""
+      IGOR_SHA: e55cc6d2668f5aea012c0a399850c138029393f0
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: ${{ env.IGOR_SHA }}
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          path: igor
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: igor/package-lock.json
+      - name: Build and typecheck exact PR37 UI
+        working-directory: igor
+        run: |
+          npm ci --no-audit --no-fund
+          npm run typecheck
+          npm run build
+      - name: Chromium for real rendered screenshots
+        working-directory: igor
+        run: npx playwright install --with-deps chromium
+      - name: Regression — all populated Create, Map, Conversation, Discover
+        working-directory: igor
+        run: |
+          npx playwright test --config tests/reference-integrated.playwright.config.mts \
+            --grep "partial research is framed|non-event research opens|a populated fixture must render|verified geocoded places render|Conversation and Your work are|Mobile Conversation and Work switching|Discover opens in" \
+            --workers=1 --reporter=line
+      - name: Upload actual browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: igor-pr37-visual-qa-e55cc6d2668f5aea012c0a399850c138029393f0
+          path: |
+            igor/test-results/**/*.png
+            igor/test-results/**/*.webm
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Record verified exact revision
+        if: always()
+        run: echo "PR37 exact QA SHA $IGOR_SHA" >> "$GITHUB_STEP_SUMMARY"
