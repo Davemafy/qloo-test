@@ -1,0 +1,85 @@
+name: Igor Agent — one-time obsolete branch cleanup
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/igor-agent-delete-obsolete-branches.yml
+
+permissions:
+  contents: read
+
+jobs:
+  remove-old-branches:
+    if: github.event.head_commit.message == 'ci: one-time cleanup Igor Agent branches'
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    env:
+      EXPECTED_MAIN: d6993bdaf46019360dd567502605e3e9bf5b3771
+      GH_TOKEN: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN }}
+    steps:
+      - name: Check repo and source heads before deleting
+        shell: bash
+        run: |
+          set -euo pipefail
+          api='https://api.github.com/repos/Davemafy/igor-agent'
+          get() {
+            curl -fsSL --retry 2 \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H 'Accept: application/vnd.github+json' "$api/$1"
+          }
+          get '' > "$RUNNER_TEMP/repo.json"
+          get 'git/ref/heads/main' > "$RUNNER_TEMP/main.json"
+          get 'pulls/1' > "$RUNNER_TEMP/pr1.json"
+          get 'pulls/2' > "$RUNNER_TEMP/pr2.json"
+          python3 - <<'PY'
+          import json, os, pathlib
+          folder=pathlib.Path(os.environ['RUNNER_TEMP'])
+          def read(name):
+            return json.loads((folder/name).read_text())
+          repo=read('repo.json'); main=read('main.json'); p1=read('pr1.json'); p2=read('pr2.json')
+          assert repo.get('full_name') == 'Davemafy/igor-agent'
+          assert repo.get('default_branch') == 'main'
+          assert main['object']['sha'] == os.environ['EXPECTED_MAIN'], 'main changed: investigate before cleaning'
+          assert p1.get('state') == 'closed' and p1.get('merged_at') is None, 'UI draft PR not safely closed'
+          assert p2.get('merged_at') is not None, 'submission media/doc PR not merged'
+          print('Main pinned; draft PR closed; README and Qloo docs merged.')
+          PY
+
+          cat > "$RUNNER_TEMP/branches.txt" <<'EOF'
+          docs/judge-readme-video-qloo-20261031 c8b97c0054dda0eeb52f253b9241674b06966a0e
+          release/curated-igor-agent-20261031 6e527a1f389a481eea7b1b2561d68c55e74bafb8
+          release/pr27-sanitized 4407ebbf499651a438dd513d1bc8ecb614aa11a4
+          EOF
+
+          while read -r name sha; do
+            get "git/ref/heads/$name" > "$RUNNER_TEMP/branch.json"
+            EXPECTED_REF_SHA="$sha" python3 - <<'PY'
+          import json,os
+          r=json.load(open(os.path.join(os.environ['RUNNER_TEMP'],'branch.json')))
+          assert r['object']['sha']==os.environ['EXPECTED_REF_SHA'], 'Branch changed; refusing to delete'
+          assert r['ref'].startswith('refs/heads/') and r['ref']!='refs/heads/main'
+          PY
+          done < "$RUNNER_TEMP/branches.txt"
+          echo 'All three obsolete branch SHAs verified.'
+
+      - name: Delete only the three exact obsolete branch refs
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in \
+            docs/judge-readme-video-qloo-20261031 \
+            release/curated-igor-agent-20261031 \
+            release/pr27-sanitized; do
+            status="$(curl -sS -o "$RUNNER_TEMP/delete.json" -w '%{http_code}' -X DELETE \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H 'Accept: application/vnd.github+json' \
+              "https://api.github.com/repos/Davemafy/igor-agent/git/refs/heads/$name")"
+            if [[ "$status" != 204 ]]; then
+              echo "::error::Failed deleting $name (HTTP $status); stop to investigate."
+              exit 1
+            fi
+            echo "Deleted $name"
+          done
+          echo 'Main preserved; all three temporary branches deleted.'
+          echo 'No original Igor branches, source code, deployments or visibility settings changed.' >> "$GITHUB_STEP_SUMMARY"
