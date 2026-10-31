@@ -25,7 +25,7 @@ jobs:
         with:
           repository: Davemafy/igor
           ref: 936dc924857eedc6534db524e369782531bdde57
-          token: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN }}
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: candidate
       - uses: actions/setup-node@v4
