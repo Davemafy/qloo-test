@@ -1,0 +1,79 @@
+name: Igor Devpost live public UI captures
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-devpost-live-capture-20261031.yml]
+permissions: {}
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install isolated Playwright
+        run: |
+          mkdir -p /tmp/igor-devpost-capture
+          cd /tmp/igor-devpost-capture
+          npm init -y > /dev/null
+          npm i --no-save playwright@1.58.2 > /dev/null
+          npx playwright install --with-deps chromium > /dev/null
+      - name: Capture real Qloo-generated task in public UI
+        shell: bash
+        working-directory: /tmp/igor-devpost-capture
+        run: |
+          cat > capture.cjs <<'JS'
+          const {chromium}=require('playwright');
+          (async()=>{
+            const base='https://igor-production-243e.up.railway.app';
+            const browser=await chromium.launch({headless:true});
+            const ctx=await browser.newContext({viewport:{width:1448,height:1086},deviceScaleFactor:1});
+            const create=await ctx.request.post(base+'/api/tasks',{data:{}});
+            if(!create.ok())throw new Error('Task create HTTP '+create.status());
+            const task=await create.json();
+            const prompt='We are six friends in Brooklyn and love Sade, Radiohead and Wong Kar-wai. Research Qloo-backed music and films for a shared evening, then make an editable proposal. No invented prices or reservations.';
+            const response=await ctx.request.post(base+'/api/tasks/'+task.id+'/turn',{
+              data:{type:'message',text:prompt,version:task.brief.version},
+              timeout:125000
+            });
+            if(!response.ok())throw new Error('Task turn HTTP '+response.status());
+            const eventLines=(await response.text()).split(/\n/).filter(x=>x.startsWith('data: '));
+            let final=task;
+            for(const line of eventLines){try{const event=JSON.parse(line.slice(6));if(event.type==='done')final=event.task||final;}catch{}}
+            console.log('CAPTURE_TASK_STATUS',final.status);
+            console.log('CAPTURE_CANDIDATES',(final.catalogue||[]).length);
+            console.log('CAPTURE_EVIDENCE',(final.evidence||[]).length);
+            console.log('CAPTURE_ARTIFACTS',(final.artifacts||[]).length);
+            if((final.catalogue||[]).length===0)throw new Error('No Qloo cultural candidates; cannot capture as meaningful result.');
+            const pages=[['explore','explore'],['create','create'],['map','maps'],['home','home']];
+            for(const [name,view] of pages){
+              const page=await ctx.newPage();
+              const errors=[];
+              page.on('pageerror',error=>errors.push(error.name));
+              const url=base+'/app?task='+encodeURIComponent(task.id)+'&view='+view;
+              const nav=await page.goto(url,{waitUntil:'domcontentloaded',timeout:45000});
+              await page.waitForTimeout(3200);
+              await page.evaluate(()=>document.fonts.ready);
+              await page.screenshot({path:'igor-live-'+name+'-1448.png',fullPage:false});
+              console.log('CAPTURE',name,'HTTP',nav.status(),'PAGE_ERRORS',errors.length,
+                'H1',(await page.locator('h1').allTextContents()).slice(0,2).map(x=>x.slice(0,75)));
+              await page.close();
+            }
+            const mobile=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:1});
+            const phone=await mobile.newPage();
+            await phone.goto(base+'/app?view=home',{waitUntil:'domcontentloaded',timeout:45000});
+            await phone.waitForTimeout(3200);
+            await phone.screenshot({path:'igor-live-home-mobile-390.png',fullPage:false});
+            await browser.close();
+          })().catch(e=>{console.error('LIVE_CAPTURE_ERROR',String(e).slice(0,300));process.exitCode=1});
+          JS
+          node capture.cjs
+      - name: Upload real public session screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: igor-devpost-public-screens-20261031
+          path: /tmp/igor-devpost-capture/igor-live-*.png
+          if-no-files-found: warn
+          retention-days: 7
