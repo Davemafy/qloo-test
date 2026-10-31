@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: e88428ce3e35b3c76f6cd2c8156b24d62cad66e2
+          ref: 23c7f4d6357cb2e137d36ea3e1b6319a90481b89
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: candidate
@@ -38,7 +38,6 @@ jobs:
         working-directory: candidate
         run: npm ci
       - name: Check changed file formatting
-        continue-on-error: true
         working-directory: candidate
         run: npx prettier --check src/components/agent-workspace.tsx src/components/message-sources.tsx src/core/interpret-message.ts src/core/grounded-followup.ts tests/unit/grounded-followup.test.ts
       - name: Verify TypeScript
