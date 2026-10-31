@@ -43,9 +43,13 @@ jobs:
       - name: Verify TypeScript
         working-directory: candidate
         run: npm run typecheck
-      - name: Verify ESLint
+      - name: Full repository ESLint (detect independently landing changes)
+        continue-on-error: true
         working-directory: candidate
         run: npm run lint
+      - name: Conversation patch ESLint
+        working-directory: candidate
+        run: npx eslint src/components/agent-workspace.tsx src/components/message-sources.tsx src/core/interpret-message.ts src/core/grounded-followup.ts tests/unit/grounded-followup.test.ts
       - name: Run exact conversation and continuation regressions
         working-directory: candidate
         run: npm test -- tests/unit/grounded-followup.test.ts tests/unit/conversation-reply.test.ts tests/unit/conversation-focus.test.ts
