@@ -55,7 +55,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: cce0902827577a905d543367555ec85a42bef4ad
+          ref: e471a96db27fa12f7735c455e921d77d6e16a25e
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: private-igor
@@ -67,7 +67,7 @@ jobs:
       - name: Locked install and production build
         working-directory: private-igor
         run: |
-          test "$(git rev-parse HEAD)" = "cce0902827577a905d543367555ec85a42bef4ad"
+          test "$(git rev-parse HEAD)" = "e471a96db27fa12f7735c455e921d77d6e16a25e"
           npm ci --silent >/dev/null 2>&1
           npm run build > "$RUNNER_TEMP/sdk-live-build.log" 2>&1 || { tail -70 "$RUNNER_TEMP/sdk-live-build.log"; exit 1; }
       - name: Chromium browser for actual user journey
@@ -95,4 +95,4 @@ jobs:
           done
           test "$ready" = true || { echo "::error::SDK server was not ready"; tail -70 "$RUNNER_TEMP/sdk-live-server.log"; exit 1; }
           echo "REAL_SDK_READY_SHA=$IGOR_BUILD_SHA"
-          timeout 540 node scripts/verify-live-flagship.mjs
+          timeout 540 node scripts/verify-live-flagship.mjs || {\n            echo 'Live journey did not meet acceptance.'\n            grep 'IGOR_TURN_ERROR_CATEGORY' \"$RUNNER_TEMP/sdk-live-server.log\" | tail -4 || true\n            exit 1\n          }
