@@ -18,7 +18,7 @@ jobs:
       GEMINI_API_KEY: ""
       XAI_API_KEY: ""
       ANTHROPIC_API_KEY: ""
-      IGOR_SHA: da09963feae392f4821e0ffe59ed64be644bb61e
+      IGOR_SHA: 24d18f321aed90074bea94315da0ff1016368f0e
     steps:
       - uses: actions/checkout@v4
         with:
@@ -53,7 +53,7 @@ jobs:
         working-directory: igor
         run: >
           npx playwright test --config tests/reference-integrated.playwright.config.mts
-          --grep "non-event research|a populated fixture|unsaved gathering|discovery gives factual coverage|verified geocoded places|Conversation and Your work|Mobile Conversation|cinematic Home accepts|Discover opens in|Library stays right"
+          --grep "non-event research|a populated fixture|unsaved gathering|discovery gives factual coverage|Qloo query rank|verified geocoded places|Conversation and Your work|Mobile Conversation|cinematic Home accepts|Discover opens in|Library stays right"
           --workers=1 --reporter=line
       - name: Save browser captures and failure traces
         if: always()
