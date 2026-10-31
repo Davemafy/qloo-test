@@ -139,6 +139,34 @@ def execute():
             raise ValueError("discovery_turn_error")
         task = qloo_event["task"]
         report["checks"]["qloo"] = check_qloo(task)
+        # A completed SSE turn is not proof that the independent workspace
+        # read is persisted. Reopen it using the original session cookie.
+        read_status, saved_body = get_response(opener, f"/api/tasks/{task_id}")
+        reopened = json.loads(saved_body)
+        same_id = reopened.get("id") == task_id
+        same_version = reopened.get("brief", {}).get("version") == task.get(
+            "brief", {}
+        ).get("version")
+        original_evidence = {
+            record.get("id") for record in task.get("evidence", [])
+            if isinstance(record.get("id"), str)
+        }
+        reopened_evidence = {
+            record.get("id") for record in reopened.get("evidence", [])
+            if isinstance(record.get("id"), str)
+        }
+        persisted = (
+            read_status == 200 and same_id and same_version
+            and original_evidence.issubset(reopened_evidence)
+        )
+        report["checks"]["persistence"] = {
+            "http_status": read_status,
+            "same_workspace_id": same_id,
+            "same_version": same_version,
+            "evidence_preserved": original_evidence.issubset(reopened_evidence),
+        }
+        if not persisted:
+            raise ValueError("workspace_reopen_not_persisted")
         report["conclusion"] = (
             "passed" if report["checks"]["model"]["status"] == "called"
             and report["checks"]["qloo"]["status"] == "live"
