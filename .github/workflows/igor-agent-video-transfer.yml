@@ -1,0 +1,90 @@
+name: Igor Agent — import verified public demo video
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-agent-video-transfer.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  transfer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      EXPECTED_REVIEW_SHA: c3e56b71596eabc4887a7b8193ca21c265e0bf02
+      EXPECTED_SOURCE_VIDEO_SHA: 5c26f814cedbdcd81e7e07c67f46241542ffb521
+      DEST_BRANCH: docs/judge-readme-video-qloo-20261031
+      SOURCE_VIDEO: assets/Screen Recording 2026-10-31 035320.mp4
+      GIT_TERMINAL_PROMPT: '0'
+    steps:
+      - name: Checkout pinned source containing public screen recording
+        uses: actions/checkout@v4
+        with:
+          repository: Davemafy/ighor
+          ref: 2c748580125603bcd0e4869fabb36e1cf4fc5f72
+          persist-credentials: false
+          path: video-source
+
+      - name: Checkout curated public submission review branch
+        uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor-agent
+          ref: docs/judge-readme-video-qloo-20261031
+          persist-credentials: false
+          path: review
+
+      - name: Confirm source file, exact blob identity, destination branch and size
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C review rev-parse HEAD)" = "$EXPECTED_REVIEW_SHA"
+          test "$(git -C review branch --show-current)" = "$DEST_BRANCH"
+          test ! -e "review/$SOURCE_VIDEO"
+          test "$(git -C video-source hash-object "$SOURCE_VIDEO")" = "$EXPECTED_SOURCE_VIDEO_SHA"
+          bytes="$(stat -c '%s' "video-source/$SOURCE_VIDEO")"
+          test "$bytes" -eq 14184597
+          echo "Validated existing public demo video: $bytes bytes, exact original Git blob"
+
+      - name: Copy identical video binary and commit on review branch only
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp "video-source/$SOURCE_VIDEO" "review/$SOURCE_VIDEO"
+          test "$(git -C review hash-object "$SOURCE_VIDEO")" = "$EXPECTED_SOURCE_VIDEO_SHA"
+          git -C review config user.name "igor-submission-ci"
+          git -C review config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C review add -- "$SOURCE_VIDEO"
+          git -C review commit -m "media(submission): include public Igor product walkthrough recording"
+          echo "Committed exact existing public MP4 to review branch only"
+
+      - name: Push review branch, never main, with scoped repository token
+        shell: bash
+        env:
+          WRITE_TOKEN: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$WRITE_TOKEN" || { echo '::error::Grant IGOR_SUBMISSION_WRITE_TOKEN Contents write to igor-agent'; exit 1; }
+          cat > "$RUNNER_TEMP/askpass" <<'SH'
+          #!/bin/sh
+          case "$1" in
+            *Username*) printf '%s\n' 'x-access-token' ;;
+            *Password*) printf '%s\n' "$WRITE_TOKEN" ;;
+            *) exit 1 ;;
+          esac
+          SH
+          chmod 700 "$RUNNER_TEMP/askpass"
+          export GIT_ASKPASS="$RUNNER_TEMP/askpass"
+          git -C review push 'https://github.com/Davemafy/igor-agent.git' \
+            HEAD:refs/heads/docs/judge-readme-video-qloo-20261031 \
+            > "$RUNNER_TEMP/push.log" 2>&1
+          echo "Pushed curated video branch; source and destination main untouched"
+
+      - name: Remove working copies and temporary credentials
+        if: always()
+        shell: bash
+        run: |
+          rm -rf "$GITHUB_WORKSPACE/video-source" "$GITHUB_WORKSPACE/review" \
+            "$RUNNER_TEMP/askpass" "$RUNNER_TEMP/push.log" || true
+          echo 'No secrets, private recordings or artifacts uploaded.' >> "$GITHUB_STEP_SUMMARY"
