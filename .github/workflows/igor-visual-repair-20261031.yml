@@ -1,0 +1,63 @@
+name: Igor visual repair verification (isolated)
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-visual-repair-20261031.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      IGOR_TEST_FIXTURES: "1"
+      QLOO_API_KEY: ""
+      GEMINI_API_KEY: ""
+      XAI_API_KEY: ""
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: 92ac636451049af07d22d5baaef0369863bc13f7
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          path: igor
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: igor/package-lock.json
+      - name: Locked install
+        working-directory: igor
+        run: npm ci --no-audit --no-fund
+      - name: Typecheck and build
+        working-directory: igor
+        run: |
+          npm run typecheck
+          npm run build
+      - name: Install Chromium
+        working-directory: igor
+        run: npx playwright install --with-deps chromium
+      - name: Browser captures of real repaired screens
+        working-directory: igor
+        run: |
+          npx playwright test --config tests/reference-integrated.playwright.config.mts \
+            tests/browser/reference-populated.e2e.ts tests/browser/reference-integrated.e2e.ts \
+            --workers=1 --reporter=line
+      - name: Run unit and eval suites
+        working-directory: igor
+        run: |
+          npm test
+          npm run test:eval
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: igor-visual-repair-screens
+          if-no-files-found: ignore
+          retention-days: 7
+          path: |
+            igor/test-results/**/*.png
+            igor/test-results/**/*.webm
+            igor/playwright-report
