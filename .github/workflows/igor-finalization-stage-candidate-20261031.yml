@@ -34,16 +34,16 @@ jobs:
       - name: Normalize formatting and show exact patch
         working-directory: igor
         run: |
-          npx prettier --write src/frontend/workspace.tsx src/app/globals.css
+          npx prettier --write src/components/agent-workspace.tsx src/app/app/page.tsx
           echo BEGIN_IGOR_FORMAT_DIFF
-          git diff --no-color -- src/frontend/workspace.tsx src/app/globals.css
+          git diff --no-color -- src/components/agent-workspace.tsx src/app/app/page.tsx
           echo END_IGOR_FORMAT_DIFF
       - run: npm run typecheck
         working-directory: igor
       - name: Apply repository lint auto-fixes
         working-directory: igor
-        run: npx eslint --fix src/frontend/workspace.tsx
-      - run: npx eslint src/frontend/workspace.tsx
+        run: npx eslint --fix src/components/agent-workspace.tsx
+      - run: npx eslint src/components/agent-workspace.tsx
         working-directory: igor
       - name: Full unit regression suite
         run: npm test
@@ -55,5 +55,5 @@ jobs:
         working-directory: igor
         run: |
           echo BEGIN_VERIFIED_MARKET_DIFF
-          git diff --no-color -- src/frontend/workspace.tsx src/app/globals.css
+          git diff --no-color -- src/components/agent-workspace.tsx src/app/app/page.tsx
           echo END_VERIFIED_MARKET_DIFF
