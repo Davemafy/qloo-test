@@ -1,0 +1,67 @@
+name: Igor real competitor-search conversation diagnostic
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-conversation-competitor-live-regression-20261031.yml]
+permissions: {}
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      IGOR_BASE: https://igor-production-243e.up.railway.app
+      IGOR_REVISION: 5bc03e04267352e7a5d2fa0abf5f359a2f62eb77
+    steps:
+      - name: Verify live conversation and bounded search are durable
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os,json,uuid,urllib.request,urllib.error,http.cookiejar,time,sys
+          base=os.environ["IGOR_BASE"]
+          jar=http.cookiejar.CookieJar()
+          client=urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
+          def api(path,body=None,timeout=145):
+            headers={"Origin":base,"Accept":"application/json"}
+            if body is not None: headers["Content-Type"]="application/json"
+            req=urllib.request.Request(base+path,headers=headers,method="POST" if body is not None else "GET",data=json.dumps(body).encode() if body is not None else None)
+            return client.open(req,timeout=timeout)
+          with api("/api/health") as r: health=json.load(r)
+          print("PRODUCTION_SHA_MATCH",health.get("revision")==os.environ["IGOR_REVISION"],flush=True)
+          if health.get("revision")!=os.environ["IGOR_REVISION"]: sys.exit(3)
+          with api("/api/tasks",{}) as r: task=json.load(r)
+          print("NEW_TASK_MODE",task.get("mode"),flush=True)
+          def turn(message,label):
+            global task
+            turnid=str(uuid.uuid4())
+            body={"type":"message","text":message,"version":task["brief"]["version"],"clientTurnId":turnid,"workspaceId":task["id"]}
+            started=time.monotonic()
+            terminal=None
+            try:
+              with api("/api/tasks/"+task["id"]+"/turn",body) as stream:
+                print("STEP_HTTP",label,stream.status,flush=True)
+                for line in stream:
+                  if not line.startswith(b"data: "): continue
+                  try: event=json.loads(line[6:])
+                  except: continue
+                  if event.get("type") in ("done","error"):
+                    terminal=event.get("type")
+                    print("STEP_TERMINAL",label,terminal,"ERROR_CODE",event.get("code","none"),flush=True)
+                    break
+            except Exception as e:
+              print("STEP_TRANSPORT",label,type(e).__name__,flush=True)
+            with api("/api/tasks/"+task["id"]) as r: task=json.load(r)
+            with api("/api/tasks/"+task["id"]+"/turn?turnId="+turnid) as r: journal=json.load(r)
+            replies=[m for m in task.get("messages",[]) if m.get("role")=="assistant"]
+            trace=[t.get("action") for t in (task.get("trace") or [])[-7:]]
+            print("STEP_STATE",label,"STATUS",task.get("status"),"JOURNAL",journal.get("status"),"REPLIES",len(replies),"EVIDENCE",len(task.get("evidence") or []),"TRACE",trace,"SECONDS",round(time.monotonic()-started),flush=True)
+            return terminal,journal.get("status"),len(replies)
+          a=turn("I am building Igor, an agentic assistant powered by Qloo's Taste Graph.","intro")
+          b=turn("Find competitors online for Igor. Compare actual competing AI assistants and cultural discovery products using current web sources. Cite results; do not invent sources.","research")
+          if b[0]=="done" and b[1] in ("completed","awaiting_input") and b[2]>=1:
+            print("COMPETITOR_SEARCH_COMPLETED",True,flush=True)
+            sys.exit(0)
+          print("COMPETITOR_SEARCH_COMPLETED",False,flush=True)
+          c=turn("Try again: finish the competitor search and preserve the earlier context.","retry")
+          print("RETRY_SUCCEEDED",c[0]=="done" and c[1] in ("completed","awaiting_input"),flush=True)
+          sys.exit(0 if c[0]=="done" and c[1] in ("completed","awaiting_input") else 1)
+          PY
