@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: 330c657d81175c90323f0a529045797a32cf1c1e
+          ref: 8d2052d848ce8255126ec08e0518fa7f9cfc2eb5
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: candidate
@@ -65,6 +65,13 @@ jobs:
             rm -f "$file"
           }
           check Install npm ci
+          echo "BEGIN REVIEWABLE FORMAT DIFF"
+          npx prettier --write src/core/agent-decision-gate.ts src/core/ai-sdk-unified-agent.ts src/core/unified-agent.ts src/core/contracts.ts tests/unit/agent-decision-gate.test.ts tests/unit/ai-sdk-unified-agent.test.ts > /dev/null
+          git diff -- src/core/agent-decision-gate.ts src/core/ai-sdk-unified-agent.ts src/core/unified-agent.ts src/core/contracts.ts tests/unit/agent-decision-gate.test.ts tests/unit/ai-sdk-unified-agent.test.ts | head -350 || true
+          echo "END REVIEWABLE FORMAT DIFF"
+          npx eslint src/core/agent-decision-gate.ts src/core/ai-sdk-unified-agent.ts src/core/unified-agent.ts src/core/contracts.ts tests/unit/agent-decision-gate.test.ts tests/unit/ai-sdk-unified-agent.test.ts -f json > "$RUNNER_TEMP/lint.json" || true
+          node -e 'for(const f of require(process.argv[1]))for(const m of f.messages)console.log(f.filePath.split("/").pop()+":"+m.line+":"+m.ruleId)' "$RUNNER_TEMP/lint.json"
+          rm -f "$RUNNER_TEMP/lint.json"
           check Format npx prettier --check src/core/agent-decision-gate.ts src/core/ai-sdk-unified-agent.ts src/core/unified-agent.ts src/core/contracts.ts tests/unit/agent-decision-gate.test.ts tests/unit/ai-sdk-unified-agent.test.ts
           check TypeScript npm run typecheck
           check Lint npm run lint
