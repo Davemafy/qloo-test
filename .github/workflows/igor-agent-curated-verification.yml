@@ -1,0 +1,105 @@
+name: Igor Agent curated release verification
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-agent-curated-verification.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      QLOO_API_KEY: ""
+      QLOO_MAX_CALLS: "0"
+      XAI_API_KEY: ""
+      GROK_API_KEY: ""
+      GEMINI_API_KEY: ""
+      ANTHROPIC_API_KEY: ""
+      LLM_API_KEY: ""
+      IGOR_QLOO_RECORDING: ""
+    steps:
+      - name: Fetch exact public curation candidate
+        uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor-agent
+          ref: 6e527a1f389a481eea7b1b2561d68c55e74bafb8
+          persist-credentials: false
+          path: candidate
+
+      - name: Use Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: candidate/package-lock.json
+
+      - name: Independent checks for actual curated release
+        working-directory: candidate
+        shell: bash
+        run: |
+          set -uo pipefail
+          log="$RUNNER_TEMP/curation.log"
+          errors=0
+          built=0
+          check() {
+            label="$1"; shift
+            if "$@" > "$log" 2>&1; then
+              echo "$label: PASS"
+              echo "- $label: PASS" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "$label: FAIL"
+              echo "- $label: FAIL" >> "$GITHUB_STEP_SUMMARY"
+              if [[ "$label" == TypeScript ]]; then
+                grep -oE '[A-Za-z0-9_./-]+\\.(ts|tsx|mts)\\([0-9]+,[0-9]+\\): error TS[0-9]+' "$log" | head -30 || true
+              elif [[ "$label" == Format ]]; then
+                grep '^\\[warn\\]' "$log" | head -40 || true
+              elif [[ "$label" == Lint ]]; then
+                grep -oE '(@next/next/[^ ]+|@typescript-eslint/[^ ]+|react-hooks/[^ ]+|react/[^ ]+)' "$log" | sort | uniq -c | sort -rn | head -15 || true
+              elif [[ "$label" == Unit ]]; then
+                grep -E 'Test Files|Tests |FAIL ' "$log" | tail -25 || true
+              elif [[ "$label" == Reference-browser || "$label" == Connected-browser ]]; then
+                grep -E '(^[[:space:]]*[0-9]+\\) |[0-9]+ (failed|passed)|Error:)' "$log" | tail -24 || true
+              elif [[ "$label" == Build ]]; then
+                grep -E 'Error:|Failed to compile|Module not found|Cannot find module' "$log" | head -12 || true
+              fi
+              errors=$((errors + 1))
+            fi
+          }
+          echo '### Igor-agent curated candidate (sanitized PR38 + proposed PR39 UI)' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Eight original recording-dependent unit suites excluded because archived third-party provider payloads were stripped.' >> "$GITHUB_STEP_SUMMARY"
+          check Install npm ci
+          check Format npm run format:check
+          check TypeScript npm run typecheck
+          check Lint npm run lint
+          check Unit npm test
+          check Eval npm run test:eval
+          if npm run build > "$log" 2>&1; then
+            echo 'Build: PASS'
+            echo '- Build: PASS' >> "$GITHUB_STEP_SUMMARY"
+            built=1
+          else
+            echo 'Build: FAIL'
+            echo '- Build: FAIL' >> "$GITHUB_STEP_SUMMARY"
+            errors=$((errors + 1))
+          fi
+          if [[ "$built" == 1 ]]; then
+            if npx playwright install --with-deps chromium > "$log" 2>&1; then
+              check Reference-browser npx playwright test --config tests/reference-integrated.playwright.config.mts
+              check Connected-browser npx playwright test --config tests/connected-work.playwright.config.mts
+            else
+              echo 'Chromium install failed'
+              errors=$((errors + 1))
+            fi
+          fi
+          rm -f "$log"
+          if ((errors)); then
+            echo "::error::$errors checks failed at this exact SHA; do not publish as verified."
+            exit 1
+          fi
+          echo "Curated OFFLINE candidate checks passed. Real Qloo/model acceptance is still separate."
