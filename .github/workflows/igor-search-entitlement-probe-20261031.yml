@@ -1,0 +1,47 @@
+name: Igor independent search entitlement probe
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-search-entitlement-probe-20261031.yml]
+permissions: {}
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+      GROK_API_KEY: ${{ secrets.GROK_API_KEY }}
+    steps:
+      - name: Test configured keys without printing secrets or provider content
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os,json,urllib.request,urllib.error
+          def probe(label,key,url,body,headers,timeout=28):
+            if not key:
+              print(label,"NOT_CONFIGURED",flush=True)
+              return
+            req=urllib.request.Request(url,data=json.dumps(body).encode(),headers=headers,method="POST")
+            try:
+              with urllib.request.urlopen(req,timeout=timeout) as response:
+                data=json.load(response)
+                if label=="GEMINI_GROUNDING":
+                  sources=sum(len((c.get("groundingMetadata") or {}).get("groundingChunks") or []) for c in data.get("candidates",[]))
+                else:
+                  sources=len(data.get("citations") or [])
+                print(label,"HTTP",response.status,"STRUCTURED_CITATIONS",sources,flush=True)
+            except urllib.error.HTTPError as exc:
+              print(label,"HTTP",exc.code,"NO_VALIDATED_SOURCES",flush=True)
+            except Exception as exc:
+              print(label,"FAILURE_CATEGORY",type(exc).__name__,flush=True)
+          key=os.environ.get("GEMINI_API_KEY","")
+          probe("GEMINI_GROUNDING",key,
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+            {"contents":[{"role":"user","parts":[{"text":"Use Google Search to find official documentation for the Qloo Taste Graph API. Return a concise response with grounded citations."}]}],"tools":[{"google_search":{}}],"generationConfig":{"maxOutputTokens":256}},
+            {"x-goog-api-key":key,"Content-Type":"application/json"})
+          key=os.environ.get("XAI_API_KEY") or os.environ.get("GROK_API_KEY") or ""
+          probe("XAI_WEB_SEARCH",key,"https://api.x.ai/v1/responses",
+            {"model":"grok-4.7","max_turns":2,"input":[{"role":"user","content":"Find the official Qloo Taste Graph API documentation using live web search."}],"tools":[{"type":"web_search"}]},
+            {"Authorization":"Bearer "+key,"Content-Type":"application/json"})
+          PY
