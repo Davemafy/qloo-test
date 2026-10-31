@@ -7,7 +7,7 @@ name: Igor single-branch CI (private source)
 # [bounded-live] reviewed Igor engine b4b84b9b88b78162f40e16e3a987536ecc08f186
 # Full live loop recheck after source + decision fallback improvements
 # Targeted existing Gemini provider live acceptance; never fixtures
-# Verify Igor engine SHA 8fabca7ebb230777c27e78aca382b99e3bbd38b1 (deterministic only)
+# Verify Igor engine SHA b4b84b9b88b78162f40e16e3a987536ecc08f186 (deterministic only)
 # Exact head after focused run 41155147891 PASS
 # Runs ONLY in qloo-test. Igor's hosted runners are currently unhealthy.
 on:
