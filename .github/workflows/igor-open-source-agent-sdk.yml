@@ -1,0 +1,53 @@
+name: Igor Open Source Agent SDK Exact Commit Validation
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/igor-open-source-agent-sdk.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      IGOR_TEST_FIXTURES: "1"
+      QLOO_API_KEY: ""
+      GEMINI_API_KEY: ""
+      XAI_API_KEY: ""
+      ANTHROPIC_API_KEY: ""
+      GROK_API_KEY: ""
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: e53da8d718edc6ef07c64a351597593a5385732d
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          path: private-igor
+      - name: Confirm exact engine SHA
+        working-directory: private-igor
+        run: test "$(git rev-parse HEAD)" = "e53da8d718edc6ef07c64a351597593a5385732d"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: private-igor/package-lock.json
+      - name: Locked dependencies
+        working-directory: private-igor
+        run: npm ci --silent > /dev/null 2>&1
+      - name: Compile agent and provider adapters
+        working-directory: private-igor
+        run: npm run typecheck
+      - name: Lint new runtime and tests
+        working-directory: private-igor
+        run: npx eslint src/core/ai-sdk-unified-agent.ts src/tools/sdk-language-model.ts tests/unit/ai-sdk-runtime.test.ts
+      - name: Mock actual multi-tool agent journey
+        working-directory: private-igor
+        run: npx vitest run --config tests/vitest.config.mts tests/unit/ai-sdk-runtime.test.ts
+      - name: Regression tests for original runtime
+        working-directory: private-igor
+        run: npx vitest run --config tests/vitest.config.mts tests/unit/agent-recovery-artifact.test.ts tests/unit/agent-completion-budget.test.ts
