@@ -28,13 +28,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: 06ae858e005256d71271fba680bfd85be6d878da
+          ref: 4b4d91e4975c34377f738235b8c81d18bfcb1e08
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: private-igor
       - name: Confirm immutable release candidate
         working-directory: private-igor
-        run: test "$(git rev-parse HEAD)" = "06ae858e005256d71271fba680bfd85be6d878da"
+        run: test "$(git rev-parse HEAD)" = "4b4d91e4975c34377f738235b8c81d18bfcb1e08"
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
@@ -54,7 +54,7 @@ jobs:
         run: npm test
       - name: Verify open-source ToolLoopAgent native execution, citation persistence, and failure recovery
         working-directory: private-igor
-        run: npx vitest run --config tests/vitest.config.mts tests/unit/ai-sdk-unified-agent.test.ts tests/unit/ai-sdk-runtime.test.ts
+        run: npx vitest run --config tests/vitest.config.mts tests/unit/ai-sdk-unified-agent.test.ts tests/unit/ai-sdk-runtime.test.ts tests/unit/sdk-direct-route.test.ts
       - name: Production build
         working-directory: private-igor
         run: npm run build
