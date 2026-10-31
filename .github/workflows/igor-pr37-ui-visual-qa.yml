@@ -18,7 +18,7 @@ jobs:
       QLOO_API_KEY: ""
       GEMINI_API_KEY: ""
       XAI_API_KEY: ""
-      IGOR_SHA: e55cc6d2668f5aea012c0a399850c138029393f0
+      IGOR_SHA: c5a5df496039920d856a74f728e43158ff724be1
     steps:
       - uses: actions/checkout@v4
         with:
@@ -51,7 +51,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: igor-pr37-visual-qa-e55cc6d2668f5aea012c0a399850c138029393f0
+          name: igor-pr37-visual-qa-c5a5df496039920d856a74f728e43158ff724be1
           path: |
             igor/test-results/**/*.png
             igor/test-results/**/*.webm
