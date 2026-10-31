@@ -1,0 +1,60 @@
+name: Igor market-intent and cultural-revision isolated candidate
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-agent-market-scope-candidate-20261031.yml]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      IGOR_TEST_FIXTURES: "1"
+      QLOO_API_KEY: ""
+      XAI_API_KEY: ""
+      GEMINI_API_KEY: ""
+      ANTHROPIC_API_KEY: ""
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: daf8676e0421ba21bc617768f5cb03917fc7b011
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          path: candidate
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: candidate/package-lock.json
+      - name: Install exact dependencies
+        working-directory: candidate
+        run: npm ci
+      - name: Prettier changed files
+        continue-on-error: true
+        working-directory: candidate
+        run: npx prettier --check src/core/agent-intent-boundary.ts src/core/unified-agent.ts src/core/agent-acceptance.ts tests/unit/agent-intent-boundary.test.ts
+      - name: TypeScript
+        working-directory: candidate
+        run: npm run typecheck
+      - name: Targeted lint
+        working-directory: candidate
+        run: npx eslint src/core/agent-intent-boundary.ts src/core/unified-agent.ts src/core/agent-acceptance.ts tests/unit/agent-intent-boundary.test.ts
+      - name: New and related regressions
+        working-directory: candidate
+        run: npx vitest run --config tests/vitest.config.mts tests/unit/agent-intent-boundary.test.ts tests/unit/unified-agent.test.ts tests/unit/agent-connected-document-revision.test.ts tests/unit/agent-acceptance.test.ts
+      - name: Production build
+        working-directory: candidate
+        run: npm run build
+      - name: Show isolated formatting patch
+        if: always()
+        working-directory: candidate
+        shell: bash
+        run: |
+          npx prettier --write src/core/agent-intent-boundary.ts src/core/unified-agent.ts src/core/agent-acceptance.ts tests/unit/agent-intent-boundary.test.ts
+          echo BEGIN_AGENT_SCOPE_FORMAT_DIFF
+          git diff --no-color -- src/core/agent-intent-boundary.ts src/core/unified-agent.ts src/core/agent-acceptance.ts tests/unit/agent-intent-boundary.test.ts
+          echo END_AGENT_SCOPE_FORMAT_DIFF
