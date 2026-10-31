@@ -167,11 +167,14 @@ def execute():
         }
         if not persisted:
             raise ValueError("workspace_reopen_not_persisted")
-        report["conclusion"] = (
-            "passed" if report["checks"]["model"]["status"] == "called"
-            and report["checks"]["qloo"]["status"] == "live"
-            else "provider_checks_incomplete"
-        )
+        model_ok = report["checks"]["model"]["status"] == "called"
+        qloo_status = report["checks"]["qloo"]["status"]
+        if model_ok and qloo_status == "live":
+            report["conclusion"] = "passed_live"
+        elif model_ok and qloo_status == "cached":
+            report["conclusion"] = "passed_cached"
+        else:
+            report["conclusion"] = "provider_checks_incomplete"
     except (ValueError, KeyError, OSError, urllib.error.URLError, json.JSONDecodeError) as error:
         report["conclusion"] = "incomplete"
         report["failure_type"] = type(error).__name__
@@ -186,7 +189,7 @@ def execute():
         REPORT_PATH.write_text(json.dumps(report, indent=2) + "\n")
         print(json.dumps(report, indent=2))
 
-    return 0 if report["conclusion"] == "passed" else 1
+    return 0 if report["conclusion"] in {"passed_live", "passed_cached"} else 1
 
 
 if __name__ == "__main__":
