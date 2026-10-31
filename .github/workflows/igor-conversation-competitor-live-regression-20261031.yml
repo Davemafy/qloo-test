@@ -10,7 +10,7 @@ jobs:
     timeout-minutes: 8
     env:
       IGOR_BASE: https://igor-production-243e.up.railway.app
-      IGOR_REVISION: 18fdeea32815b40c8587fc636a7e1216e3871c6a
+      IGOR_REVISION: 2a29d5a87ad06cc93c7bb0bc90ec7f0369b1d960
     steps:
       - name: Verify live conversation and bounded search are durable
         shell: bash
@@ -53,6 +53,10 @@ jobs:
                   if not line.startswith(b"data: "): continue
                   try: event=json.loads(line[6:])
                   except: continue
+                  if event.get("type")=="action":
+                    detail=event.get("message","")
+                    if detail in ("Agent and research tools returned to the turn coordinator.","Research evidence assembled for a user-visible reply.","Agent reply composed; saving response and artifacts.","Saved research documents ready for final verification.","Building an evidence-bound presentation.","Evidence-bound presentation verified.","Validating final task and message state.","Final task validation passed; committing the response."):
+                      print("FINALIZATION_STAGE",detail,flush=True)
                   if event.get("type") in ("done","error"):
                     terminal=event.get("type")
                     print("STEP_TERMINAL",label,terminal,"ERROR_CODE",event.get("code","none"),flush=True)
