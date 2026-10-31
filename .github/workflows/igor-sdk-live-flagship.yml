@@ -55,7 +55,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: 4b4d91e4975c34377f738235b8c81d18bfcb1e08
+          ref: cce0902827577a905d543367555ec85a42bef4ad
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: private-igor
@@ -67,7 +67,7 @@ jobs:
       - name: Locked install and production build
         working-directory: private-igor
         run: |
-          test "$(git rev-parse HEAD)" = "4b4d91e4975c34377f738235b8c81d18bfcb1e08"
+          test "$(git rev-parse HEAD)" = "cce0902827577a905d543367555ec85a42bef4ad"
           npm ci --silent >/dev/null 2>&1
           npm run build > "$RUNNER_TEMP/sdk-live-build.log" 2>&1 || { tail -70 "$RUNNER_TEMP/sdk-live-build.log"; exit 1; }
       - name: Chromium browser for actual user journey
