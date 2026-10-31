@@ -28,13 +28,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: 5c206dbf7db8890e0c5f6257a9eef50ba8edb4b5
+          ref: bbae2c4451d14691840ba5e4e02395686f5f2858
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: private-igor
       - name: Confirm immutable release candidate
         working-directory: private-igor
-        run: test "$(git rev-parse HEAD)" = "5c206dbf7db8890e0c5f6257a9eef50ba8edb4b5"
+        run: test "$(git rev-parse HEAD)" = "bbae2c4451d14691840ba5e4e02395686f5f2858"
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
@@ -52,6 +52,9 @@ jobs:
       - name: Unit and engine regression
         working-directory: private-igor
         run: npm test
+      - name: Verify open-source ToolLoopAgent native execution, citation persistence, and failure recovery
+        working-directory: private-igor
+        run: npx vitest run --config tests/vitest.config.mts tests/unit/ai-sdk-unified-agent.test.ts tests/unit/ai-sdk-runtime.test.ts
       - name: Production build
         working-directory: private-igor
         run: npm run build
