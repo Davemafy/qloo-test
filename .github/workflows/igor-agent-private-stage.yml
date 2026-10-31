@@ -1,0 +1,148 @@
+name: Igor Agent — sanitize and stage latest integrated history privately
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  stage-private:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      IGOR_SOURCE_SHA: 5c206dbf7db8890e0c5f6257a9eef50ba8edb4b5
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      QLOO_API_KEY: ""
+      GEMINI_API_KEY: ""
+      ANTHROPIC_API_KEY: ""
+      XAI_API_KEY: ""
+      QLOO_MAX_CALLS: "0"
+      GIT_TERMINAL_PROMPT: "0"
+    steps:
+      - name: Require existing read and destination-scoped write tokens
+        env:
+          SOURCE_OK: ${{ secrets.PRIVATE_CI_READ_TOKEN != '' }}
+          WRITE_OK: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN != '' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$SOURCE_OK" = true || { echo "::error::Missing PRIVATE_CI_READ_TOKEN"; exit 1; }
+          test "$WRITE_OK" = true || { echo "::error::Update IGOR_SUBMISSION_WRITE_TOKEN scope to include igor-agent"; exit 1; }
+
+      - name: Require empty PRIVATE destination with actual token write permission
+        shell: bash
+        env:
+          WRITE_TOKEN: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN }}
+        run: |
+          set -euo pipefail
+          code="$(curl -sS -o "$RUNNER_TEMP/dest.json" -w '%{http_code}' \
+            -H "Authorization: Bearer $WRITE_TOKEN" \
+            -H 'Accept: application/vnd.github+json' \
+            https://api.github.com/repos/Davemafy/igor-agent)"
+          test "$code" = 200 || { echo "::error::Create empty PRIVATE Davemafy/igor-agent and authorize the token"; exit 1; }
+          python - <<'PY'
+          import json,os,pathlib
+          d=json.loads((pathlib.Path(os.environ["RUNNER_TEMP"])/"dest.json").read_text())
+          assert d.get("private") is True and d.get("full_name")=="Davemafy/igor-agent", "Destination must remain PRIVATE"
+          assert d.get("permissions",{}).get("push") is True, "Fine-grained token lacks Contents write access"
+          PY
+          code="$(curl -sS -o /dev/null -w '%{http_code}' \
+            -H "Authorization: Bearer $WRITE_TOKEN" \
+            https://api.github.com/repos/Davemafy/igor-agent/git/ref/heads/main)"
+          [[ "$code" == 404 || "$code" == 409 ]] || { echo "::error::Destination is not empty; refusing destructive replacement"; exit 1; }
+
+      - uses: actions/checkout@v4
+        with:
+          path: tooling
+          persist-credentials: false
+
+      - name: Read pinned, integrated Igor branch without storing credentials
+        uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: 5c206dbf7db8890e0c5f6257a9eef50ba8edb4b5
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          fetch-depth: 0
+          persist-credentials: false
+          path: private-source
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned sanitizer and Gitleaks
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet git-filter-repo==2.47.0
+          curl -fsSL --retry 2 \
+            https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz \
+            -o "$RUNNER_TEMP/gitleaks.tar.gz"
+          mkdir -p "$RUNNER_TEMP/gitleaks-bin"
+          tar -xzf "$RUNNER_TEMP/gitleaks.tar.gz" -C "$RUNNER_TEMP/gitleaks-bin" gitleaks
+          echo "$RUNNER_TEMP/gitleaks-bin" >> "$GITHUB_PATH"
+
+      - name: Remove sensitive history; preserve real authors, dates and progression
+        shell: bash
+        run: |
+          set -euo pipefail
+          python tooling/scripts/sanitize_igor_history.py \
+            --source "$GITHUB_WORKSPACE/private-source" \
+            --output "$RUNNER_TEMP/igor-agent-clean" \
+            --expected-sha "$IGOR_SOURCE_SHA" \
+            --report "$RUNNER_TEMP/summary.json"
+          test -z "$(git -C "$RUNNER_TEMP/igor-agent-clean" remote)"
+          rm -rf "$GITHUB_WORKSPACE/private-source"
+
+      - name: Block transfer on retained Git-history or file secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          gitleaks git --redact --report-format json \
+            --report-path "$RUNNER_TEMP/history.json" \
+            "$RUNNER_TEMP/igor-agent-clean" > "$RUNNER_TEMP/scan.log" 2>&1
+          gitleaks dir --redact --report-format json \
+            --report-path "$RUNNER_TEMP/head.json" \
+            "$RUNNER_TEMP/igor-agent-clean" >> "$RUNNER_TEMP/scan.log" 2>&1
+          echo "Historical and current-file secret scans: PASS"
+
+      - name: Push authenticated sanitized history only to private igor-agent main
+        shell: bash
+        env:
+          WRITE_TOKEN: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN }}
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/askpass" <<'SH'
+          #!/bin/sh
+          case "$1" in
+            *Username*) printf '%s\n' 'x-access-token' ;;
+            *Password*) printf '%s\n' "$WRITE_TOKEN" ;;
+            *) exit 1 ;;
+          esac
+          SH
+          chmod 700 "$RUNNER_TEMP/askpass"
+          export GIT_ASKPASS="$RUNNER_TEMP/askpass"
+          git -C "$RUNNER_TEMP/igor-agent-clean" push \
+            'https://github.com/Davemafy/igor-agent.git' HEAD:refs/heads/main \
+            > "$RUNNER_TEMP/push.log" 2>&1
+          python - <<'PY'
+          import json,os,pathlib
+          d=json.loads((pathlib.Path(os.environ["RUNNER_TEMP"])/"summary.json").read_text())
+          print("ORIGINAL_COMMITS",d["original_commit_count"])
+          print("PRESERVED_COMMITS",d["sanitized_commit_count"])
+          print("SANITIZED_HEAD",d["sanitized_revision"][:12])
+          print("DESTINATION=PRIVATE")
+          print("FULL_BUILD_AND_LICENSE_AUDIT=NOT_YET_VERIFIED")
+          PY
+
+      - name: Remove all private worktree and scanner output
+        if: always()
+        shell: bash
+        run: |
+          rm -rf "$RUNNER_TEMP/igor-agent-clean" "$GITHUB_WORKSPACE/private-source" \
+            "$RUNNER_TEMP/askpass" "$RUNNER_TEMP/push.log" "$RUNNER_TEMP/scan.log" \
+            "$RUNNER_TEMP/history.json" "$RUNNER_TEMP/head.json" "$RUNNER_TEMP/summary.json" \
+            "$RUNNER_TEMP/dest.json" || true
+          echo 'Private destination only; no public source artifact, merge, deployment or visibility change.' >> "$GITHUB_STEP_SUMMARY"
