@@ -1,0 +1,65 @@
+name: Igor public Qloo cultural journey acceptance (no secrets)
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-public-cultural-journey-20261031.yml]
+permissions: {}
+jobs:
+  public-cultural:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Run up to two real anonymous turns against public app
+        shell: bash
+        env:
+          IGOR_BASE: https://igor-production-243e.up.railway.app
+        run: |
+          python3 - <<'PY'
+          import json,os,time,urllib.request,urllib.error,http.cookiejar
+          base=os.environ["IGOR_BASE"]
+          jar=http.cookiejar.CookieJar()
+          client=urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
+          def post(path,payload):
+              req=urllib.request.Request(base+path,data=json.dumps(payload).encode(),
+                   headers={"Content-Type":"application/json","Origin":base},method="POST")
+              return client.open(req,timeout=125)
+          with post("/api/tasks",{}) as r:
+              task=json.load(r)
+              assert r.status == 200, "task create status"
+              print("CREATE_MODE",task.get("mode"))
+          prompts=[
+              "We are six friends in Brooklyn, New York. We like Sade, Radiohead and Wong Kar-wai. Please use Qloo to discover three cultural film and music options for a Friday evening, identify their actual cultural sources, and propose a connected plan. Do not invent prices or availability.",
+              "Please proceed with the Qloo cultural discovery now. Treat Friday evening and six friends as our preferences. Show source-linked films or artists, then form an editable evening plan. Do not assume prices or reservations."
+          ]
+          start=time.monotonic()
+          for index,text in enumerate(prompts,1):
+              with post("/api/tasks/"+task["id"]+"/turn",
+                  {"type":"message","text":text,"version":task["brief"]["version"]}) as response:
+                  terminal=None
+                  for line in response:
+                      if not line.startswith(b"data: "): continue
+                      try: event=json.loads(line[6:])
+                      except Exception: continue
+                      if event.get("type")=="done":
+                          task=event.get("task") or task
+                          terminal="done"
+                          break
+                      if event.get("type")=="error":
+                          terminal="error"
+                          break
+              print("TURN",index,"TERMINAL",terminal,"STATUS",task.get("status"),
+                    "ASSISTANTS",sum(x.get("role")=="assistant" for x in task.get("messages",[])),
+                    "CATALOGUE",len(task.get("catalogue",[])),
+                    "EVIDENCE",len(task.get("evidence",[])),
+                    "ARTIFACTS",len(task.get("artifacts",[])),
+                    "DURATION",round(time.monotonic()-start,1))
+              print("TRACE",index,[t.get("action") for t in (task.get("trace") or [])[-8:]])
+              if terminal!="done":
+                  raise SystemExit(3)
+              if len(task.get("evidence",[]))>0:
+                  print("CULTURAL_EVIDENCE_PRESENT",True)
+                  break
+          else:
+              print("CULTURAL_EVIDENCE_PRESENT",False)
+              raise SystemExit(2)
+          PY
