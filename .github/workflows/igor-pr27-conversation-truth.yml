@@ -1,0 +1,54 @@
+name: Igor PR27 conversation truth exact-SHA verification
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-pr27-conversation-truth.yml]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      QLOO_API_KEY: ""
+      XAI_API_KEY: ""
+      GROK_API_KEY: ""
+      GEMINI_API_KEY: ""
+      OPENAI_API_KEY: ""
+      ANTHROPIC_API_KEY: ""
+      IGOR_QLOO_RECORDING: ""
+    steps:
+      - name: Checkout exact PR27 fix
+        uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: e88428ce3e35b3c76f6cd2c8156b24d62cad66e2
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          path: candidate
+      - name: Node 24 and npm cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: candidate/package-lock.json
+      - name: Install exact dependencies
+        working-directory: candidate
+        run: npm ci
+      - name: Check changed file formatting
+        working-directory: candidate
+        run: npx prettier --check src/components/agent-workspace.tsx src/components/message-sources.tsx src/core/interpret-message.ts src/core/grounded-followup.ts tests/unit/grounded-followup.test.ts
+      - name: Verify TypeScript
+        working-directory: candidate
+        run: npm run typecheck
+      - name: Verify ESLint
+        working-directory: candidate
+        run: npm run lint
+      - name: Run exact conversation and continuation regressions
+        working-directory: candidate
+        run: npm test -- tests/unit/grounded-followup.test.ts tests/unit/conversation-reply.test.ts tests/unit/conversation-focus.test.ts
+      - name: Build production application
+        working-directory: candidate
+        run: npm run build
