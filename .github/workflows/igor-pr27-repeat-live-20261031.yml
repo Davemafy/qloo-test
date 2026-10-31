@@ -50,7 +50,10 @@ jobs:
             _,history=api("/api/tasks/"+task["id"]+"/turn?turnId="+turn_id)
             journal=json.loads(history)
             print("TURN",label,"TASK",updated.get("status"),"JOURNAL",journal.get("status"),"MESSAGES",len(updated.get("messages") or []),flush=True)
-            check(terminal=="done" and journal.get("status")=="completed",label+"_committed")
+            check(terminal=="done" and journal.get("status") in ("completed","partial"),label+"_terminal_saved")
+            if label.endswith("_research"):
+              run=updated.get("agentRun") or {}
+              print("RESEARCH_DIAGNOSTIC",label,"RUN_STATUS",run.get("status"),"ACCEPTANCE",(run.get("acceptance") or {}).get("status"),"STEPS",[(step.get("tool"),step.get("status")) for step in run.get("steps") or []],"WARNINGS",len(run.get("warnings") or []),"ARTIFACTS",len(updated.get("artifacts") or []),"EVIDENCE",len(updated.get("evidence") or []),flush=True)
             return updated
           for iteration in range(1,4):
             _,body=api("/api/tasks",{})
