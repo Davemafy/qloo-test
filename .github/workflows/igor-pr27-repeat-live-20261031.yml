@@ -1,0 +1,79 @@
+name: Igor PR27 repeated live turn reliability
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-pr27-repeat-live-20261031.yml]
+permissions: {}
+jobs:
+  repeat-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      IGOR_BASE: https://igor-production-243e.up.railway.app
+      EXPECTED_SHA: eb1bb31a684b0daf65b91db29e19716305d44d38
+    steps:
+      - name: Test three independent production conversations and follow-ups
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os, json, uuid, urllib.request, urllib.error, http.cookiejar, time, sys
+          base=os.environ["IGOR_BASE"]
+          opener=urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
+          def api(path, body=None, timeout=155):
+            headers={"Origin":base,"Accept":"application/json"}
+            if body is not None: headers["Content-Type"]="application/json"
+            request=urllib.request.Request(base+path,headers=headers,method="POST" if body is not None else "GET",data=json.dumps(body).encode() if body is not None else None)
+            with opener.open(request,timeout=timeout) as response: return response.status,response.read()
+          def check(ok, label):
+            print("GATE",label,"PASS" if ok else "FAIL",flush=True)
+            if not ok: raise AssertionError(label)
+          status,payload=api("/api/health")
+          health=json.loads(payload)
+          check(status==200 and health.get("status")=="ok" and health.get("revision")==os.environ["EXPECTED_SHA"],"production_revision")
+          def turn(task,text,label):
+            turn_id=str(uuid.uuid4())
+            req={"type":"message","text":text,"version":task["brief"]["version"],"clientTurnId":turn_id,"workspaceId":task["id"]}
+            request=urllib.request.Request(base+"/api/tasks/"+task["id"]+"/turn",headers={"Origin":base,"Content-Type":"application/json","Accept":"text/event-stream"},method="POST",data=json.dumps(req).encode())
+            terminal=None
+            with opener.open(request,timeout=155) as stream:
+              check(stream.status==200,label+"_http")
+              for line in stream:
+                if not line.startswith(b"data: "): continue
+                try: event=json.loads(line[6:])
+                except (ValueError,UnicodeDecodeError): continue
+                if event.get("type") in ("done","error"):
+                  terminal=event.get("type")
+                  print("TURN",label,"TERMINAL",terminal,"CODE",event.get("code","none"),flush=True)
+                  break
+            st,body=api("/api/tasks/"+task["id"])
+            updated=json.loads(body)
+            _,history=api("/api/tasks/"+task["id"]+"/turn?turnId="+turn_id)
+            journal=json.loads(history)
+            print("TURN",label,"TASK",updated.get("status"),"JOURNAL",journal.get("status"),"MESSAGES",len(updated.get("messages") or []),flush=True)
+            check(terminal=="done" and journal.get("status")=="completed",label+"_committed")
+            return updated
+          for iteration in range(1,4):
+            _,body=api("/api/tasks",{})
+            task=json.loads(body)
+            check(task.get("mode")=="qloo-live",f"run_{iteration}_real_mode")
+            task=turn(task,"I'm building Igor, a conversational assistant using Qloo taste intelligence.",f"run_{iteration}_intro")
+            task=turn(task,"Find competitors online for Igor. Compare actual AI assistants and cultural discovery products using live public web sources. Save a cited competitor brief; do not use Qloo for market research.",f"run_{iteration}_research")
+            agent=task.get("agentRun") or {}
+            tools=[x.get("tool","") for x in agent.get("steps") or []]
+            sources=[x for x in task.get("evidence") or [] if x.get("kind")=="practical" and x.get("source")=="provider-returned" and x.get("freshness")=="current"]
+            documents=[x for x in task.get("artifacts") or [] if x.get("freshness")=="current"]
+            cited=any(any(x.get("id") in set(doc.get("evidenceIds") or []) for x in sources) and len(doc.get("content",""))>90 for doc in documents)
+            print("RESULT",iteration,"STATUS",task.get("status"),"SOURCES",len(sources),"ARTIFACTS",len(documents),"ACCEPTANCE",(agent.get("acceptance") or {}).get("status"),"TOOLS",tools,flush=True)
+            check((agent.get("acceptance") or {}).get("status")=="satisfied",f"run_{iteration}_verified")
+            check(task.get("status")=="ready" and bool(sources) and cited,f"run_{iteration}_cited_saved_work")
+            check(len(sources)==len(set(x.get("id") for x in sources)),f"run_{iteration}_no_duplicate_evidence")
+            check(not any(t.startswith("qloo.") for t in tools),f"run_{iteration}_no_irrelevant_qloo")
+            prior_count=len(sources)
+            task=turn(task,"Which card?",f"run_{iteration}_followup")
+            final=task.get("messages",[])[-1].get("text","")
+            check("Your work" in final and any(d.get("title") in final for d in documents),f"run_{iteration}_referential_reply")
+            check(len([x for x in task.get("evidence") or [] if x.get("kind")=="practical" and x.get("freshness")=="current"])==prior_count,f"run_{iteration}_no_extra_provider_work")
+            _,reloaded=api("/api/tasks/"+task["id"])
+            check(len(json.loads(reloaded).get("messages",[]))==len(task.get("messages",[])),f"run_{iteration}_reload")
+          print("REPEATED_LIVE_RELEASE_GATE PASS 3/3",flush=True)
+          PY
