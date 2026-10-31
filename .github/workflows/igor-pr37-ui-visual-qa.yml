@@ -18,7 +18,7 @@ jobs:
       QLOO_API_KEY: ""
       GEMINI_API_KEY: ""
       XAI_API_KEY: ""
-      IGOR_SHA: 012e525f0973948ce5cf7b18859d4a6c51fb4ac3
+      IGOR_SHA: 31ba4f97f8f5cf82347d71e8e10cd3023579215f
     steps:
       - uses: actions/checkout@v4
         with:
@@ -45,13 +45,13 @@ jobs:
         working-directory: igor
         run: |
           npx playwright test --config tests/reference-integrated.playwright.config.mts \
-            --grep "partial research is framed|non-event research opens|a populated fixture must render|verified geocoded places render|Conversation and Your work are|Mobile Conversation and Work switching|Discover opens in" \
+            --grep "mobile navigation keeps|partial research is framed|non-event research opens|a populated fixture must render|verified geocoded places render|Conversation and Your work are|Mobile Conversation and Work switching|Discover opens in" \
             --workers=1 --reporter=line
       - name: Upload actual browser screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: igor-pr37-visual-qa-012e525f0973948ce5cf7b18859d4a6c51fb4ac3
+          name: igor-pr37-visual-qa-31ba4f97f8f5cf82347d71e8e10cd3023579215f
           path: |
             igor/test-results/**/*.png
             igor/test-results/**/*.webm
