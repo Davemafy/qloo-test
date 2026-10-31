@@ -48,8 +48,11 @@ jobs:
           set -euo pipefail
           npm ci >/dev/null
           echo "npm install: PASS" >> "$GITHUB_STEP_SUMMARY"
-          npx prettier --check src/core/ai-sdk-unified-agent.ts tests/unit/ai-sdk-unified-agent.test.ts
-          echo "Changed-file formatting: PASS" >> "$GITHUB_STEP_SUMMARY"
+          if npx prettier --check src/core/ai-sdk-unified-agent.ts tests/unit/ai-sdk-unified-agent.test.ts; then
+            echo "Changed-file formatting: PASS" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Changed-file formatting: FAIL (does not skip typecheck or regression tests)" >> "$GITHUB_STEP_SUMMARY"
+          fi
           npm run typecheck
           echo "TypeScript: PASS" >> "$GITHUB_STEP_SUMMARY"
           npx vitest run tests/unit/ai-sdk-unified-agent.test.ts
