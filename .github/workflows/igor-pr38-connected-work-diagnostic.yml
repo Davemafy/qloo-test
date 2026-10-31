@@ -1,0 +1,43 @@
+name: Igor PR38 connected-work diagnostic
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/igor-pr38-connected-work-diagnostic.yml
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      CI: "true"
+      IGOR_TEST_FIXTURES: "1"
+      QLOO_API_KEY: ""
+      GEMINI_API_KEY: ""
+      XAI_API_KEY: ""
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: f1ef64fa5c6e28bcc854c66daed89e24092ac369
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          path: private-igor
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: private-igor/package-lock.json
+      - name: Install and build
+        working-directory: private-igor
+        run: |
+          npm ci --silent > /dev/null 2>&1
+          npm run build > /dev/null
+      - name: Chromium
+        working-directory: private-igor
+        run: npx playwright install --with-deps chromium > /dev/null 2>&1
+      - name: Inspect first connected-work journey on desktop
+        working-directory: private-igor
+        run: npx playwright test --config tests/connected-work.playwright.config.mts --project=desktop --grep="existing chat UI" --reporter=line
