@@ -1,0 +1,97 @@
+name: Igor release candidate triage (exact commits)
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/igor-release-triage.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - candidate: main
+            sha: f18d1c8356a85386fa9aa672402bd8c8bd4c7a39
+          - candidate: pr27-engine
+            sha: 406a303e2151339fa954ef805593e2669cf5ae20
+          - candidate: pr31-ui
+            sha: 7917db4106225c282a40134590e5bbfc6baf5054
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      IGOR_TEST_FIXTURES: "1"
+      QLOO_API_KEY: ""
+      GEMINI_API_KEY: ""
+      XAI_API_KEY: ""
+      ANTHROPIC_API_KEY: ""
+      BRIGHTDATA_API_KEY: ""
+    steps:
+      - name: Checkout candidate at exact commit
+        uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: ${{ matrix.sha }}
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          path: igor
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: igor/package-lock.json
+      - name: Dependency install
+        working-directory: igor
+        run: npm ci --no-audit --no-fund
+      - name: Typecheck
+        working-directory: igor
+        run: npm run typecheck
+      - name: Build optimized application
+        working-directory: igor
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run build 2>&1 | tee "$RUNNER_TEMP/build.log"
+      - name: Unit and eval smoke
+        working-directory: igor
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run test:eval
+          npm test
+      - name: Browser dependencies
+        working-directory: igor
+        run: npx playwright install --with-deps chromium
+      - name: Browser smoke — selected candidate
+        working-directory: igor
+        shell: bash
+        env:
+          CANDIDATE: ${{ matrix.candidate }}
+        run: |
+          set -euo pipefail
+          if [[ "$CANDIDATE" == "pr31-ui" ]]; then
+            npx playwright test --config tests/reference-integrated.playwright.config.mts --grep "connected workspace Home|Discover opens in the same authenticated workspace|Home is a coherent task-first workspace" --reporter=line
+          else
+            npx playwright test --config tests/connected-work.playwright.config.mts --grep "conversation|connected|work" --reporter=line
+          fi
+      - name: Capture CI diagnostics and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: igor-triage-${{ matrix.candidate }}
+          if-no-files-found: ignore
+          path: |
+            igor/test-results
+            igor/playwright-report
+      - name: Summarize
+        if: always()
+        shell: bash
+        run: |
+          echo "Candidate: ${{ matrix.candidate }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "SHA: ${{ matrix.sha }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "See job checks for actual outcomes; no live provider secrets supplied." >> "$GITHUB_STEP_SUMMARY"
