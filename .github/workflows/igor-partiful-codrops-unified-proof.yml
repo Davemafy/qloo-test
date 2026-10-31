@@ -6,7 +6,7 @@ name: Igor single-branch CI (private source)
 # Current Grok cited-web probe against configured provider
 # Recheck with exact-SHA health gate: 12bfb43c1ce93d0f2d2c4f2e38d1b5f5ae89e846
 # Format-probe Igor SHA b4b84b9b88b78162f40e16e3a987536ecc08f186
-# [bounded-live] reviewed Igor engine e3d6eedb1886aeb80decc9db38313efad89c60a0
+# [bounded-live] reviewed Igor engine 6683e07e5231d8aad4e7a3283e8403bf1988b067
 # Release-candidate live acceptance: persisted proposal + editable revision
 # Full live loop recheck after source + decision fallback improvements
 # Targeted existing Gemini provider live acceptance; never fixtures
