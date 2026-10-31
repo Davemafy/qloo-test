@@ -27,8 +27,19 @@ jobs:
           def check(ok, label):
             print("GATE",label,"PASS" if ok else "FAIL",flush=True)
             if not ok: raise AssertionError(label)
-          status,payload=api("/api/health")
-          health=json.loads(payload)
+          health={}
+          status=0
+          for attempt in range(36):
+            try:
+              status,payload=api("/api/health",timeout=12)
+              health=json.loads(payload)
+            except (urllib.error.HTTPError,urllib.error.URLError,TimeoutError):
+              status=0
+              health={}
+            if status==200 and health.get("status")=="ok" and health.get("revision")==os.environ["EXPECTED_SHA"]:
+              break
+            print("WAIT_FOR_DEPLOYED_REVISION",attempt,"OBSERVED",str(health.get("revision","unknown"))[:9],flush=True)
+            time.sleep(10)
           check(status==200 and health.get("status")=="ok" and health.get("revision")==os.environ["EXPECTED_SHA"],"production_revision")
           def turn(task,text,label):
             turn_id=str(uuid.uuid4())
