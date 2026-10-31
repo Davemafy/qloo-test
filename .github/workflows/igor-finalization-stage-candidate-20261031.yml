@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: b4491654cfa7383c00684c604a6142947f6124cd
+          ref: ed301626c08177c901083fe04f1c52464282cfb4
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: igor
@@ -45,7 +45,8 @@ jobs:
         run: npx eslint --fix src/core/orchestrator.ts src/core/unified-agent.ts src/core/agent-acceptance.ts tests/unit/agent-intent-boundary.test.ts tests/unit/agent-market-turn-finalization.test.ts
       - run: npx eslint src/core/orchestrator.ts src/core/unified-agent.ts src/core/agent-acceptance.ts tests/unit/agent-intent-boundary.test.ts tests/unit/agent-market-turn-finalization.test.ts
         working-directory: igor
-      - run: npx vitest run --config tests/vitest.config.mts tests/unit/agent-market-turn-finalization.test.ts tests/unit/agent-intent-boundary.test.ts tests/unit/unified-agent.test.ts
+      - name: Full unit regression suite
+        run: npm test
         working-directory: igor
       - run: npm run build
         working-directory: igor
