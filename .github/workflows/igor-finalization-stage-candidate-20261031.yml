@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: 90c8194f967eb29b50b7f4b4684d8bdfc456d336
+          ref: 37ba016ce6e50c079f4036c5d8b140d6b94a71da
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: igor
@@ -34,16 +34,16 @@ jobs:
       - name: Normalize formatting and show exact patch
         working-directory: igor
         run: |
-          npx prettier --write src/core/orchestrator.ts src/core/unified-agent.ts src/core/agent-acceptance.ts tests/unit/agent-intent-boundary.test.ts tests/unit/agent-market-turn-finalization.test.ts
+          npx prettier --write src/core/conversation-focus.ts tests/unit/conversation-focus.test.ts
           echo BEGIN_IGOR_FORMAT_DIFF
-          git diff --no-color -- src/core/orchestrator.ts
+          git diff --no-color -- src/core/conversation-focus.ts tests/unit/conversation-focus.test.ts
           echo END_IGOR_FORMAT_DIFF
       - run: npm run typecheck
         working-directory: igor
       - name: Apply repository lint auto-fixes
         working-directory: igor
-        run: npx eslint --fix src/core/orchestrator.ts src/core/unified-agent.ts src/core/agent-acceptance.ts tests/unit/agent-intent-boundary.test.ts tests/unit/agent-market-turn-finalization.test.ts
-      - run: npx eslint src/core/orchestrator.ts src/core/unified-agent.ts src/core/agent-acceptance.ts tests/unit/agent-intent-boundary.test.ts tests/unit/agent-market-turn-finalization.test.ts
+        run: npx eslint --fix src/core/conversation-focus.ts tests/unit/conversation-focus.test.ts
+      - run: npx eslint src/core/conversation-focus.ts tests/unit/conversation-focus.test.ts
         working-directory: igor
       - name: Full unit regression suite
         run: npm test
@@ -55,5 +55,5 @@ jobs:
         working-directory: igor
         run: |
           echo BEGIN_VERIFIED_MARKET_DIFF
-          git diff --no-color -- src/core/orchestrator.ts src/core/unified-agent.ts src/core/agent-acceptance.ts tests/unit/agent-intent-boundary.test.ts tests/unit/agent-market-turn-finalization.test.ts
+          git diff --no-color -- src/core/conversation-focus.ts tests/unit/conversation-focus.test.ts
           echo END_VERIFIED_MARKET_DIFF
