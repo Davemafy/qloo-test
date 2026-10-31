@@ -24,13 +24,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: c75b9385d9f2da4654b7c5442cdb0884c20ed702
+          ref: 08b6a0006904b344d760a71fc728563e3bf3a9b9
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: private-igor
       - name: Confirm exact engine SHA
         working-directory: private-igor
-        run: test "$(git rev-parse HEAD)" = "c75b9385d9f2da4654b7c5442cdb0884c20ed702"
+        run: test "$(git rev-parse HEAD)" = "08b6a0006904b344d760a71fc728563e3bf3a9b9"
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
