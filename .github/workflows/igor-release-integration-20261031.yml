@@ -28,13 +28,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: 4b4d91e4975c34377f738235b8c81d18bfcb1e08
+          ref: cce0902827577a905d543367555ec85a42bef4ad
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: private-igor
       - name: Confirm immutable release candidate
         working-directory: private-igor
-        run: test "$(git rev-parse HEAD)" = "4b4d91e4975c34377f738235b8c81d18bfcb1e08"
+        run: test "$(git rev-parse HEAD)" = "cce0902827577a905d543367555ec85a42bef4ad"
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
