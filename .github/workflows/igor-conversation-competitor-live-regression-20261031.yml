@@ -10,7 +10,7 @@ jobs:
     timeout-minutes: 8
     env:
       IGOR_BASE: https://igor-production-243e.up.railway.app
-      IGOR_REVISION: 5bc03e04267352e7a5d2fa0abf5f359a2f62eb77
+      IGOR_REVISION: 18fdeea32815b40c8587fc636a7e1216e3871c6a
     steps:
       - name: Verify live conversation and bounded search are durable
         shell: bash
@@ -26,6 +26,11 @@ jobs:
             req=urllib.request.Request(base+path,headers=headers,method="POST" if body is not None else "GET",data=json.dumps(body).encode() if body is not None else None)
             return client.open(req,timeout=timeout)
           with api("/api/health") as r: health=json.load(r)
+          for poll in range(18):
+            if health.get("revision")==os.environ["IGOR_REVISION"]: break
+            print("WAIT_DEPLOYED_REVISION",poll,"CURRENT",str(health.get("revision",""))[:9],flush=True)
+            time.sleep(10)
+            with api("/api/health") as r: health=json.load(r)
           print("PRODUCTION_SHA_MATCH",health.get("revision")==os.environ["IGOR_REVISION"],flush=True)
           if health.get("revision")!=os.environ["IGOR_REVISION"]: sys.exit(3)
           with api("/api/tasks",{}) as r: task=json.load(r)
@@ -57,7 +62,11 @@ jobs:
             return terminal,journal.get("status"),len(replies)
           a=turn("I am building Igor, an agentic assistant powered by Qloo's Taste Graph.","intro")
           b=turn("Find competitors online for Igor. Compare actual competing AI assistants and cultural discovery products using current web sources. Cite results; do not invent sources.","research")
-          if b[0]=="done" and b[1] in ("completed","awaiting_input") and b[2]>=1:
+          active=(task.get("agentRun") or {})
+          actions=[x.get("tool") for x in (active.get("steps") or [])]
+          web_evidence=[x for x in (task.get("evidence") or []) if x.get("kind")=="practical" and x.get("source")=="provider-returned" and x.get("freshness")=="current"]
+          print("COMPETITOR_GATE","QLOO_TOOLS",len([x for x in actions if x and x.startswith("qloo.")]),"WEB_RESULTS",len(web_evidence),"ACCEPTANCE",(active.get("acceptance") or {}).get("status"),flush=True)
+          if b[0]=="done" and b[1] in ("completed","awaiting_input") and b[2]>=2 and web_evidence and not any(x and x.startswith("qloo.") for x in actions) and (active.get("acceptance") or {}).get("status")=="satisfied":
             print("COMPETITOR_SEARCH_COMPLETED",True,flush=True)
             sys.exit(0)
           print("COMPETITOR_SEARCH_COMPLETED",False,flush=True)
