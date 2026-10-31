@@ -37,9 +37,22 @@ jobs:
             docs=(t.get("artifacts") or [])+(t.get("work") or {}).get("documents",[])
             agent=t.get("agentRun") or {}
             status=(agent.get("acceptance") or {}).get("status")
+            def cause(x):
+              reason=(x.get("summary") or "").lower()
+              if "invalid tool arguments" in reason: return "SCHEMA_"+reason.split("(")[-1].split(")")[0][:110].replace(" ","")
+              if "unavailable tool" in reason: return "UNAVAILABLE"
+              if "missing user taste" in reason or "each missing user taste" in reason or "missing reference" in reason: return "MISSING_QLOO_SEED_SELECTION"
+              if "observed candidate" in reason or "candidateid" in reason or "candidate ids" in reason: return "CANDIDATE_BINDING"
+              if "cultural proposal" in reason or "cited" in reason: return "CITATION_BINDING"
+              if "budget" in reason: return "BUDGET"
+              if "repeated" in reason: return "REPEATED"
+              if "protected" in reason: return "PROTECTED"
+              if "blocked" in reason: return "OTHER_BLOCKED"
+              return "UNCLASSIFIED"
             print("LIVE_STAGE",stage,"TASK_STATUS",t.get("status"),"ACCEPTANCE",status,
                   "CURRENT_QLOO",len(fresh),"DOCUMENTS",len(docs),
-                  "AGENT_STEPS",[(x.get("tool"),x.get("status")) for x in (agent.get("steps") or [])[-12:]],
+                  "AGENT_STEPS",[(x.get("tool"),x.get("status"),cause(x) if x.get("status")=="blocked" else "") for x in (agent.get("steps") or [])[-12:]],
+                  "REQUIREMENTS",{k:(v if k in ("culturalDecision","culturalReferences","deliverables","experienceDomains") else None) for k,v in (agent.get("requirements") or {}).items()},
                   "ELAPSED_SECONDS",round(time.monotonic()-start),flush=True)
             return fresh,docs,status
           def turn(t, message, stage):
