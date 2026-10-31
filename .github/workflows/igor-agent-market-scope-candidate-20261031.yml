@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: 6f371c5e3d65978c0e01ceba38ae08728e7ecd04
+          ref: 022fa8ed2e37f29ceb3ec1fb46351aeb10bf1411
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: candidate
@@ -45,7 +45,7 @@ jobs:
         run: npx eslint src/core/agent-intent-boundary.ts src/core/unified-agent.ts src/core/agent-acceptance.ts tests/unit/agent-intent-boundary.test.ts
       - name: New and related regressions
         working-directory: candidate
-        run: npx vitest run --config tests/vitest.config.mts tests/unit/agent-intent-boundary.test.ts tests/unit/unified-agent.test.ts tests/unit/agent-connected-document-revision.test.ts tests/unit/agent-acceptance.test.ts
+        run: npx vitest run --config tests/vitest.config.mts tests/unit/agent-intent-boundary.test.ts tests/unit/agent-market-turn-finalization.test.ts tests/unit/unified-agent.test.ts tests/unit/agent-connected-document-revision.test.ts tests/unit/agent-acceptance.test.ts
       - name: Production build
         working-directory: candidate
         run: npm run build
