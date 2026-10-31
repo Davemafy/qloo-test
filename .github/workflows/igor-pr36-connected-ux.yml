@@ -1,0 +1,70 @@
+name: Igor PR36 connected UX release gate
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-pr36-connected-ux.yml]
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      IGOR_TEST_FIXTURES: "1"
+      QLOO_MAX_CALLS: "0"
+      QLOO_API_KEY: ""
+      GEMINI_API_KEY: ""
+      XAI_API_KEY: ""
+      ANTHROPIC_API_KEY: ""
+      IGOR_SHA: 08e18c897ad3c434698853c3d014360ae621efa1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: ${{ env.IGOR_SHA }}
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          path: igor
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: igor/package-lock.json
+      - name: Locked dependency install
+        working-directory: igor
+        run: npm ci --no-audit --no-fund
+      - name: Typecheck
+        working-directory: igor
+        run: npm run typecheck
+      - name: Next production build
+        working-directory: igor
+        run: npm run build
+      - name: Unit and domain eval tests
+        working-directory: igor
+        run: |
+          npm test
+          npm run test:eval
+      - name: Install Chromium
+        working-directory: igor
+        run: npx playwright install --with-deps chromium
+      - name: Connected UI and new artifact/evidence regressions
+        working-directory: igor
+        run: >
+          npx playwright test --config tests/reference-integrated.playwright.config.mts
+          --grep "non-event research|a populated fixture|unsaved gathering|discovery gives factual coverage|verified geocoded places|Conversation and Your work|Mobile Conversation|cinematic Home accepts|Discover opens in|Library stays right"
+          --workers=1 --reporter=line
+      - name: Save browser captures and failure traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: igor-pr36-artifact-evidence-${{ env.IGOR_SHA }}
+          path: |
+            igor/test-results/**/*.png
+            igor/test-results/**/*.webm
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Summary
+        if: always()
+        run: echo "Igor exact SHA ${{ env.IGOR_SHA }} — check individual steps, no LIVE provider calls" >> "$GITHUB_STEP_SUMMARY"
