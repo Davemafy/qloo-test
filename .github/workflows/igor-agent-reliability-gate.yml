@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: 936dc924857eedc6534db524e369782531bdde57
+          ref: 330c657d81175c90323f0a529045797a32cf1c1e
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: candidate
@@ -65,7 +65,7 @@ jobs:
             rm -f "$file"
           }
           check Install npm ci
-          check Format npx prettier --check src/core/agent-decision-gate.ts src/core/ai-sdk-unified-agent.ts src/core/unified-agent.ts src/core/contracts.ts tests/unit/agent-decision-gate.test.ts
+          check Format npx prettier --check src/core/agent-decision-gate.ts src/core/ai-sdk-unified-agent.ts src/core/unified-agent.ts src/core/contracts.ts tests/unit/agent-decision-gate.test.ts tests/unit/ai-sdk-unified-agent.test.ts
           check TypeScript npm run typecheck
           check Lint npm run lint
           check Unit npm test -- tests/unit/agent-decision-gate.test.ts tests/unit/ai-sdk-unified-agent.test.ts tests/unit/agent-research-loop.test.ts
