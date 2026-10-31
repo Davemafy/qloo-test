@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: d31e988aecf56451fc348cd4d5880c0a9ccc6d08
+          ref: 1d0ceb5f5f4d8329d2b03555ca5578642ce66a6a
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: igor
@@ -34,16 +34,16 @@ jobs:
       - name: Normalize formatting and show exact patch
         working-directory: igor
         run: |
-          npx prettier --write src/components/product-surfaces.tsx src/frontend/inline-markdown.ts tests/unit/contracts.test.ts
+          npx prettier --write src/tools/live-research.ts tests/unit/live-research.test.ts
           echo BEGIN_IGOR_FORMAT_DIFF
-          git diff --no-color -- src/components/product-surfaces.tsx src/frontend/inline-markdown.ts tests/unit/contracts.test.ts
+          git diff --no-color -- src/tools/live-research.ts tests/unit/live-research.test.ts
           echo END_IGOR_FORMAT_DIFF
       - run: npm run typecheck
         working-directory: igor
       - name: Apply repository lint auto-fixes
         working-directory: igor
-        run: npx eslint --fix src/components/product-surfaces.tsx src/frontend/inline-markdown.ts tests/unit/contracts.test.ts
-      - run: npx eslint src/components/product-surfaces.tsx src/frontend/inline-markdown.ts tests/unit/contracts.test.ts
+        run: npx eslint --fix src/tools/live-research.ts tests/unit/live-research.test.ts
+      - run: npx eslint src/tools/live-research.ts tests/unit/live-research.test.ts
         working-directory: igor
       - name: Full unit regression suite
         run: npm test
@@ -55,5 +55,5 @@ jobs:
         working-directory: igor
         run: |
           echo BEGIN_VERIFIED_MARKET_DIFF
-          git diff --no-color -- src/components/product-surfaces.tsx src/frontend/inline-markdown.ts tests/unit/contracts.test.ts
+          git diff --no-color -- src/tools/live-research.ts tests/unit/live-research.test.ts
           echo END_VERIFIED_MARKET_DIFF
