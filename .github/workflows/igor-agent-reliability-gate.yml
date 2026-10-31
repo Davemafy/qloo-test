@@ -1,0 +1,77 @@
+name: Igor agent reliability gate (exact commit)
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-agent-reliability-gate.yml]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      QLOO_API_KEY: ""
+      XAI_API_KEY: ""
+      GROK_API_KEY: ""
+      GEMINI_API_KEY: ""
+      OPENAI_API_KEY: ""
+      ANTHROPIC_API_KEY: ""
+      IGOR_QLOO_RECORDING: ""
+    steps:
+      - name: Fetch exact private Igor engine commit
+        uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: 936dc924857eedc6534db524e369782531bdde57
+          token: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN }}
+          persist-credentials: false
+          path: candidate
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: candidate/package-lock.json
+      - name: Run bounded, sanitized reliability checks
+        shell: bash
+        working-directory: candidate
+        run: |
+          set -uo pipefail
+          failures=0
+          check() {
+            label="$1"; shift
+            file="$RUNNER_TEMP/check.log"
+            if "$@" > "$file" 2>&1; then
+              echo "$label PASS"
+              echo "- $label: PASS" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "$label FAIL"
+              echo "- $label: FAIL" >> "$GITHUB_STEP_SUMMARY"
+              case "$label" in
+                Format)
+                  grep -E '^\\[warn\\]' "$file" | head -30 || true ;;
+                TypeScript)
+                  grep -oE '[A-Za-z0-9_./-]+\\.(ts|tsx|mts)\\([0-9]+,[0-9]+\\): error TS[0-9]+' "$file" | head -30 || true ;;
+                Lint)
+                  grep -oE '[A-Za-z0-9_./-]+\\.(ts|tsx|mts)|@typescript-eslint/[A-Za-z-]+' "$file" | sort -u | head -30 || true ;;
+                Unit)
+                  grep -E 'FAIL |Test Files|Tests ' "$file" | tail -25 || true ;;
+                Build)
+                  grep -E 'Error:|Failed to compile|Module not found' "$file" | head -15 || true ;;
+              esac
+              failures=$((failures + 1))
+            fi
+            rm -f "$file"
+          }
+          check Install npm ci
+          check Format npx prettier --check src/core/agent-decision-gate.ts src/core/ai-sdk-unified-agent.ts src/core/unified-agent.ts src/core/contracts.ts tests/unit/agent-decision-gate.test.ts
+          check TypeScript npm run typecheck
+          check Lint npm run lint
+          check Unit npm test -- tests/unit/agent-decision-gate.test.ts tests/unit/ai-sdk-unified-agent.test.ts tests/unit/agent-research-loop.test.ts
+          check Build npm run build
+          if ((failures)); then
+            echo "::error::$failures checks failed at pinned SHA"
+            exit 1
+          fi
+          echo "Engine offline checks passed; live provider acceptance remains independent."
