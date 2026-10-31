@@ -53,6 +53,9 @@ jobs:
                     "EVIDENCE",len(task.get("evidence",[])),
                     "ARTIFACTS",len(task.get("artifacts",[])),
                     "DURATION",round(time.monotonic()-start,1))
+              from collections import Counter
+              evidence=task.get("evidence") or []
+              print("EVIDENCE_DELIVERY",index,dict(Counter(str(x.get("delivery") or "UNSPECIFIED") for x in evidence)))
               print("TRACE",index,[t.get("action") for t in (task.get("trace") or [])[-8:]])
               if terminal!="done":
                   raise SystemExit(3)
