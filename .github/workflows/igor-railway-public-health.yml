@@ -1,0 +1,37 @@
+name: Igor Railway production revision smoke check
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-railway-public-health.yml]
+permissions:
+  contents: read
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Confirm public Railway health and exact deployed revision
+        shell: bash
+        env:
+          EXPECTED_SHA: 28bf1ff2b6093652d832f737de382210742665ba
+          HEALTH_URL: https://igor-production-243e.up.railway.app/api/health
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3 4 5; do
+            if curl --fail --silent --show-error --connect-timeout 6 --max-time 15 "$HEALTH_URL" > "$RUNNER_TEMP/igor-health.json"; then
+              if node -e '
+                const fs=require("node:fs");
+                const payload=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));
+                console.log("Status:",payload.status);
+                console.log("Revision:",payload.revision);
+                if(payload.status!=="ok"||payload.revision!==process.env.EXPECTED_SHA) process.exit(1);
+              ' "$RUNNER_TEMP/igor-health.json"; then
+                echo "Railway health and exact revision PASS"
+                exit 0
+              fi
+            fi
+            echo "Health attempt $attempt did not confirm exact revision"
+            sleep 5
+          done
+          echo "::error::Railway API health revision mismatch or unavailable"
+          exit 1
