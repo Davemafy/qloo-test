@@ -1,0 +1,35 @@
+name: Igor Gemini grounded search supported-model probe
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-gemini-grounding-model-probe-20261031.yml]
+permissions: {}
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+    steps:
+      - name: Verify grounded source citations across supported model variants
+        run: |
+          python3 - <<'PY'
+          import os,json,urllib.request,urllib.error
+          key=os.getenv("GEMINI_API_KEY","")
+          if not key:
+            print("GEMINI_NO_KEY")
+            raise SystemExit(0)
+          for model in ("gemini-3.8-flash","gemini-3-flash-preview"):
+            body={"contents":[{"role":"user","parts":[{"text":"Use Google Search to find the official Qloo API developer documentation. Give grounded citations."}]}],"tools":[{"google_search":{}}],"generationConfig":{"maxOutputTokens":256}}
+            request=urllib.request.Request("https://generativelanguage.googleapis.com/v1beta/models/"+model+":generateContent",headers={"x-goog-api-key":key,"Content-Type":"application/json"},method="POST",data=json.dumps(body).encode())
+            try:
+              with urllib.request.urlopen(request,timeout=28) as response:
+                data=json.load(response)
+                count=sum(len((c.get("groundingMetadata") or {}).get("groundingChunks") or []) for c in data.get("candidates",[]))
+                print("MODEL",model,"HTTP",response.status,"GROUNDING_CHUNKS",count,flush=True)
+                if count>0: break
+            except urllib.error.HTTPError as e:
+              print("MODEL",model,"HTTP",e.code,flush=True)
+            except Exception as e:
+              print("MODEL",model,"ERROR_TYPE",type(e).__name__,flush=True)
+          PY
