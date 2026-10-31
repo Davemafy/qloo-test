@@ -1,0 +1,43 @@
+name: Igor finalization-stage candidate verification
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-finalization-stage-candidate-20261031.yml]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      QLOO_API_KEY: ""
+      OPENAI_API_KEY: ""
+      GEMINI_API_KEY: ""
+      XAI_API_KEY: ""
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: 8c61225c9ae8badbb75702da814287eef49c8d95
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          path: igor
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: igor/package-lock.json
+      - run: npm ci
+        working-directory: igor
+      - run: npx prettier --check src/core/orchestrator.ts
+        working-directory: igor
+      - run: npm run typecheck
+        working-directory: igor
+      - run: npx eslint src/core/orchestrator.ts
+        working-directory: igor
+      - run: npx vitest run --config tests/vitest.config.mts tests/unit/agent-market-turn-finalization.test.ts tests/unit/agent-intent-boundary.test.ts tests/unit/unified-agent.test.ts
+        working-directory: igor
+      - run: npm run build
+        working-directory: igor
