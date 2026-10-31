@@ -28,13 +28,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: c13a7fe2ba26e46a9ff9731483bd2361fcaaa1d1
+          ref: 5c206dbf7db8890e0c5f6257a9eef50ba8edb4b5
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: private-igor
       - name: Confirm immutable release candidate
         working-directory: private-igor
-        run: test "$(git rev-parse HEAD)" = "c13a7fe2ba26e46a9ff9731483bd2361fcaaa1d1"
+        run: test "$(git rev-parse HEAD)" = "5c206dbf7db8890e0c5f6257a9eef50ba8edb4b5"
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
@@ -64,3 +64,10 @@ jobs:
       - name: Persistent connected-work browser contract
         working-directory: private-igor
         run: npx playwright test --config tests/connected-work.playwright.config.mts
+      - name: Vercel frontend-only build (backend stays remote)
+        working-directory: private-igor
+        env:
+          VERCEL: "1"
+          IGOR_FRONTEND_ONLY: "1"
+          IGOR_BACKEND_ORIGIN: "https://engine.example"
+        run: npm run build
