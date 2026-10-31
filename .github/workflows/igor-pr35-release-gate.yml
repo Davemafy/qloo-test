@@ -1,0 +1,103 @@
+name: Igor PR35 release candidate gate and public URL probe
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-pr35-release-gate.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      IGOR_TEST_FIXTURES: "1"
+      QLOO_MAX_CALLS: "0"
+      QLOO_API_KEY: ""
+      GEMINI_API_KEY: ""
+      XAI_API_KEY: ""
+      ANTHROPIC_API_KEY: ""
+      IGOR_SHA: 120e3f9718b0bc4327fe0ae7e7d8906025a486d8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: ${{ env.IGOR_SHA }}
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          path: igor
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: igor/package-lock.json
+      - name: Locked install and build
+        working-directory: igor
+        run: |
+          npm ci --no-audit --no-fund
+          npm run typecheck
+          npm run build
+      - name: Independent unit tests and agent domain eval
+        working-directory: igor
+        run: |
+          npm test
+          npm run test:eval
+      - name: Verify selected primary/backup provider contract
+        working-directory: igor
+        run: npx vitest run --config tests/vitest.config.mts tests/unit/runtime-alternate-provider.test.ts tests/unit/fallback-model.test.ts
+      - name: Install Chromium
+        working-directory: igor
+        run: npx playwright install --with-deps chromium
+      - name: PR34 visual continuity and real map smoke
+        working-directory: igor
+        run: |
+          npx playwright test --config tests/reference-integrated.playwright.config.mts --grep "cinematic Home accepts|Discover opens in|Home reconstructs|Library stays right|App uses the rounded landing|Maps opens an interactive|capture real map rendering|verified geocoded places" --workers=1 --reporter=line
+      - name: Save browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: igor-release-PR35-${{ env.IGOR_SHA }}
+          path: |
+            igor/test-results/**/*.png
+            igor/test-results/**/*.webm
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Summarize verified exact commit
+        if: always()
+        run: |
+          echo "Igor PR35 exact SHA: $IGOR_SHA" >> "$GITHUB_STEP_SUMMARY"
+          echo "No LIVE model or Qloo call was made in candidate checks." >> "$GITHUB_STEP_SUMMARY"
+  public-readonly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Probe real public Railway health and app GETs
+        shell: bash
+        run: |
+          for endpoint in / /app /api/health; do
+            url="https://igor-production-243e.up.railway.app${endpoint}"
+            echo "::group::${endpoint}"
+            code=$(curl -sSL --connect-timeout 8 --max-time 25 -o "$RUNNER_TEMP/body" -w '%{http_code}' "$url") || code=unreachable
+            echo "HTTP_STATUS_${endpoint}=${code}"
+            if test "$endpoint" = /api/health && test "$code" = 200; then
+              python3 - <<'PY'
+          import json,os,pathlib
+          try:
+              d=json.loads((pathlib.Path(os.environ['RUNNER_TEMP'])/'body').read_text())
+              print("HEALTH_FIELDS", {k:d.get(k) for k in ['status','revision','sha','version','environment','ok'] if k in d})
+          except Exception as e: print("HEALTH_JSON_PARSE_FAIL",str(e)[:100])
+          PY
+            fi
+            if test "$endpoint" = /app && test "$code" = 200; then
+              python3 - <<'PY'
+          import pathlib,os
+          t=(pathlib.Path(os.environ['RUNNER_TEMP'])/'body').read_text(errors='replace')
+          print("APP_HTML_BYTES",len(t))
+          print("HAS_APP_MARKUP",'<html' in t.lower())
+          PY
+            fi
+            rm -f "$RUNNER_TEMP/body"
+            echo "::endgroup::"
+          done
