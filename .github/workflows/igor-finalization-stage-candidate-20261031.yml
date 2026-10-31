@@ -31,8 +31,13 @@ jobs:
           cache-dependency-path: igor/package-lock.json
       - run: npm ci
         working-directory: igor
-      - run: npx prettier --check src/core/orchestrator.ts
+      - name: Normalize formatting and show exact patch
         working-directory: igor
+        run: |
+          npx prettier --write src/core/orchestrator.ts
+          echo BEGIN_IGOR_FORMAT_DIFF
+          git diff --no-color -- src/core/orchestrator.ts
+          echo END_IGOR_FORMAT_DIFF
       - run: npm run typecheck
         working-directory: igor
       - run: npx eslint src/core/orchestrator.ts
