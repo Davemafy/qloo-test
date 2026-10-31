@@ -1,0 +1,63 @@
+name: Igor private backend exact-commit verification
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/igor-private-backend-gate.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      IGOR_TEST_FIXTURES: "1"
+      QLOO_API_KEY: ""
+      GEMINI_API_KEY: ""
+      XAI_API_KEY: ""
+      ANTHROPIC_API_KEY: ""
+      GROK_API_KEY: ""
+      BRIGHTDATA_API_KEY: ""
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: e120543591a3aabb71f170c3debf14c3f7c555af
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          path: private-igor
+      - name: Verify exact private engine revision
+        working-directory: private-igor
+        run: test "$(git rev-parse HEAD)" = "e120543591a3aabb71f170c3debf14c3f7c555af"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: private-igor/package-lock.json
+      - name: Locked install
+        working-directory: private-igor
+        run: npm ci --silent > /dev/null 2>&1
+      - name: TypeScript, lint and all unit tests
+        working-directory: private-igor
+        run: |
+          npm run typecheck
+          npm run lint
+          npm test
+      - name: Formatting of changed agent implementation and tests
+        working-directory: private-igor
+        run: npx prettier --check src/core/unified-agent.ts src/tools/tool-model.ts src/core/agent-tool-registry.ts tests/unit/agent-document-arguments.test.ts
+      - name: Production build
+        working-directory: private-igor
+        run: npm run build
+      - name: Chromium setup
+        working-directory: private-igor
+        run: npx playwright install --with-deps chromium > /dev/null 2>&1
+      - name: Real task-turn and saved connected-work deterministic browser suite
+        working-directory: private-igor
+        run: npm run test:connected:browser
+      - name: Full integrated browser suite
+        working-directory: private-igor
+        run: npm run test:browser
