@@ -67,7 +67,7 @@ jobs:
           check Install npm ci
           echo "BEGIN REVIEWABLE FORMAT DIFF"
           npx prettier --write src/core/agent-decision-gate.ts src/core/ai-sdk-unified-agent.ts src/core/unified-agent.ts src/core/contracts.ts tests/unit/agent-decision-gate.test.ts tests/unit/ai-sdk-unified-agent.test.ts > /dev/null
-          git diff -- src/core/agent-decision-gate.ts src/core/ai-sdk-unified-agent.ts src/core/unified-agent.ts src/core/contracts.ts tests/unit/agent-decision-gate.test.ts tests/unit/ai-sdk-unified-agent.test.ts | head -350 || true
+          git diff -- src/core/agent-decision-gate.ts src/core/ai-sdk-unified-agent.ts src/core/unified-agent.ts src/core/contracts.ts tests/unit/agent-decision-gate.test.ts tests/unit/ai-sdk-unified-agent.test.ts || true
           echo "END REVIEWABLE FORMAT DIFF"
           npx eslint src/core/agent-decision-gate.ts src/core/ai-sdk-unified-agent.ts src/core/unified-agent.ts src/core/contracts.ts tests/unit/agent-decision-gate.test.ts tests/unit/ai-sdk-unified-agent.test.ts -f json > "$RUNNER_TEMP/lint.json" || true
           node -e 'for(const f of require(process.argv[1]))for(const m of f.messages)console.log(f.filePath.split("/").pop()+":"+m.line+":"+m.ruleId)' "$RUNNER_TEMP/lint.json"
