@@ -19,7 +19,7 @@ jobs:
       GEMINI_API_KEY: ""
       XAI_API_KEY: ""
       ANTHROPIC_API_KEY: ""
-      IGOR_SHA: 120e3f9718b0bc4327fe0ae7e7d8906025a486d8
+      IGOR_SHA: 3eb029ed8c500b0238837d67f772031533828bf9
     steps:
       - uses: actions/checkout@v4
         with:
