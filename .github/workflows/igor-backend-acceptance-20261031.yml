@@ -1,0 +1,56 @@
+name: Igor backend acceptance independent of visual tests
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-backend-acceptance-20261031.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      IGOR_TEST_FIXTURES: "1"
+      QLOO_API_KEY: ""
+      GEMINI_API_KEY: ""
+      XAI_API_KEY: ""
+      ANTHROPIC_API_KEY: ""
+      GROK_API_KEY: ""
+      BRIGHTDATA_API_KEY: ""
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: ee32c03fac683f9ed1e7e60344662fb01625b4e9
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          path: private-igor
+      - name: Verify exact engine revision
+        working-directory: private-igor
+        run: test "$(git rev-parse HEAD)" = "ee32c03fac683f9ed1e7e60344662fb01625b4e9"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: private-igor/package-lock.json
+      - name: Locked dependencies
+        working-directory: private-igor
+        run: npm ci --silent > /dev/null 2>&1
+      - name: Backend typecheck lint and unit tests
+        working-directory: private-igor
+        run: |
+          npm run typecheck
+          npm run lint
+          npm test
+      - name: Build API and agent runtime
+        working-directory: private-igor
+        run: npm run build
+      - name: Install Chromium
+        working-directory: private-igor
+        run: npx playwright install --with-deps chromium > /dev/null 2>&1
+      - name: End-to-end connected work, persistence and recovery
+        working-directory: private-igor
+        run: npm run test:connected:browser
