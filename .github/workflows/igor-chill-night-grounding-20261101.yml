@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: 628509f0b245aed057a81cd3c676fecf5cffe32a
+          ref: 0bf252fd0f35fda751955b893298f8cbbbcb8f8e
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: igor
@@ -34,21 +34,21 @@ jobs:
       - name: Normalize tested patch
         working-directory: igor
         run: |
-          npx prettier --write src/core/grounded-social-context.ts src/core/grounded-followup.ts tests/unit/grounded-followup.test.ts
+          npx prettier --write src/core/grounded-social-context.ts src/core/grounded-followup.ts src/core/agent-tool-registry.ts tests/unit/grounded-followup.test.ts
           echo CHILL_FORMAT_PATCH_START
-          git diff --no-color -- src/core/grounded-social-context.ts src/core/grounded-followup.ts tests/unit/grounded-followup.test.ts
+          git diff --no-color -- src/core/grounded-social-context.ts src/core/grounded-followup.ts src/core/agent-tool-registry.ts tests/unit/grounded-followup.test.ts
           echo CHILL_FORMAT_PATCH_END
       - run: npm run typecheck
         working-directory: igor
       - name: Apply repository lint normalization
-        run: npx eslint --fix src/core/grounded-social-context.ts src/core/grounded-followup.ts tests/unit/grounded-followup.test.ts
+        run: npx eslint --fix src/core/grounded-social-context.ts src/core/grounded-followup.ts src/core/agent-tool-registry.ts tests/unit/grounded-followup.test.ts
         working-directory: igor
       - name: Audit lint and emit final verified patch
         working-directory: igor
         run: |
-          npx eslint src/core/grounded-social-context.ts src/core/grounded-followup.ts tests/unit/grounded-followup.test.ts
+          npx eslint src/core/grounded-social-context.ts src/core/grounded-followup.ts src/core/agent-tool-registry.ts tests/unit/grounded-followup.test.ts
           echo CHILL_FINAL_PATCH_START
-          git diff --no-color -- src/core/grounded-social-context.ts src/core/grounded-followup.ts tests/unit/grounded-followup.test.ts
+          git diff --no-color -- src/core/grounded-social-context.ts src/core/grounded-followup.ts src/core/agent-tool-registry.ts tests/unit/grounded-followup.test.ts
           echo CHILL_FINAL_PATCH_END
       - run: npm test
         working-directory: igor
