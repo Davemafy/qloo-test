@@ -1,0 +1,57 @@
+name: Igor connected Tailwind foundation
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-connected-tailwind-foundation.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      QLOO_API_KEY: ""
+      GEMINI_API_KEY: ""
+      LLM_API_KEY: ""
+      XAI_API_KEY: ""
+      ANTHROPIC_API_KEY: ""
+      GROK_API_KEY: ""
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: a322738d39dc11fdf2007ea73a52c048eb1b3d43
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          path: private-igor
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: private-igor/package-lock.json
+      - name: Locked install and source checks
+        working-directory: private-igor
+        run: |
+          test "$(git rev-parse HEAD)" = "a322738d39dc11fdf2007ea73a52c048eb1b3d43"
+          npm ci --silent
+          npm run typecheck
+          npm run lint
+          npx vitest run --config tests/vitest.config.mts tests/unit/frontend-workspace-model.test.ts tests/unit/artifact-focus.test.ts tests/unit/connected-work.test.ts tests/unit/conversation-focus.test.ts tests/unit/connected-artifacts.test.ts
+          npm run build
+      - name: Install Chromium
+        working-directory: private-igor
+        run: npx playwright install --with-deps chromium > /dev/null 2>&1
+      - name: Persisted desktop and mobile UI journeys
+        working-directory: private-igor
+        run: npx playwright test -c tests/frontend-foundation.playwright.config.mts
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: connected-tailwind-a322738d
+          path: |
+            private-igor/artifacts/frontend-foundation/
+            private-igor/test-results/
+          retention-days: 7
