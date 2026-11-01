@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: 07cc1aaa8b274ceafe5f9512ea1b1963888f7bee
+          ref: 1437d6916001656d7c741ee9e3cc367e273b4bc8
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: private-igor
@@ -35,7 +35,7 @@ jobs:
       - name: Locked install and source checks
         working-directory: private-igor
         run: |
-          test "$(git rev-parse HEAD)" = "07cc1aaa8b274ceafe5f9512ea1b1963888f7bee"
+          test "$(git rev-parse HEAD)" = "1437d6916001656d7c741ee9e3cc367e273b4bc8"
           npm ci --silent
           npm run typecheck
           npm run lint
@@ -50,7 +50,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: connected-tailwind-07cc1aaa
+          name: connected-tailwind-1437d691
           path: |
             private-igor/artifacts/frontend-foundation/
             private-igor/test-results/
