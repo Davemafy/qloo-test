@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: ab1a4d4c8bb895f6f0e1ce8e3331fee952281637
+          ref: 7576e9c88bab1b322b16a35bd474be875e2d1838
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: igor
@@ -31,25 +31,15 @@ jobs:
           cache-dependency-path: igor/package-lock.json
       - run: npm ci
         working-directory: igor
-      - name: Normalize tested patch
+      - name: Strict repository formatting
+        run: npm run format:check
         working-directory: igor
-        run: |
-          npx prettier --write src/core/grounded-social-context.ts src/core/grounded-followup.ts src/core/agent-tool-registry.ts tests/unit/grounded-followup.test.ts
-          echo CHILL_FORMAT_PATCH_START
-          git diff --no-color -- src/core/grounded-social-context.ts src/core/grounded-followup.ts src/core/agent-tool-registry.ts tests/unit/grounded-followup.test.ts
-          echo CHILL_FORMAT_PATCH_END
-      - run: npm run typecheck
+      - name: Strict TypeScript
+        run: npm run typecheck
         working-directory: igor
-      - name: Apply repository lint normalization
-        run: npx eslint --fix src/core/grounded-social-context.ts src/core/grounded-followup.ts src/core/agent-tool-registry.ts tests/unit/grounded-followup.test.ts
+      - name: Strict scoped lint
+        run: npx eslint src/core/grounded-social-context.ts src/core/grounded-followup.ts src/core/agent-tool-registry.ts tests/unit/grounded-followup.test.ts
         working-directory: igor
-      - name: Audit lint and emit final verified patch
-        working-directory: igor
-        run: |
-          npx eslint src/core/grounded-social-context.ts src/core/grounded-followup.ts src/core/agent-tool-registry.ts tests/unit/grounded-followup.test.ts
-          echo CHILL_FINAL_PATCH_START
-          git diff --no-color -- src/core/grounded-social-context.ts src/core/grounded-followup.ts src/core/agent-tool-registry.ts tests/unit/grounded-followup.test.ts
-          echo CHILL_FINAL_PATCH_END
       - run: npm test
         working-directory: igor
       - run: npm run build
