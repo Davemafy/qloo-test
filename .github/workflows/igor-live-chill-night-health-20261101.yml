@@ -1,0 +1,36 @@
+name: Igor PR27 exact revision deployment health
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-live-chill-night-health-20261101.yml]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      EXPECTED_REVISION: 7576e9c88bab1b322b16a35bd474be875e2d1838
+      IGOR_URL: https://igor-production-243e.up.railway.app
+    steps:
+      - name: Verify exact Railway revision without secrets
+        run: |
+          python3 - <<'PY'
+          import json,os,time,urllib.request,urllib.error
+          desired=os.environ["EXPECTED_REVISION"]
+          url=os.environ["IGOR_URL"]+"/api/health"
+          for attempt in range(30):
+              try:
+                  with urllib.request.urlopen(url,timeout=12) as r:
+                      j=json.load(r)
+                      revision=j.get("revision")
+                      print("HEALTH",r.status,"REVISION",str(revision)[:12],"OK",j.get("status"),flush=True)
+                      if r.status==200 and revision==desired and j.get("status")=="ok":
+                          print("EXACT_REVISION_DEPLOYED PASS",flush=True)
+                          break
+              except (urllib.error.HTTPError,urllib.error.URLError,TimeoutError,ValueError) as exc:
+                  print("HEALTH_RETRY",attempt,type(exc).__name__,flush=True)
+              time.sleep(10)
+          else:
+              raise SystemExit("Exact PR #27 revision was not observed in the production health endpoint")
+          PY
