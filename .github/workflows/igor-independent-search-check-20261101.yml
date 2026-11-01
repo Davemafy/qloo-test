@@ -1,0 +1,46 @@
+name: Igor independent search provider entitlement check
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-independent-search-check-20261101.yml]
+permissions:
+  contents: read
+jobs:
+  verify-keys:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    env:
+      TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+      BRAVE_SEARCH_API_KEY: ${{ secrets.BRAVE_SEARCH_API_KEY }}
+    steps:
+      - name: Check real search entitlements without disclosing credentials
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os,json,urllib.request,urllib.parse,urllib.error
+          q="AI assistant competitor official website"
+          def check(name,key,method,url,body=None,headers=None):
+            if not key:
+              print(name,"KEY_MISSING",flush=True)
+              return
+            print(name,"KEY_PRESENT",flush=True)
+            try:
+              data=json.dumps(body).encode() if body else None
+              req=urllib.request.Request(url,method=method,data=data,headers=headers or {})
+              with urllib.request.urlopen(req,timeout=16) as r:
+                content=json.load(r)
+                if name=="TAVILY":
+                  links=[x.get("url") for x in content.get("results",[]) if isinstance(x,dict)]
+                else:
+                  links=[x.get("url") for x in content.get("web",{}).get("results",[]) if isinstance(x,dict)]
+                urls=[u for u in links if isinstance(u,str) and u.startswith("https://")]
+                print(name,"HTTP",r.status,"SOURCE_URL_COUNT",len(urls),flush=True)
+            except urllib.error.HTTPError as e:
+              print(name,"HTTP",e.code,"SOURCE_URL_COUNT",0,flush=True)
+            except (urllib.error.URLError,TimeoutError) as e:
+              print(name,"NETWORK_FAILURE",type(e).__name__,flush=True)
+            except Exception as e:
+              print(name,"ERROR_CLASS",type(e).__name__,flush=True)
+          check("TAVILY",os.environ.get("TAVILY_API_KEY",""),"POST","https://api.tavily.com/search",{"query":q,"search_depth":"basic","max_results":4,"include_answer":False,"include_raw_content":False},{"Authorization":"Bearer "+os.environ.get("TAVILY_API_KEY",""),"Content-Type":"application/json"})
+          check("BRAVE",os.environ.get("BRAVE_SEARCH_API_KEY",""),"GET","https://api.search.brave.com/res/v1/web/search?"+urllib.parse.urlencode({"q":q,"count":4}),headers={"X-Subscription-Token":os.environ.get("BRAVE_SEARCH_API_KEY",""),"Accept":"application/json"})
+          PY
