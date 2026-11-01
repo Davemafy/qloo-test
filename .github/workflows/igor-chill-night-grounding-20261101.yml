@@ -1,0 +1,48 @@
+name: Igor chill-night conversation grounding
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-chill-night-grounding-20261101.yml]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      QLOO_API_KEY: ""
+      BRIGHTDATA_API_KEY: ""
+      TAVILY_API_KEY: ""
+      GEMINI_API_KEY: ""
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: 628509f0b245aed057a81cd3c676fecf5cffe32a
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          path: igor
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: igor/package-lock.json
+      - run: npm ci
+        working-directory: igor
+      - name: Normalize tested patch
+        working-directory: igor
+        run: |
+          npx prettier --write src/core/grounded-social-context.ts src/core/grounded-followup.ts tests/unit/grounded-followup.test.ts
+          echo CHILL_FORMAT_PATCH_START
+          git diff --no-color -- src/core/grounded-social-context.ts src/core/grounded-followup.ts tests/unit/grounded-followup.test.ts
+          echo CHILL_FORMAT_PATCH_END
+      - run: npm run typecheck
+        working-directory: igor
+      - run: npx eslint src/core/grounded-social-context.ts src/core/grounded-followup.ts tests/unit/grounded-followup.test.ts
+        working-directory: igor
+      - run: npm test
+        working-directory: igor
+      - run: npm run build
+        working-directory: igor
