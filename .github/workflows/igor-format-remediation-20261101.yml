@@ -1,0 +1,55 @@
+name: Igor exact-head formatting remediation candidate
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/igor-format-remediation-20261101.yml]
+permissions:
+  contents: read
+jobs:
+  verify-format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: 51c9827467483196464ab07f01339f5aa0a08a44
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          path: igor
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: igor/package-lock.json
+      - name: Install locked dependencies
+        working-directory: igor
+        run: npm ci
+      - name: Normalize tracked sources using project formatter
+        working-directory: igor
+        run: |
+          npx prettier --write .
+          echo IGOR_CHANGED_FILES_START
+          git diff --name-only
+          echo IGOR_CHANGED_FILES_END
+      - name: Capture exact deterministic formatting patch
+        working-directory: igor
+        run: |
+          echo IGOR_FORMAT_PATCH_START
+          git diff --no-color --no-ext-diff
+          echo IGOR_FORMAT_PATCH_END
+      - name: Recheck formatting
+        working-directory: igor
+        run: npm run format:check
+      - name: Typecheck formatted candidate
+        working-directory: igor
+        run: npm run typecheck
+      - name: Full tests
+        working-directory: igor
+        run: npm test
+      - name: Production build
+        working-directory: igor
+        run: npm run build
