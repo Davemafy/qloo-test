@@ -40,8 +40,16 @@ jobs:
           echo CHILL_FORMAT_PATCH_END
       - run: npm run typecheck
         working-directory: igor
-      - run: npx eslint src/core/grounded-social-context.ts src/core/grounded-followup.ts tests/unit/grounded-followup.test.ts
+      - name: Apply repository lint normalization
+        run: npx eslint --fix src/core/grounded-social-context.ts src/core/grounded-followup.ts tests/unit/grounded-followup.test.ts
         working-directory: igor
+      - name: Audit lint and emit final verified patch
+        working-directory: igor
+        run: |
+          npx eslint src/core/grounded-social-context.ts src/core/grounded-followup.ts tests/unit/grounded-followup.test.ts
+          echo CHILL_FINAL_PATCH_START
+          git diff --no-color -- src/core/grounded-social-context.ts src/core/grounded-followup.ts tests/unit/grounded-followup.test.ts
+          echo CHILL_FINAL_PATCH_END
       - run: npm test
         working-directory: igor
       - run: npm run build
