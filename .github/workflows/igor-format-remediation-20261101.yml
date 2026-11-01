@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: 3753ce7f0a45fa51e3062ab55d12e48e76c1ab98
+          ref: 39f402e9f86ab8ebf3d6e2502aad523e3bc7fee9
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: igor
@@ -44,6 +44,9 @@ jobs:
       - name: Recheck formatting
         working-directory: igor
         run: npm run format:check
+      - name: Enforce clean exact-head formatting
+        working-directory: igor
+        run: git diff --quiet --exit-code
       - name: Typecheck formatted candidate
         working-directory: igor
         run: npm run typecheck
