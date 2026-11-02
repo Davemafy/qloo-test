@@ -18,7 +18,7 @@ jobs:
       OPENAI_API_KEY: ""
       XAI_API_KEY: ""
       IGOR_QLOO_RECORDING: ""
-      IGOR_SHA: 5fe1d134277e19e75eb269a1388198dc8ea029d7
+      IGOR_SHA: f0d42fd6b9d4dbdddd227b4b80bd20e49c8671ee
     steps:
       - uses: actions/checkout@v4
         with:
