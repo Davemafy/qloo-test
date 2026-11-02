@@ -56,6 +56,9 @@ jobs:
                           terminal=event.get("type"); break
               check("turn_terminal",terminal=="done")
               with request("/api/tasks/"+task["id"]) as response: task=json.load(response)
+              print("SYNTHETIC_MAP_REQUEST",str(task.get("mapRequest"))[:180],flush=True)
+              print("SYNTHETIC_STATUS",task.get("status"),"TRACE",[(entry.get("action") or "")[:70] for entry in (task.get("trace") or [])[-8:]],flush=True)
+              print("SYNTHETIC_ASSISTANT_LAST",[(entry.get("text") or "")[:180] for entry in (task.get("messages") or []) if entry.get("role")=="assistant"][-1:],flush=True)
               check("map_request_persisted",task.get("mapRequest",{}).get("destination","").lower()=="new york")
               replies=[x.get("text","") for x in task.get("messages",[]) if x.get("role")=="assistant"]
               check("honest_map_reply",bool(replies) and "getting the map ready" not in replies[-1].lower())
