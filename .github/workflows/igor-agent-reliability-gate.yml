@@ -28,7 +28,7 @@ jobs:
       OPENAI_API_KEY: ""
       ANTHROPIC_API_KEY: ""
       IGOR_QLOO_RECORDING: ""
-      SELECTED_COMMIT: ${{ inputs.commit_sha || '43eba045de5cbcb52f80b999645b2f5df4f61f1d' }}
+      SELECTED_COMMIT: ${{ inputs.commit_sha || 'f07f0c56102234a62ff05ddda75170495262a6ec' }}
     steps:
       - name: Validate pinned commit and private source checkout permission
         env:
