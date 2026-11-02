@@ -1,22 +1,15 @@
-name: Igor connected-work and presentation exact-source regression
+name: Igor full-stack focused acceptance
 on:
   push:
     branches: [main]
     paths: [.github/workflows/igor-pr34-targeted-qa.yml]
   workflow_dispatch:
-    inputs:
-      commit_sha:
-        description: "Pinned Igor commit"
-        required: false
-        type: string
-
 permissions:
   contents: read
-
 jobs:
-  verify:
+  unit:
     runs-on: ubuntu-latest
-    timeout-minutes: 24
+    timeout-minutes: 16
     env:
       CI: "true"
       NEXT_TELEMETRY_DISABLED: "1"
@@ -25,8 +18,7 @@ jobs:
       GEMINI_API_KEY: ""
       OPENAI_API_KEY: ""
       XAI_API_KEY: ""
-      ANTHROPIC_API_KEY: ""
-      IGOR_SHA: ${{ inputs.commit_sha || 'f07f0c56102234a62ff05ddda75170495262a6ec' }}
+      IGOR_SHA: a733aef7a5576e4875a03d09df439541819fdf7b
     steps:
       - uses: actions/checkout@v4
         with:
@@ -34,30 +26,57 @@ jobs:
           ref: ${{ env.IGOR_SHA }}
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
-          path: private-igor
+          path: igor
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
           cache: npm
-          cache-dependency-path: private-igor/package-lock.json
-      - name: Locked install
-        working-directory: private-igor
-        run: npm ci --no-audit --no-fund
-      - name: Connected work and presentation behavior
-        working-directory: private-igor
+          cache-dependency-path: igor/package-lock.json
+      - run: npm ci --no-audit --no-fund
+        working-directory: igor
+      - name: Full backend and UI contract tests
+        working-directory: igor
+        run: npm test
+      - name: Typecheck and lint
+        working-directory: igor
+        run: npm run typecheck && npm run lint
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      IGOR_TEST_FIXTURES: "1"
+      QLOO_API_KEY: ""
+      GEMINI_API_KEY: ""
+      OPENAI_API_KEY: ""
+      XAI_API_KEY: ""
+      IGOR_SHA: a733aef7a5576e4875a03d09df439541819fdf7b
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Davemafy/igor
+          ref: ${{ env.IGOR_SHA }}
+          token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
+          persist-credentials: false
+          path: igor
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: igor/package-lock.json
+      - run: npm ci --no-audit --no-fund
+        working-directory: igor
+      - name: Production build
+        working-directory: igor
+        run: npm run build
+      - name: Install Chromium
+        working-directory: igor
+        run: npx playwright install --with-deps chromium
+      - name: Home and connected work browser journeys
+        working-directory: igor
         run: |
-          npx vitest run --config tests/vitest.config.mts \
-            tests/unit/metacognitive-review.test.ts \
-            tests/unit/connected-work.test.ts \
-            tests/unit/presentation.test.ts
-      - name: Typecheck
-        working-directory: private-igor
+          npx playwright test --config tests/playwright.config.mts --project=home --project=connected-work --workers=1 --reporter=list --max-failures=8
+      - name: Record exact pinned source
         if: always()
-        run: npm run typecheck
-      - name: Lint (independent)
-        working-directory: private-igor
-        if: always()
-        run: npm run lint
-      - name: Record exact SHA
-        if: always()
-        run: echo "Exact Igor revision $IGOR_SHA; no live Qloo/model calls or source exported" >> "$GITHUB_STEP_SUMMARY"
+        run: echo "Igor revision ${{ env.IGOR_SHA }}. No live provider secrets or source artifacts exported." >> "$GITHUB_STEP_SUMMARY"
