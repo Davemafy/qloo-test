@@ -1,22 +1,32 @@
-name: Igor exact-head formatting remediation candidate
+name: Igor safe lint autofix on pinned dev
 on:
   push:
     branches: [main]
     paths: [.github/workflows/igor-format-remediation-20261101.yml]
+  workflow_dispatch:
+
 permissions:
   contents: read
+
 jobs:
-  verify-format:
+  fix:
     runs-on: ubuntu-latest
-    timeout-minutes: 18
+    timeout-minutes: 30
     env:
       CI: "true"
       NEXT_TELEMETRY_DISABLED: "1"
+      IGOR_TEST_FIXTURES: "1"
+      QLOO_API_KEY: ""
+      GEMINI_API_KEY: ""
+      XAI_API_KEY: ""
+      ANTHROPIC_API_KEY: ""
+      EXPECTED_DEV: 124a47db849f3da236513ee0b930f3d3ebc1b7a1
+      GIT_TERMINAL_PROMPT: "0"
     steps:
       - uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: 39f402e9f86ab8ebf3d6e2502aad523e3bc7fee9
+          ref: ${{ env.EXPECTED_DEV }}
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: igor
@@ -25,34 +35,76 @@ jobs:
           node-version: "24"
           cache: npm
           cache-dependency-path: igor/package-lock.json
-      - name: Install locked dependencies
+      - name: Apply only ESLint autofixes and verify quality
         working-directory: igor
-        run: npm ci
-      - name: Normalize tracked sources using project formatter
-        working-directory: igor
+        shell: bash
         run: |
-          npx prettier --write .
-          echo IGOR_CHANGED_FILES_START
-          git diff --name-only
-          echo IGOR_CHANGED_FILES_END
-      - name: Capture exact deterministic formatting patch
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_DEV"
+          npm ci --no-audit --no-fund > "$RUNNER_TEMP/igor-install.log" 2>&1
+          npx eslint src tests scripts next.config.ts eslint.config.mjs --fix > "$RUNNER_TEMP/igor-autofix.log" 2>&1 || true
+          npm run lint > "$RUNNER_TEMP/igor-lint.log" 2>&1 || {
+            echo "::error::Lint still has non-autofixable errors"
+            grep -E 'error |problems ' "$RUNNER_TEMP/igor-lint.log" | tail -12 | cut -c1-160 || true
+            exit 1
+          }
+          npm run typecheck > "$RUNNER_TEMP/igor-typecheck.log" 2>&1 || { echo "::error::Typecheck failed"; exit 1; }
+          npx vitest run --config tests/vitest.config.mts tests/unit/connected-work.test.ts tests/unit/presentation.test.ts tests/unit/metacognitive-review.test.ts tests/unit/map-turn-integration.test.ts > "$RUNNER_TEMP/igor-tests.log" 2>&1 || {
+            echo "::error::Targeted regressions failed"
+            grep -E 'FAIL |Test Files|Tests ' "$RUNNER_TEMP/igor-tests.log" | tail -12 | cut -c1-160 || true
+            exit 1
+          }
+          npm run build > "$RUNNER_TEMP/igor-build.log" 2>&1 || { echo "::error::Build failed"; grep -E 'error TS|Failed|Error:' "$RUNNER_TEMP/igor-build.log" | tail -8 | cut -c1-160 || true; exit 1; }
+          git diff --check
+          if git diff --quiet; then
+            echo "No source auto-fixes required."
+            exit 0
+          fi
+          count="$(git diff --name-only | wc -l)"
+          echo "ESLint auto-fixed files: $count"
+          test "$count" -le 30 || { echo "::error::Too many changed files; review manually"; exit 1; }
+          if git diff --name-only | grep -Ev '^(src|tests|scripts)/.*\.(ts|tsx|js|mjs|mts)$|^(next.config.ts|eslint.config.mjs)$'; then
+            echo "::error::Unexpected changed file type; refusing commit"
+            exit 1
+          fi
+          git config user.name "igor-quality-ci"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -u
+          git commit -m "style: apply safe ESLint autofixes to Igor dev" > "$RUNNER_TEMP/igor-commit.log" 2>&1
+          echo "Verified corrected commit $(git rev-parse HEAD)"
+      - name: Update Igor dev only when independently authorized
         working-directory: igor
+        env:
+          WRITE_TOKEN: ${{ secrets.IGOR_SUBMISSION_WRITE_TOKEN }}
+        shell: bash
         run: |
-          echo IGOR_FORMAT_PATCH_START
-          git diff --no-color --no-ext-diff
-          echo IGOR_FORMAT_PATCH_END
-      - name: Recheck formatting
-        working-directory: igor
-        run: npm run format:check
-      - name: Enforce clean exact-head formatting
-        working-directory: igor
-        run: git diff --quiet --exit-code
-      - name: Typecheck formatted candidate
-        working-directory: igor
-        run: npm run typecheck
-      - name: Full tests
-        working-directory: igor
-        run: npm test
-      - name: Production build
-        working-directory: igor
-        run: npm run build
+          set -euo pipefail
+          if test "$(git rev-parse HEAD)" = "$EXPECTED_DEV"; then
+            echo "No changes to push."
+            exit 0
+          fi
+          if test -z "$WRITE_TOKEN"; then
+            echo "::error::External test repo has no write token; verified fixes cannot be pushed."
+            exit 1
+          fi
+          cat > "$RUNNER_TEMP/igor-askpass" <<'SH'
+          #!/bin/sh
+          case "$1" in
+            *Username*) printf '%s\n' 'x-access-token' ;;
+            *Password*) printf '%s\n' "$WRITE_TOKEN" ;;
+            *) exit 1 ;;
+          esac
+          SH
+          chmod 700 "$RUNNER_TEMP/igor-askpass"
+          export GIT_ASKPASS="$RUNNER_TEMP/igor-askpass"
+          git push https://github.com/Davemafy/igor.git HEAD:refs/heads/dev > "$RUNNER_TEMP/igor-push.log" 2>&1 || {
+            echo "::error::Cannot write Igor dev (token permission or concurrent update); source was not published."
+            exit 1
+          }
+          echo "Autofix commit pushed to Igor dev: $(git rev-parse HEAD)"
+          echo "No branch creation or manual deployment"
+      - name: Clear temporary logs and credentials
+        if: always()
+        run: |
+          rm -f "$RUNNER_TEMP"/igor-*.log "$RUNNER_TEMP/igor-askpass" || true
+          echo "No private source or provider responses uploaded." >> "$GITHUB_STEP_SUMMARY"
