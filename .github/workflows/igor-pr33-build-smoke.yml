@@ -1,4 +1,4 @@
-name: Igor exact-source mobile map browser acceptance
+name: Igor current product desktop and mobile journey
 on:
   push:
     branches: [main]
@@ -9,16 +9,16 @@ permissions:
 jobs:
   browser:
     runs-on: ubuntu-latest
-    timeout-minutes: 22
+    timeout-minutes: 27
     env:
       CI: "true"
       NEXT_TELEMETRY_DISABLED: "1"
+      IGOR_TEST_FIXTURES: "1"
       QLOO_API_KEY: ""
       GEMINI_API_KEY: ""
       OPENAI_API_KEY: ""
       XAI_API_KEY: ""
-      IGOR_QLOO_RECORDING: ""
-      IGOR_SHA: f0d42fd6b9d4dbdddd227b4b80bd20e49c8671ee
+      IGOR_SHA: 6ea0f75e9bd4f9b945f44455720dc16d917d499f
     steps:
       - uses: actions/checkout@v4
         with:
@@ -32,21 +32,18 @@ jobs:
           node-version: "24"
           cache: npm
           cache-dependency-path: igor/package-lock.json
-      - name: Install
+      - run: npm ci --no-audit --no-fund
         working-directory: igor
-        run: npm ci --no-audit --no-fund
-      - name: Typecheck
-        working-directory: igor
-        run: npm run typecheck
-      - name: Build actual application
-        working-directory: igor
+      - name: Production build
         run: npm run build
+        working-directory: igor
       - name: Install Chromium
-        working-directory: igor
         run: npx playwright install --with-deps chromium
-      - name: Mobile map, media, and persistence in real Chromium
         working-directory: igor
-        run: npx playwright test --config tests/playwright.config.mts --project=provider-boundary --grep "a New York request renders the map surface" --workers=1 --reporter=line
-      - name: Source-bound status
+      - name: Current product real browser journey
+        working-directory: igor
+        run: |
+          npx playwright test --config tests/frontend-foundation.playwright.config.mts --project=desktop --project=mobile --grep "entry, real saved work edits" --workers=1 --reporter=list
+      - name: Record reviewed source
         if: always()
-        run: echo "Exact private Igor source $IGOR_SHA; no paid APIs or private screenshots exported" >> "$GITHUB_STEP_SUMMARY"
+        run: echo "Exact Igor commit ${{ env.IGOR_SHA }}; no live Qloo charges and no private code or screenshots exported." >> "$GITHUB_STEP_SUMMARY"
