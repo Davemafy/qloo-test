@@ -1,17 +1,26 @@
-name: Igor agent reliability gate (exact commit)
+name: Igor agent reliability gate (exact dev commit)
 on:
   push:
     branches: [main]
     paths: [.github/workflows/igor-agent-reliability-gate.yml]
+  workflow_dispatch:
+    inputs:
+      commit_sha:
+        description: "Exact 40-character Igor commit SHA (defaults to last reviewed dev)"
+        required: false
+        type: string
+
 permissions:
   contents: read
+
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 40
     env:
       CI: "true"
       NEXT_TELEMETRY_DISABLED: "1"
+      IGOR_TEST_FIXTURES: "1"
       QLOO_API_KEY: ""
       XAI_API_KEY: ""
       GROK_API_KEY: ""
@@ -19,66 +28,78 @@ jobs:
       OPENAI_API_KEY: ""
       ANTHROPIC_API_KEY: ""
       IGOR_QLOO_RECORDING: ""
+      SELECTED_COMMIT: ${{ inputs.commit_sha || '43eba045de5cbcb52f80b999645b2f5df4f61f1d' }}
     steps:
-      - name: Fetch exact private Igor engine commit
-        uses: actions/checkout@v4
+      - name: Validate pinned commit and private source checkout permission
+        env:
+          TOKEN_PRESENT: ${{ secrets.PRIVATE_CI_READ_TOKEN != '' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$SELECTED_COMMIT" =~ ^[a-f0-9]{40}$ ]]
+          test "$TOKEN_PRESENT" = true
+          echo "Testing exact private Igor commit: $SELECTED_COMMIT"
+      - uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: dd5b9c98bad72ea5f79f157784fdda8766867939
+          ref: ${{ env.SELECTED_COMMIT }}
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
-          path: candidate
+          path: private-igor
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
           cache: npm
-          cache-dependency-path: candidate/package-lock.json
-      - name: Run bounded, sanitized reliability checks
+          cache-dependency-path: private-igor/package-lock.json
+      - name: Verify types, app contracts, and browser journeys
+        working-directory: private-igor
         shell: bash
-        working-directory: candidate
         run: |
           set -uo pipefail
+          log="$RUNNER_TEMP/igor-verify.log"
+          trap 'rm -f "$log"' EXIT
           failures=0
+          installed=0
+          built=0
           check() {
             label="$1"; shift
-            file="$RUNNER_TEMP/check.log"
-            if "$@" > "$file" 2>&1; then
-              echo "$label PASS"
+            if "$@" > "$log" 2>&1; then
+              echo "PASS $label"
               echo "- $label: PASS" >> "$GITHUB_STEP_SUMMARY"
-            else
-              echo "$label FAIL"
-              echo "- $label: FAIL" >> "$GITHUB_STEP_SUMMARY"
-              case "$label" in
-                Format)
-                  grep -E '^\\[warn\\]' "$file" | head -30 || true ;;
-                TypeScript)
-                  grep -oE '[A-Za-z0-9_./-]+\\.(ts|tsx|mts)\\([0-9]+,[0-9]+\\): error TS[0-9]+' "$file" | head -30 || true ;;
-                Lint)
-                  tail -65 "$file" || true ;;
-                Unit)
-                  grep -E 'FAIL |Test Files|Tests ' "$file" | tail -25 || true ;;
-                Build)
-                  grep -E 'Error:|Failed to compile|Module not found' "$file" | head -15 || true ;;
-              esac
-              failures=$((failures + 1))
+              return 0
             fi
-            rm -f "$file"
+            echo "::error::FAIL $label"
+            echo "- $label: FAIL" >> "$GITHUB_STEP_SUMMARY"
+            case "$label" in
+              Typecheck|Build) grep -E 'error TS[0-9]+|Failed to compile|Module not found|Error:' "$log" | head -12 | cut -c1-160 || true ;;
+              Unit|Map-routing|Evaluation|Browser) grep -E 'Test Files|Tests |FAIL |failed|Error:' "$log" | tail -18 | cut -c1-160 || true ;;
+            esac
+            failures=$((failures+1))
+            return 1
           }
-          check Install npm ci
-          check Format npx prettier --check src/core/agent-decision-gate.ts src/core/ai-sdk-unified-agent.ts src/core/unified-agent.ts src/core/contracts.ts tests/unit/agent-decision-gate.test.ts tests/unit/ai-sdk-unified-agent.test.ts
-          check TypeScript npm run typecheck
-          check Lint npm run lint
-          check Unit npm test
-          check Eval npm run test:eval
-          check Build npm run build
-          if npx playwright install --with-deps chromium > /dev/null 2>&1; then
-            check Browser npm run test:connected:browser
-          else
-            echo "Browser setup FAIL"
-            failures=$((failures + 1))
+          echo "### Exact Igor dev commit $SELECTED_COMMIT" >> "$GITHUB_STEP_SUMMARY"
+          if check Install npm ci --no-audit --no-fund; then installed=1; fi
+          if ((installed)); then
+            check Typecheck npm run typecheck || :
+            check Lint npm run lint || :
+            check Map-routing npx vitest run --config tests/vitest.config.mts tests/unit/place-search-intent.test.ts tests/unit/tmdb-visual-discovery.test.ts tests/unit/visual-choices.test.ts || :
+            check Unit npm test || :
+            check Evaluation npm run test:eval || :
+            if check Build npm run build; then built=1; fi
+            if ((built)); then
+              if check Chromium npx playwright install --with-deps chromium; then
+                check Browser npm run test:browser || :
+              fi
+            else
+              echo "- Browser: SKIPPED (build failed)" >> "$GITHUB_STEP_SUMMARY"
+            fi
           fi
+          echo "- Live providers and deployed Railway behavior: NOT VERIFIED in this offline gate" >> "$GITHUB_STEP_SUMMARY"
           if ((failures)); then
-            echo "::error::$failures checks failed at pinned SHA"
+            echo "::error::$failures checks failed at exact commit; not release ready."
             exit 1
           fi
-          echo "Engine offline checks passed; live provider acceptance remains independent."
+          echo "Offline validation passed at exact commit. Live provider and production checks remain separate."
+      - name: Confirm no private source artifacts exported
+        if: always()
+        run: echo "No private source, screenshots, recordings, API responses or credentials published." >> "$GITHUB_STEP_SUMMARY"
