@@ -1,37 +1,70 @@
-name: Igor Railway production revision smoke check
+name: Igor Railway exact-revision and map conversation smoke
 on:
   push:
     branches: [main]
     paths: [.github/workflows/igor-railway-public-health.yml]
+  workflow_dispatch:
+
 permissions:
   contents: read
+
 jobs:
   health:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
+    env:
+      EXPECTED_SHA: 43eba045de5cbcb52f80b999645b2f5df4f61f1d
+      IGOR_BASE: https://igor-production-243e.up.railway.app
     steps:
-      - name: Confirm public Railway health and exact deployed revision
+      - name: Verify actual deployed revision and anonymous map request
         shell: bash
-        env:
-          EXPECTED_SHA: 8b5c4ea4ce972519b715ee8c2d1a29a184314131
-          HEALTH_URL: https://igor-production-243e.up.railway.app/api/health
         run: |
-          set -euo pipefail
-          for attempt in $(seq 1 28); do
-            if curl --fail --silent --show-error --connect-timeout 6 --max-time 15 "$HEALTH_URL" > "$RUNNER_TEMP/igor-health.json"; then
-              if node -e '
-                const fs=require("node:fs");
-                const payload=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));
-                console.log("Status:",payload.status);
-                console.log("Revision:",payload.revision);
-                if(payload.status!=="ok"||payload.revision!==process.env.EXPECTED_SHA) process.exit(1);
-              ' "$RUNNER_TEMP/igor-health.json"; then
-                echo "Railway health and exact revision PASS"
-                exit 0
-              fi
-            fi
-            echo "Health attempt $attempt did not confirm exact revision"
-            sleep 5
-          done
-          echo "::error::Railway API health revision mismatch or unavailable"
-          exit 1
+          python3 - <<'PY'
+          import os,json,uuid,time,urllib.request,urllib.error,http.cookiejar,sys
+          base=os.environ["IGOR_BASE"]
+          expected=os.environ["EXPECTED_SHA"]
+          jar=http.cookiejar.CookieJar()
+          client=urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
+          def request(path,body=None,timeout=35):
+              headers={"Origin":base,"Accept":"application/json"}
+              if body is not None: headers["Content-Type"]="application/json"
+              obj=urllib.request.Request(base+path, data=json.dumps(body).encode() if body is not None else None,headers=headers,method="POST" if body is not None else "GET")
+              return client.open(obj,timeout=timeout)
+          def check(name,yes):
+              print("PRODUCTION_CHECK",name,"PASS" if yes else "FAIL",flush=True)
+              if not yes: raise AssertionError(name)
+          try:
+              health={}
+              for attempt in range(12):
+                  with request("/api/health",timeout=16) as response: health=json.load(response)
+                  if health.get("revision")==expected: break
+                  time.sleep(5)
+              check("exact_railway_revision",health.get("revision")==expected and health.get("status")=="ok")
+              with request("/app") as response: check("app_route",response.status==200)
+              with request("/api/tasks",{}) as response: task=json.load(response)
+              check("session_and_task",bool(task.get("id")) and isinstance(task.get("brief",{}).get("version"),int))
+              turnid=str(uuid.uuid4())
+              payload={"type":"message","text":"Show me New York","version":task["brief"]["version"],"clientTurnId":turnid,"workspaceId":task["id"]}
+              terminal=None
+              with request("/api/tasks/"+task["id"]+"/turn",payload,timeout=80) as stream:
+                  check("turn_http",stream.status==200)
+                  for line in stream:
+                      if not line.startswith(b"data: "): continue
+                      try: event=json.loads(line[6:])
+                      except (ValueError,UnicodeDecodeError): continue
+                      if event.get("type") in ("done","error"):
+                          terminal=event.get("type"); break
+              check("turn_terminal",terminal=="done")
+              with request("/api/tasks/"+task["id"]) as response: task=json.load(response)
+              check("map_request_persisted",task.get("mapRequest",{}).get("destination","").lower()=="new york")
+              replies=[x.get("text","") for x in task.get("messages",[]) if x.get("role")=="assistant"]
+              check("honest_map_reply",bool(replies) and "getting the map ready" not in replies[-1].lower())
+              with request("/api/tasks/"+task["id"]+"/visual-choices?discover=1") as response: images=json.load(response)
+              check("unrelated_media_suppressed",images.get("items")==[])
+              with request("/api/maps/config") as response: config=json.load(response)
+              check("browser_maps_configured",bool(config.get("browserKey")))
+              print("RESULT LIVE_MAP_CONVERSATION_API_PASS; visual Google Maps rendering requires an independent browser check",flush=True)
+          except Exception as error:
+              print("RESULT FAIL",type(error).__name__,flush=True)
+              sys.exit(1)
+          PY
