@@ -1,4 +1,4 @@
-name: Igor admitted-turn integration regression (private source)
+name: Igor focused subsystem verification (private source)
 on:
   push:
     branches: [main]
@@ -45,10 +45,17 @@ jobs:
       - name: Test API-style admitted turn, map requests and scope boundaries
         working-directory: igor
         run: |
-          npx vitest run --config tests/vitest.config.mts             tests/unit/map-turn-integration.test.ts             tests/unit/map-and-retry-intent.test.ts             tests/unit/place-search-intent.test.ts             tests/unit/map-context.test.ts             tests/unit/tmdb-visual-discovery.test.ts
+          npx vitest run --config tests/vitest.config.mts             tests/unit/map-turn-integration.test.ts             tests/unit/map-and-retry-intent.test.ts             tests/unit/place-search-intent.test.ts             tests/unit/map-context.test.ts             tests/unit/tmdb-visual-discovery.test.ts \
+            tests/unit/connected-work.test.ts \
+            tests/unit/presentation.test.ts \
+            tests/unit/action-first-rich-documents.test.ts
       - name: Typecheck production code
         working-directory: igor
         run: npm run typecheck
+      - name: Lint (independent diagnostic)
+        if: always()
+        working-directory: igor
+        run: npm run lint
       - name: Record pinned result (no private artifacts)
         if: always()
         run: |
