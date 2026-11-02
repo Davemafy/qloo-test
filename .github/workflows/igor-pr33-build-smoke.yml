@@ -18,7 +18,7 @@ jobs:
       GEMINI_API_KEY: ""
       OPENAI_API_KEY: ""
       XAI_API_KEY: ""
-      IGOR_SHA: 599f7ac84c00d0595864dbb761f581587fcfb66a
+      IGOR_SHA: 33a0521d30829cb9be86f9cfc1f0d8f9c6fb2f20
     steps:
       - uses: actions/checkout@v4
         with:
