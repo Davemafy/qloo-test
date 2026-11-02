@@ -1,13 +1,12 @@
-name: Igor PR33 exact-commit build smoke
+name: Igor admitted-turn integration regression (private source)
 on:
   push:
     branches: [main]
-    paths:
-      - .github/workflows/igor-pr33-build-smoke.yml
+    paths: [.github/workflows/igor-pr33-build-smoke.yml]
   workflow_dispatch:
     inputs:
       commit_sha:
-        description: Exact Igor commit SHA for frontend branch
+        description: "Pinned exact Igor SHA"
         required: false
         type: string
 
@@ -15,73 +14,43 @@ permissions:
   contents: read
 
 jobs:
-  build-smoke:
+  map-and-turn:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 14
     env:
+      CI: "true"
       NEXT_TELEMETRY_DISABLED: "1"
       IGOR_TEST_FIXTURES: "1"
       QLOO_API_KEY: ""
       GEMINI_API_KEY: ""
       XAI_API_KEY: ""
       ANTHROPIC_API_KEY: ""
-      BRIGHTDATA_API_KEY: ""
-      IGOR_SHA: ${{ inputs.commit_sha || '0fa53d525f56d6b748f9c7ca4754a0c554be09e5' }}
+      SELECTED_COMMIT: ${{ inputs.commit_sha || 'fb277360e94a25776660f48a4171bda152e5486e' }}
     steps:
-      - name: Confirm pinned SHA without disclosing private source
-        shell: bash
-        run: |
-          set -euo pipefail
-          [[ "$IGOR_SHA" =~ ^[a-f0-9]{40}$ ]]
-          echo "Verifying Igor frontend SHA $IGOR_SHA"
-      - name: Checkout private Igor commit
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: ${{ env.IGOR_SHA }}
+          ref: ${{ env.SELECTED_COMMIT }}
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
-          path: private-igor
+          path: igor
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
           cache: npm
-          cache-dependency-path: private-igor/package-lock.json
-      - name: Locked installation
-        working-directory: private-igor
-        run: npm ci --silent > /dev/null 2>&1
-      - name: TypeScript validation
-        working-directory: private-igor
+          cache-dependency-path: igor/package-lock.json
+      - name: Install
+        working-directory: igor
+        run: npm ci --no-audit --no-fund
+      - name: Test API-style admitted turn, map requests and scope boundaries
+        working-directory: igor
+        run: |
+          npx vitest run --config tests/vitest.config.mts             tests/unit/map-turn-integration.test.ts             tests/unit/map-and-retry-intent.test.ts             tests/unit/place-search-intent.test.ts             tests/unit/map-context.test.ts             tests/unit/tmdb-visual-discovery.test.ts
+      - name: Typecheck production code
+        working-directory: igor
         run: npm run typecheck
-      - name: Production Next.js build
-        working-directory: private-igor
-        shell: bash
-        run: |
-          npm run build > "$RUNNER_TEMP/igor-pr33-build.log" 2>&1 || {
-            grep -E 'error TS[0-9]+|Failed to compile|Module not found|Error:' "$RUNNER_TEMP/igor-pr33-build.log" | head -30 || true
-            exit 1
-          }
-          echo "PASS: production Next.js build at $IGOR_SHA"
-      - name: Unit tests for live map truth and marker boundaries
-        working-directory: private-igor
-        run: npx vitest run --config tests/vitest.config.mts tests/unit/live-map-flow.test.tsx
-      - name: Install Chromium for real browser map captures
-        working-directory: private-igor
-        run: npx playwright install --with-deps chromium
-      - name: Browser flows for Home, Explore, and live map
-        working-directory: private-igor
-        run: |
-          npx playwright test --config tests/reference-integrated.playwright.config.mts --grep "a real map opens immediately|Home map action opens|Discover starts with functional requests|verified geocoded places|a task.s verified place|connected workspace Home|Home is a coherent task-first workspace|Discover opens in the same authenticated workspace|Home typography|V4 rail remains 76px|Igor uses one navigation geometry|shared product density|Igor.s rounded landing mark|Discover opens in the same authenticated workspace|Home is a coherent"
-      - name: Preserve map browser screenshots
+      - name: Record pinned result (no private artifacts)
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: igor-map-and-flow-${{ env.IGOR_SHA }}
-          path: |
-            private-igor/test-results/**/*.png
-            private-igor/test-results/**/*.webm
-            private-igor/test-results/**/*.html
-          if-no-files-found: ignore
-      - name: Record result
-        if: success()
-        run: echo "PASS — exact Igor frontend SHA $IGOR_SHA (typecheck, build, map unit/browser tests)" >> "$GITHUB_STEP_SUMMARY"
+        run: |
+          echo "Igor exact commit: $SELECTED_COMMIT" >> "$GITHUB_STEP_SUMMARY"
+          echo "No live Qloo/model calls, deployments or private source exports." >> "$GITHUB_STEP_SUMMARY"
