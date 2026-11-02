@@ -1,36 +1,29 @@
-name: Igor focused subsystem verification (private source)
+name: Igor exact-source mobile map browser acceptance
 on:
   push:
     branches: [main]
     paths: [.github/workflows/igor-pr33-build-smoke.yml]
   workflow_dispatch:
-    inputs:
-      commit_sha:
-        description: "Pinned exact Igor SHA"
-        required: false
-        type: string
-
 permissions:
   contents: read
-
 jobs:
-  map-and-turn:
+  browser:
     runs-on: ubuntu-latest
-    timeout-minutes: 14
+    timeout-minutes: 22
     env:
       CI: "true"
       NEXT_TELEMETRY_DISABLED: "1"
-      IGOR_TEST_FIXTURES: "1"
       QLOO_API_KEY: ""
       GEMINI_API_KEY: ""
+      OPENAI_API_KEY: ""
       XAI_API_KEY: ""
-      ANTHROPIC_API_KEY: ""
-      SELECTED_COMMIT: ${{ inputs.commit_sha || '5b580690dce90b5c91264817478eb2a3f8eab515' }}
+      IGOR_QLOO_RECORDING: ""
+      IGOR_SHA: 5fe1d134277e19e75eb269a1388198dc8ea029d7
     steps:
       - uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: ${{ env.SELECTED_COMMIT }}
+          ref: ${{ env.IGOR_SHA }}
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: igor
@@ -42,22 +35,18 @@ jobs:
       - name: Install
         working-directory: igor
         run: npm ci --no-audit --no-fund
-      - name: Test API-style admitted turn, map requests and scope boundaries
-        working-directory: igor
-        run: |
-          npx vitest run --config tests/vitest.config.mts             tests/unit/map-turn-integration.test.ts             tests/unit/map-and-retry-intent.test.ts             tests/unit/place-search-intent.test.ts             tests/unit/map-context.test.ts             tests/unit/tmdb-visual-discovery.test.ts \
-            tests/unit/connected-work.test.ts \
-            tests/unit/presentation.test.ts \
-            tests/unit/action-first-rich-documents.test.ts
-      - name: Typecheck production code
+      - name: Typecheck
         working-directory: igor
         run: npm run typecheck
-      - name: Lint (independent diagnostic)
-        if: always()
+      - name: Build actual application
         working-directory: igor
-        run: npm run lint
-      - name: Record pinned result (no private artifacts)
+        run: npm run build
+      - name: Install Chromium
+        working-directory: igor
+        run: npx playwright install --with-deps chromium
+      - name: Mobile map, media, and persistence in real Chromium
+        working-directory: igor
+        run: npx playwright test --config tests/playwright.config.mts --project=provider-boundary --grep "a New York request renders the map surface" --workers=1 --reporter=line
+      - name: Source-bound status
         if: always()
-        run: |
-          echo "Igor exact commit: $SELECTED_COMMIT" >> "$GITHUB_STEP_SUMMARY"
-          echo "No live Qloo/model calls, deployments or private source exports." >> "$GITHUB_STEP_SUMMARY"
+        run: echo "Exact private Igor source $IGOR_SHA; no paid APIs or private screenshots exported" >> "$GITHUB_STEP_SUMMARY"
