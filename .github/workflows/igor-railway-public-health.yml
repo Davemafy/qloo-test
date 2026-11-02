@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 8
     env:
-      EXPECTED_SHA: 43eba045de5cbcb52f80b999645b2f5df4f61f1d
+      EXPECTED_SHA: 5b580690dce90b5c91264817478eb2a3f8eab515
       IGOR_BASE: https://igor-production-243e.up.railway.app
     steps:
       - name: Verify actual deployed revision and anonymous map request
