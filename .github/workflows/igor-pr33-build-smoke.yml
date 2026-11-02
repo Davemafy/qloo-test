@@ -1,4 +1,4 @@
-name: Igor current product desktop and mobile journey
+name: Igor free-form home end-to-end acceptance
 on:
   push:
     branches: [main]
@@ -18,7 +18,7 @@ jobs:
       GEMINI_API_KEY: ""
       OPENAI_API_KEY: ""
       XAI_API_KEY: ""
-      IGOR_SHA: 6ea0f75e9bd4f9b945f44455720dc16d917d499f
+      IGOR_SHA: 599f7ac84c00d0595864dbb761f581587fcfb66a
     steps:
       - uses: actions/checkout@v4
         with:
@@ -34,6 +34,9 @@ jobs:
           cache-dependency-path: igor/package-lock.json
       - run: npm ci --no-audit --no-fund
         working-directory: igor
+      - name: Typecheck and lint
+        run: npm run typecheck && npm run lint
+        working-directory: igor
       - name: Production build
         run: npm run build
         working-directory: igor
@@ -43,7 +46,7 @@ jobs:
       - name: Current product real browser journey
         working-directory: igor
         run: |
-          npx playwright test --config tests/frontend-foundation.playwright.config.mts --project=desktop --project=mobile --grep "entry, real saved work edits" --workers=1 --reporter=list
+          npx playwright test --config tests/frontend-foundation.playwright.config.mts --project=desktop --project=mobile --grep "free-form home|failed home workspace creation" --workers=1 --reporter=list
       - name: Record reviewed source
         if: always()
         run: echo "Exact Igor commit ${{ env.IGOR_SHA }}; no live Qloo charges and no private code or screenshots exported." >> "$GITHUB_STEP_SUMMARY"
