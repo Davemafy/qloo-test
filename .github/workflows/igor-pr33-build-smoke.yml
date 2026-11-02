@@ -25,7 +25,7 @@ jobs:
       GEMINI_API_KEY: ""
       XAI_API_KEY: ""
       ANTHROPIC_API_KEY: ""
-      SELECTED_COMMIT: ${{ inputs.commit_sha || 'fb277360e94a25776660f48a4171bda152e5486e' }}
+      SELECTED_COMMIT: ${{ inputs.commit_sha || '5b580690dce90b5c91264817478eb2a3f8eab515' }}
     steps:
       - uses: actions/checkout@v4
         with:
