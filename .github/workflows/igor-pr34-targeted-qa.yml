@@ -26,7 +26,7 @@ jobs:
       OPENAI_API_KEY: ""
       XAI_API_KEY: ""
       ANTHROPIC_API_KEY: ""
-      IGOR_SHA: ${{ inputs.commit_sha || 'e93fb09fec7d708f6b71746513ae355c4c1d3c4b' }}
+      IGOR_SHA: ${{ inputs.commit_sha || 'f07f0c56102234a62ff05ddda75170495262a6ec' }}
     steps:
       - uses: actions/checkout@v4
         with:
