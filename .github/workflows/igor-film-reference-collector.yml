@@ -26,6 +26,11 @@ jobs:
           python-version: '3.11'
       - name: Install downloader and framesheet tools
         run: python -m pip install --disable-pip-version-check --upgrade yt-dlp pillow
+      - name: Install self-contained FFmpeg without apt
+        run: |
+          python -m pip install --disable-pip-version-check imageio-ffmpeg
+          FFMPEG_BIN=$(python -c 'import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())')
+          sudo ln -sf "$FFMPEG_BIN" /usr/local/bin/ffmpeg
       - name: Download verified references, extract previews and write provenance
         shell: bash
         run: |
@@ -93,6 +98,63 @@ jobs:
           with (root/'SOURCES.csv').open('w',newline='',encoding='utf8') as f:
             w=csv.DictWriter(f,fieldnames=['id','title','owner','url','study_reason','status','media_file','duration_seconds','error'],extrasaction='ignore');w.writeheader();w.writerows(results)
           (root/'README.md').write_text('# Igor launch film reference study\n\nThese are third-party references collected for private criticism and shot analysis, not licensed footage for reuse in an Igor film. Download statuses and provenance are in REPORT.json / SOURCES.csv. Any failed video remains linked by URL.\n',encoding='utf8')
+          PY
+      - name: Download direct-hosted film references and create frame sheets
+        shell: bash
+        run: |
+          python - <<'PY'
+          import pathlib, urllib.request, subprocess, json, math, time
+          from PIL import Image,ImageDraw
+          root=pathlib.Path('dist'); (root/'videos').mkdir(exist_ok=True,parents=True)
+          (root/'contact_sheets').mkdir(exist_ok=True,parents=True)
+          sources=[
+            ('cursor_agent_worktrees','Cursor 2.0 - Multi-Agents UI','https://ptht05hbb1ssoooe.public.blob.vercel-storage.com/assets/changelog/changelog-2-0-0.mp4','Cursor feature release'),
+            ('cursor_composer','Cursor 2.0 - Composer UI','https://ptht05hbb1ssoooe.public.blob.vercel-storage.com/assets/changelog/changelog-2-0-1.mp4','Cursor feature release'),
+            ('cursor_browser','Cursor 2.0 - Agent Browser UI','https://ptht05hbb1ssoooe.public.blob.vercel-storage.com/assets/changelog/changelog-2-0-2.mp4','Cursor feature release'),
+            ('cursor_review','Cursor 2.0 - Code Review UI','https://ptht05hbb1ssoooe.public.blob.vercel-storage.com/assets/changelog/changelog-2-0-3.mp4','Cursor feature release'),
+            ('kiln_film','Kiln Launch Film, 25s','https://raw.githubusercontent.com/Leonxlnx/cinetic/media/kiln-launch-teaser.mp4','Open-source cinetic creative benchmark'),
+            ('quire_film','Quire Vertical Launch Film, 12s','https://raw.githubusercontent.com/Leonxlnx/cinetic/media/quire-streaks-vertical.mp4','Open-source cinetic creative benchmark'),
+            ('ledgerly_film','Ledgerly Feature Loop, 10s','https://raw.githubusercontent.com/Leonxlnx/cinetic/media/ledgerly-feature-loop.mp4','Open-source cinetic creative benchmark'),
+            ('halden_film','Halden Logo Sting, 6s','https://raw.githubusercontent.com/Leonxlnx/cinetic/media/halden-logo-sting.mp4','Open-source cinetic creative benchmark')
+          ]
+          report=[]
+          for slug,title,url,source in sources:
+            rec={'id':slug,'title':title,'url':url,'source':source,'status':'failed','bytes':0,'duration':None,'error':None}
+            dst=root/'videos'/f'{slug}.mp4'
+            try:
+              req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0 (Igor reference study)'})
+              with urllib.request.urlopen(req,timeout=30) as resp,open(dst,'wb') as out:
+                while True:
+                  chunk=resp.read(1024*1024)
+                  if not chunk:break
+                  out.write(chunk)
+                  if out.tell()>120*1024*1024:raise ValueError('over 120MB size budget')
+              if dst.stat().st_size<5000 or b'ftyp' not in dst.open('rb').read(32):raise ValueError('not a valid MP4')
+              probe=subprocess.run(['ffmpeg','-hide_banner','-i',str(dst)],capture_output=True,text=True,timeout=12)
+              import re
+              dm=re.search(r'Duration:\\s*(\\d+):(\\d+):(\\d+\\.\\d+)',probe.stderr)
+              rec['duration']=(int(dm.group(1))*3600+int(dm.group(2))*60+float(dm.group(3))) if dm else 16.0
+              rec['duration_source']='ffmpeg_header' if dm else 'fallback'
+              rec['bytes']=dst.stat().st_size;rec['status']='downloaded'
+              sub=root/'frames'/slug;sub.mkdir(parents=True,exist_ok=True)
+              interval=max(1,math.ceil(rec['duration']/16))
+              subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-y','-i',str(dst),'-vf',f'fps=1/{interval},scale=400:-2','-q:v','5',str(sub/'shot_%03d.jpg')],timeout=45)
+              imgs=sorted(sub.glob('*.jpg'))
+              if imgs:
+                tile_w,tile_h,cols=400,255,4
+                sheet=Image.new('RGB',(cols*tile_w,math.ceil(len(imgs)/cols)*tile_h),'#161616')
+                draw=ImageDraw.Draw(sheet)
+                for n,img in enumerate(imgs):
+                  sheet.paste(Image.open(img).convert('RGB'),((n%cols)*tile_w,(n//cols)*tile_h))
+                  draw.rectangle(((n%cols)*tile_w,(n//cols)*tile_h+230,((n%cols)+1)*tile_w,((n//cols)+1)*tile_h),fill='#161616')
+                  draw.text(((n%cols)*tile_w+10,(n//cols)*tile_h+235),f'{n*interval//60:02d}:{n*interval%60:02d}',fill='white')
+                sheet.save(root/'contact_sheets'/f'{slug}_contact.jpg',quality=85)
+            except Exception as exc:
+              rec['error']=str(exc)[:400]
+              if dst.exists():dst.unlink()
+            report.append(rec)
+            print(slug,rec['status'],rec['bytes'],rec['error'] or '')
+          (root/'DIRECT_SOURCES.json').write_text(json.dumps(report,indent=2))
           PY
       - name: Summarize downloaded assets
         if: always()
