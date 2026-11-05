@@ -28,8 +28,6 @@ on:
         description: Explicit opt-in to bounded paid Qloo and Gemini acceptance
         type: boolean
         default: false
-  schedule:
-    - cron: "17 */3 * * *"
 
 permissions:
   contents: read
@@ -47,7 +45,7 @@ jobs:
     env:
       CI: "true"
       NEXT_TELEMETRY_DISABLED: "1"
-      IGOR_BRANCH: feat/partiful-codrops-unified-20261029
+      IGOR_BRANCH: dev
       QLOO_API_KEY: ""
       GEMINI_API_KEY: ""
       XAI_API_KEY: ""
@@ -250,7 +248,7 @@ jobs:
         env:
           READ_TOKEN: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           REQUESTED_SHA: ${{ inputs.commit_sha }}
-          IGOR_BRANCH: feat/partiful-codrops-unified-20261029
+          IGOR_BRANCH: dev
         run: |
           set -euo pipefail
           test -n "$READ_TOKEN" || { echo "::error::Private read token unavailable."; exit 1; }
@@ -496,7 +494,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: feat/partiful-codrops-unified-20261029
+          ref: dev
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: private-igor
@@ -533,7 +531,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: Davemafy/igor
-          ref: feat/partiful-codrops-unified-20261029
+          ref: dev
           token: ${{ secrets.PRIVATE_CI_READ_TOKEN }}
           persist-credentials: false
           path: private-igor
